@@ -1,0 +1,18 @@
+Nepeněžní příjmy dle §6 ze zahraničí - akciový program pro zaměstnance (§6, odst.3)
+====================================================================================
+
+Program RS - bezplatné poskytnutí akcií mateřskou společností (USA)
+-------------------------------------------------------------------
+
+### cenný papír: Cisco Systems
+obchodník s cennými papíry: Charles Schwab & Co.
+
+
+
+| datum   |      počet kusů      |  tržní cena obchodníka **) v USD | zisk na 1 kus akcie (USD)  | zisk na nákup (USD)| jednotný kurz Kč/USD - D49 | zisk na nákup (Kč) |
+|----------|:-------------:|------:|------:|------:|------:|------:|
+{{#each rsuList}}
+|{{this.date}}|{{this.amount}}| {{this.onePriceDolarValue}}|{{this.onePriceDolarValue}} | {{this.vestDolarValue}}|{{exchange}}| {{this.vestCroneValue}}|
+{{/each}}
+| celkem   |  **{{totalAmount}}**        |  |  | **{{rsuDolarValue}}** | |**{{rsuCroneValue}}** |
+
