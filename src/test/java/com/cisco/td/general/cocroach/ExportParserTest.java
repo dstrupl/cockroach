@@ -21,9 +21,10 @@ class ExportParserTest {
 
         ReportGenerator reportGenerator = new ReportGenerator();
 
-        String data = reportGenerator.generateForYear(parsedExport, 2020);
+        Report data = reportGenerator.generateForYear(parsedExport, 2020);
 
-        FileUtils.writeStringToFile(new File("/tmp/report.md"),data, StandardCharsets.UTF_8);
-        //System.out.println(parsedExport);
+        FileUtils.writeStringToFile(new File("/tmp/divident.md"),data.getDividend(), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(new File("/tmp/rsu.md"),data.getRsu(), StandardCharsets.UTF_8);
+
     }
 }

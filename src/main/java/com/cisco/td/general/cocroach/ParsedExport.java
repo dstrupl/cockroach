@@ -10,4 +10,5 @@ public class ParsedExport {
     List<EsppRecord> esppRecords;
     List<DividendRecord> dividendRecords;
     List<TaxRecord> taxRecords;
+    List<TaxReversalRecord> taxReversalRecords;
 }

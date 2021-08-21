@@ -36,6 +36,7 @@ public class ExportParser {
         List<EsppRecord> esppRecords = new ArrayList<>();
         List<DividendRecord> dividendRecords = new ArrayList<>();
         List<TaxRecord> taxRecords = new ArrayList<>();
+        List<TaxReversalRecord> taxReversalRecords = new ArrayList<>();
 
 
         List<String> lines = data.fluentLines().toList();
@@ -103,14 +104,14 @@ public class ExportParser {
                             taxRecords.add(
                                     new TaxRecord(
                                             date,
-                                            -Double.parseDouble(StringUtils.stripStart(amount, "-$"))
+                                            Double.parseDouble(StringUtils.stripStart(amount, "-$"))
                                     )
                             );
                             break;
 
                         case "Tax Reversal":
-                            taxRecords.add(
-                                    new TaxRecord(
+                            taxReversalRecords.add(
+                                    new TaxReversalRecord(
                                             date,
                                             Double.parseDouble(StringUtils.stripStart(amount, "$"))
                                     )
@@ -131,7 +132,8 @@ public class ExportParser {
                 rsuRecords,
                 esppRecords,
                 dividendRecords,
-                taxRecords
+                taxRecords,
+                taxReversalRecords
         );
     }
 }

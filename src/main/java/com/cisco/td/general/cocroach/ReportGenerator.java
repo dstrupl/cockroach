@@ -27,8 +27,9 @@ public class ReportGenerator {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     private final Template rsuTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("rsu.hbs");
+    private final Template dividendTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("dividend.hbs");
 
-    public String generateForYear(ParsedExport parsedExport, int year) {
+    public Report generateForYear(ParsedExport parsedExport, int year) {
         TimeInterval interval = new TimeInterval(
                 new DateTime(year, 1, 1, 0, 0, DateTimeZone.UTC).getMillis(),
                 new DateTime(year + 1, 1, 1, 0, 0, DateTimeZone.UTC).getMillis()
@@ -49,33 +50,108 @@ public class ReportGenerator {
 
         for (RsuRecord rsu : rsuRecords) {
             double partialRsuDolarValue = rsu.getQuantity() * rsu.getVestFmv();
-            double partialRsuCroneValue =partialRsuDolarValue * exchange;
+            double partialRsuCroneValue = partialRsuDolarValue * exchange;
             rsuCroneValue += partialRsuCroneValue;
-            rsuDolarValue+= partialRsuDolarValue;
+            rsuDolarValue += partialRsuDolarValue;
             totalAmount += rsu.getQuantity();
 
-                        printableRsuList.add(
+            printableRsuList.add(
                     new PrintableRsu(
                             DATE_FORMATTERTER.print(rsu.getDate()),
                             rsu.getQuantity(),
-                            String.format("%.4f",rsu.getVestFmv()),
-                            String.format("%.4f",partialRsuDolarValue),
-                            String.format("%.4f",partialRsuCroneValue)
+                            String.format("%.4f", rsu.getVestFmv()),
+                            String.format("%.4f", partialRsuDolarValue),
+                            String.format("%.4f", partialRsuCroneValue)
                     )
             );
         }
 
         String reportData = rsuTemplate.render(map(
                 "rsuList", printableRsuList,
-                "rsuCroneValue", String.format("%.4f",rsuCroneValue),
-                "rsuDolarValue", String.format("%.4f",rsuDolarValue),
+                "rsuCroneValue", String.format("%.4f", rsuCroneValue),
+                "rsuDolarValue", String.format("%.4f", rsuDolarValue),
                 "exchange", exchange,
                 "totalAmount", totalAmount
         ));
 
 
-        return reportData;
+        List<DividendRecord> dividendRecords = MoreFluentIterable.from(parsedExport.getDividendRecords())
+                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .sorted(Comparator.comparing(DividendRecord::getDate))
+                .toList();
+
+        Map<DateTime, TaxRecord> taxRecords = MoreFluentIterable.from(parsedExport.getTaxRecords())
+                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .sorted(Comparator.comparing(TaxRecord::getDate))
+                .fluentUniqueIndex(TaxRecord::getDate)
+                .immutableCopy();
+
+        List<TaxReversalRecord> taxReversalRecords = MoreFluentIterable.from(parsedExport.getTaxReversalRecords())
+                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .sorted(Comparator.comparing(TaxReversalRecord::getDate))
+                .toList();
 
 
+        ArrayList<PrintableDividend> printableDividendList = new ArrayList<>();
+
+        double totalBruttoDollar = 0;
+        double totalTaxDollar = 0;
+        double totalBruttoCrown = 0;
+        double totalTaxCrown = 0;
+
+        for (DividendRecord dividendRecord : dividendRecords) {
+            TaxRecord taxRecord = taxRecords.get(dividendRecord.getDate());
+
+            totalBruttoDollar += dividendRecord.getAmount();
+            totalTaxDollar += taxRecord.getAmount();
+            totalBruttoCrown += dividendRecord.getAmount() * exchange;
+            totalTaxCrown += taxRecord.getAmount() * exchange;
+
+            printableDividendList.add(
+                    new PrintableDividend(
+                            DATE_FORMATTERTER.print(dividendRecord.getDate()),
+                            formatDouble(dividendRecord.getAmount()),
+                            formatDouble(taxRecord.getAmount()),
+                            formatDouble(exchange * dividendRecord.getAmount()),
+                            formatDouble(exchange * taxRecord.getAmount())
+                    )
+            );
+        }
+
+        double totalTaxReversalDollar = 0;
+        double totalTaxReversalCrown = 0;
+
+        for (TaxReversalRecord taxReversalRecord : taxReversalRecords) {
+            totalTaxReversalDollar += taxReversalRecord.getAmount();
+            totalTaxReversalCrown += taxReversalRecord.getAmount() * exchange;
+        }
+
+        double totalIncomeDollar = totalBruttoDollar - totalTaxDollar + totalTaxReversalDollar;
+        double totalIncomeCrown = totalBruttoCrown - totalTaxCrown + totalTaxReversalCrown;
+
+        String dividendReportData = dividendTemplate.render(map(
+                "dividendList", printableDividendList,
+                "totalBruttoDollar", formatDouble(totalBruttoDollar),
+                "totalTaxDollar", formatDouble(totalTaxDollar),
+                "exchange", exchange,
+                "totalBruttoCrown", formatDouble(totalBruttoCrown),
+                "totalTaxCrown", formatDouble(totalTaxCrown),
+                "totalTaxReversal", formatDouble(totalTaxReversalDollar),
+                "totalTaxReversalCrown", formatDouble(totalTaxReversalCrown),
+                "totalIncomeDollar", formatDouble(totalIncomeDollar),
+                "totalIncomeCrown", formatDouble(totalIncomeCrown)
+        ));
+
+
+        return new Report(
+                reportData,
+                dividendReportData
+        );
+
+
+    }
+
+    private String formatDouble(double d) {
+        return String.format("%.4f", d);
     }
 }
