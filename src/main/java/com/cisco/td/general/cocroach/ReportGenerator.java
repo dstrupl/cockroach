@@ -21,13 +21,16 @@ public class ReportGenerator {
     private static final Map<Integer, Double> EXCHANGE = map(
             2018, 21.780,
             2019, 22.930,
-            2020, 23.140
+            2020, 23.140,
+            2021, 23.140 //todo
     );
 
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     private final Template rsuTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("rsu.hbs");
     private final Template dividendTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("dividend.hbs");
+    private final Template esppTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("espp.hbs");
+
 
     public Report generateForYear(ParsedExport parsedExport, int year) {
         TimeInterval interval = new TimeInterval(
@@ -138,9 +141,51 @@ public class ReportGenerator {
         ));
 
 
+
+        List<EsppRecord> esppRecords = MoreFluentIterable.from(parsedExport.getEsppRecords())
+                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .sorted(Comparator.comparing(EsppRecord::getDate))
+                .toList();
+
+
+        ArrayList<PrintableEspp> printableEsppList = new ArrayList<>();
+        double profitDolarValue = 0;
+        double profitCroneValue = 0;
+        int totalEsppAmount = 0;
+
+        for (EsppRecord espp : esppRecords) {
+            double partialProfit = espp.getPurchaseFmv()-espp.getPurchasePrice();
+            profitDolarValue+= espp.getQuantity()*partialProfit;
+            profitCroneValue+=espp.getQuantity()*partialProfit*exchange;
+
+            totalEsppAmount += espp.getQuantity();
+
+            printableEsppList.add(
+                    new PrintableEspp(
+                            DATE_FORMATTERTER.print(espp.getDate()),
+                            espp.getQuantity(),
+                            formatDouble(espp.getPurchasePrice()),
+                            formatDouble(espp.getPurchaseFmv()),
+                            formatDouble(partialProfit),
+                            formatDouble(partialProfit*espp.getQuantity()),
+                            formatDouble(partialProfit*espp.getQuantity()*exchange)
+                    )
+            );
+        }
+
+        String esppReportData = esppTemplate.render(map(
+                "esppList", printableEsppList,
+                "profitCroneValue", formatDouble(profitCroneValue),
+                "profitDolarValue", formatDouble(profitDolarValue),
+                "exchange", exchange,
+                "totalAmount", totalEsppAmount
+        ));
+
+
         return new Report(
                 reportData,
-                dividendReportData
+                dividendReportData,
+                esppReportData
         );
 
 
