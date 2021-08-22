@@ -15,11 +15,10 @@ obchodník s cennými papíry: Charles Schwab & Co.
 {{/each}}
 | celkem   |  **{{totalBruttoDollar}}**        | **{{totalTaxDollar}}** |  | **{{totalBruttoCrown}}**        | **{{totalTaxCrown}}**|
 
-
+{{#if totalTaxReversal}}
 Vrácená daň (tax reversal):  {{totalTaxReversalCrown}} CZK ({{totalTaxReversal}} USD)
+{{/if}}
 
-
-### Celkem příjem: {{totalIncomeCrown}} CZK ({{totalIncomeDollar}} USD)
 
 
 

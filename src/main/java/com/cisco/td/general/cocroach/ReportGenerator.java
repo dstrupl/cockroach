@@ -126,9 +126,6 @@ public class ReportGenerator {
             totalTaxReversalCrown += taxReversalRecord.getAmount() * exchange;
         }
 
-        double totalIncomeDollar = totalBruttoDollar - totalTaxDollar + totalTaxReversalDollar;
-        double totalIncomeCrown = totalBruttoCrown - totalTaxCrown + totalTaxReversalCrown;
-
         String dividendReportData = dividendTemplate.render(map(
                 "dividendList", printableDividendList,
                 "totalBruttoDollar", formatDouble(totalBruttoDollar),
@@ -136,10 +133,8 @@ public class ReportGenerator {
                 "exchange", exchange,
                 "totalBruttoCrown", formatDouble(totalBruttoCrown),
                 "totalTaxCrown", formatDouble(totalTaxCrown),
-                "totalTaxReversal", formatDouble(totalTaxReversalDollar),
-                "totalTaxReversalCrown", formatDouble(totalTaxReversalCrown),
-                "totalIncomeDollar", formatDouble(totalIncomeDollar),
-                "totalIncomeCrown", formatDouble(totalIncomeCrown)
+                "totalTaxReversal", totalTaxReversalDollar > 0 ? formatDouble(totalTaxReversalDollar) : "",
+                "totalTaxReversalCrown", totalTaxReversalCrown > 0 ? formatDouble(totalTaxReversalCrown) : ""
         ));
 
 
