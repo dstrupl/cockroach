@@ -33,11 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.cisco.td.ade</groupId>
-            <artifactId>command-line</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.cognitivesecurity</groupId>
             <artifactId>commons-testutils</artifactId>
             <scope>test</scope>
