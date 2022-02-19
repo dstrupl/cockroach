@@ -22,7 +22,7 @@ public class ReportGenerator {
             2018, 21.780,
             2019, 22.930,
             2020, 23.140,
-            2021, 23.140 //todo
+            2021, 21.72
     );
 
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
