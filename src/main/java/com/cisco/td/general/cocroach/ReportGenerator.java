@@ -42,42 +42,7 @@ public class ReportGenerator {
 
         Double exchange = EXCHANGE.get(year);
 
-        List<RsuRecord> rsuRecords = MoreFluentIterable.from(parsedExport.getRsuRecords())
-                .filter(a -> interval.includes(a.getDate().getMillis()))
-                .sorted(Comparator.comparing(RsuRecord::getDate))
-                .toList();
 
-
-        ArrayList<Object> printableRsuList = new ArrayList<>();
-        double rsuCroneValue = 0;
-        double rsuDolarValue = 0;
-        int totalAmount = 0;
-
-        for (RsuRecord rsu : rsuRecords) {
-            double partialRsuDolarValue = rsu.getQuantity() * rsu.getVestFmv();
-            double partialRsuCroneValue = partialRsuDolarValue * exchange;
-            rsuCroneValue += partialRsuCroneValue;
-            rsuDolarValue += partialRsuDolarValue;
-            totalAmount += rsu.getQuantity();
-
-            printableRsuList.add(
-                    new PrintableRsu(
-                            DATE_FORMATTERTER.print(rsu.getDate()),
-                            rsu.getQuantity(),
-                            String.format("%.4f", rsu.getVestFmv()),
-                            String.format("%.4f", partialRsuDolarValue),
-                            String.format("%.4f", partialRsuCroneValue)
-                    )
-            );
-        }
-
-        String reportData = rsuTemplate.render(map(
-                "rsuList", printableRsuList,
-                "rsuCroneValue", String.format("%.4f", rsuCroneValue),
-                "rsuDolarValue", String.format("%.4f", rsuDolarValue),
-                "exchange", exchange,
-                "totalAmount", totalAmount
-        ));
 
 
         List<DividendRecord> dividendRecords = MoreFluentIterable.from(parsedExport.getDividendRecords())
@@ -145,7 +110,7 @@ public class ReportGenerator {
 
 
         return new Report(
-                reportData,
+                generateRsuReport(parsedExport, interval, exchange),
                 dividendReportData,
                 generateEsppReport(parsedExport, interval, exchange),
                 generateSalesReport(parsedExport, interval, exchange)
@@ -155,20 +120,18 @@ public class ReportGenerator {
     }
 
     private String generateSalesReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
-
         SalesReportPreparation salesReportPreparation = new SalesReportPreparation();
-
         return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport.getSaleRecords(),interval,exchange));
-
     }
 
     private String generateEsppReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
-
         EsppReportPreparation esppReportPreparation = new EsppReportPreparation();
-
         return esppTemplate.render(esppReportPreparation.generateEsppReport(parsedExport.getEsppRecords(),interval,exchange));
-
     }
 
+    private String generateRsuReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+        RsuReportPreparation rsuReportPreparation = new RsuReportPreparation();
+        return rsuTemplate.render(rsuReportPreparation.generateRsuReport(parsedExport.getRsuRecords(),interval,exchange));
+    }
 
 }
