@@ -143,50 +143,11 @@ public class ReportGenerator {
         ));
 
 
-        List<EsppRecord> esppRecords = MoreFluentIterable.from(parsedExport.getEsppRecords())
-                .filter(a -> interval.includes(a.getDate().getMillis()))
-                .sorted(Comparator.comparing(EsppRecord::getDate))
-                .toList();
-
-
-        ArrayList<PrintableEspp> printableEsppList = new ArrayList<>();
-        double profitDolarValue = 0;
-        double profitCroneValue = 0;
-        int totalEsppAmount = 0;
-
-        for (EsppRecord espp : esppRecords) {
-            double partialProfit = espp.getPurchaseFmv() - espp.getPurchasePrice();
-            profitDolarValue += espp.getQuantity() * partialProfit;
-            profitCroneValue += espp.getQuantity() * partialProfit * exchange;
-
-            totalEsppAmount += espp.getQuantity();
-
-            printableEsppList.add(
-                    new PrintableEspp(
-                            DATE_FORMATTERTER.print(espp.getDate()),
-                            espp.getQuantity(),
-                            formatDouble(espp.getPurchasePrice()),
-                            formatDouble(espp.getPurchaseFmv()),
-                            formatDouble(partialProfit),
-                            formatDouble(partialProfit * espp.getQuantity()),
-                            formatDouble(partialProfit * espp.getQuantity() * exchange)
-                    )
-            );
-        }
-
-        String esppReportData = esppTemplate.render(map(
-                "esppList", printableEsppList,
-                "profitCroneValue", formatDouble(profitCroneValue),
-                "profitDolarValue", formatDouble(profitDolarValue),
-                "exchange", exchange,
-                "totalAmount", totalEsppAmount
-        ));
-
 
         return new Report(
                 reportData,
                 dividendReportData,
-                esppReportData,
+                generateEsppReport(parsedExport, interval, exchange),
                 generateSalesReport(parsedExport, interval, exchange)
         );
 
@@ -197,9 +158,15 @@ public class ReportGenerator {
 
         SalesReportPreparation salesReportPreparation = new SalesReportPreparation();
 
-
-
         return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport.getSaleRecords(),interval,exchange));
+
+    }
+
+    private String generateEsppReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+
+        EsppReportPreparation esppReportPreparation = new EsppReportPreparation();
+
+        return esppTemplate.render(esppReportPreparation.generateEsppReport(parsedExport.getEsppRecords(),interval,exchange));
 
     }
 
