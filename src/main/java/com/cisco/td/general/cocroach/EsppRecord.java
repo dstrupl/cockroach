@@ -10,4 +10,5 @@ public class EsppRecord {
     double purchasePrice;
     double subscriptionFmv;
     double purchaseFmv;
+    DateTime purchaseDate;
 }

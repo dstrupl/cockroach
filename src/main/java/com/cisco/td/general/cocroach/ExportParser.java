@@ -71,7 +71,8 @@ public class ExportParser {
                                             new RsuRecord(
                                                     date,
                                                     Integer.parseInt(quantity),
-                                                    Double.parseDouble(StringUtils.stripStart(rsValues[4], "$"))
+                                                    parseAmount(rsValues[4]),
+                                                    REVERSE_DATE_FORMATTERTER.parseDateTime(rsValues[3])
                                             )
                                     );
                                     break;
@@ -82,9 +83,10 @@ public class ExportParser {
                                             new EsppRecord(
                                                     date,
                                                     Integer.parseInt(quantity),
-                                                    Double.parseDouble(StringUtils.stripStart(esppValues[2], "$")),
-                                                    Double.parseDouble(StringUtils.stripStart(esppValues[4], "$")),
-                                                    Double.parseDouble(StringUtils.stripStart(esppValues[5], "$"))
+                                                    parseAmount(esppValues[2]),
+                                                    parseAmount(esppValues[4]),
+                                                    parseAmount(esppValues[5]),
+                                                    REVERSE_DATE_FORMATTERTER.parseDateTime(esppValues[1])
                                             )
                                     );
                                     break;
@@ -99,7 +101,7 @@ public class ExportParser {
                             dividendRecords.add(
                                     new DividendRecord(
                                             date,
-                                            Double.parseDouble(StringUtils.stripStart(amount, "$"))
+                                            parseAmount(amount)
                                     )
                             );
                             break;
@@ -108,7 +110,7 @@ public class ExportParser {
                             taxRecords.add(
                                     new TaxRecord(
                                             date,
-                                            Double.parseDouble(StringUtils.stripStart(amount, "-$"))
+                                            parseAmount(amount)
                                     )
                             );
                             break;
@@ -117,7 +119,7 @@ public class ExportParser {
                             taxReversalRecords.add(
                                     new TaxReversalRecord(
                                             date,
-                                            Double.parseDouble(StringUtils.stripStart(amount, "$"))
+                                            parseAmount(amount)
                                     )
                             );
                             break;
@@ -126,7 +128,7 @@ public class ExportParser {
                             journalRecords.add(
                                     new JournalRecord(
                                             date,
-                                            Double.parseDouble(StringUtils.stripStart(amount, "$")),
+                                            parseAmount(amount),
                                             description
                                     )
                             );
@@ -139,9 +141,9 @@ public class ExportParser {
                                             date,
                                             salesValues[1],
                                             Integer.parseInt(quantity),
-                                            Double.parseDouble(StringUtils.stripStart(salesValues[3], "$")),
-                                            Double.parseDouble(StringUtils.stripStart(salesValues[7], "$")),
-                                            Double.parseDouble(StringUtils.stripStart(salesValues[8], "$")),
+                                            parseAmount(salesValues[3]),
+                                            parseAmount(salesValues[7]),
+                                            parseAmount(salesValues[8]),
                                             REVERSE_DATE_FORMATTERTER.parseDateTime(salesValues[6])
                                     )
                             );
@@ -167,5 +169,20 @@ public class ExportParser {
                 saleRecords,
                 journalRecords
         );
+    }
+
+    private double parseAmount(String amount){
+
+        if(amount.startsWith("-")){
+            return -parsePositiveAmount(StringUtils.stripStart(amount, "-"));
+        }else{
+            return parsePositiveAmount(amount);
+        }
+    }
+
+    private double parsePositiveAmount(String amount){
+        String preprocessed =  StringUtils.replace(amount,",","");
+        return Double.parseDouble(StringUtils.stripStart(preprocessed, "$"));
+
     }
 }

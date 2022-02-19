@@ -8,4 +8,5 @@ public class RsuRecord {
     DateTime date;
     int quantity;
     double vestFmv;
+    DateTime vestDate;
 }
