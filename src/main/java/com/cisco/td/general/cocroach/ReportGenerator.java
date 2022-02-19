@@ -199,7 +199,7 @@ public class ReportGenerator {
 
 
 
-        return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport,interval,exchange));
+        return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport.getSaleRecords(),interval,exchange));
 
     }
 

@@ -17,9 +17,9 @@ public class SalesReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
 
-    public Map<String,?> generateSalesReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+    public Map<String,?> generateSalesReport(List<SaleRecord> salesRecords, TimeInterval interval, Double exchange) {
 
-        List<SaleRecord> saleRecords = MoreFluentIterable.from(parsedExport.getSaleRecords())
+        List<SaleRecord> saleRecords = MoreFluentIterable.from(salesRecords)
                 .filter(a -> interval.includes(a.getDate().getMillis()))
                 .sorted(Comparator.comparing(SaleRecord::getDate))
                 .toList();
