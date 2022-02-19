@@ -18,7 +18,7 @@ public class EsppReportPreparation {
 
     public Map<String, ?> generateEsppReport(List<EsppRecord> esppRecordList, TimeInterval interval, Double exchange) {
         List<EsppRecord> esppRecords = MoreFluentIterable.from(esppRecordList)
-                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .filter(a -> interval.includes(a.getPurchaseDate().getMillis()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
                 .toList();
 
