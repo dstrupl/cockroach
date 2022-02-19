@@ -12,4 +12,8 @@ public class SaleRecord {
     double purchasePrice;
     double purchaseFmv;
     DateTime purchaseDate;
+
+    public boolean isTaxable(){
+        return date.isBefore(purchaseDate.plusYears(3));
+    }
 }

@@ -7,4 +7,5 @@ public class Report {
     String rsu;
     String dividend;
     String espp;
+    String sales;
 }

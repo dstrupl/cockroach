@@ -30,6 +30,7 @@ public class ReportGenerator {
     private final Template rsuTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("rsu.hbs");
     private final Template dividendTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("dividend.hbs");
     private final Template esppTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("espp.hbs");
+    private final Template salesTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("sales.hbs");
 
 
     public Report generateForYear(ParsedExport parsedExport, int year) {
@@ -141,7 +142,6 @@ public class ReportGenerator {
         ));
 
 
-
         List<EsppRecord> esppRecords = MoreFluentIterable.from(parsedExport.getEsppRecords())
                 .filter(a -> interval.includes(a.getDate().getMillis()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
@@ -154,9 +154,9 @@ public class ReportGenerator {
         int totalEsppAmount = 0;
 
         for (EsppRecord espp : esppRecords) {
-            double partialProfit = espp.getPurchaseFmv()-espp.getPurchasePrice();
-            profitDolarValue+= espp.getQuantity()*partialProfit;
-            profitCroneValue+=espp.getQuantity()*partialProfit*exchange;
+            double partialProfit = espp.getPurchaseFmv() - espp.getPurchasePrice();
+            profitDolarValue += espp.getQuantity() * partialProfit;
+            profitCroneValue += espp.getQuantity() * partialProfit * exchange;
 
             totalEsppAmount += espp.getQuantity();
 
@@ -167,8 +167,8 @@ public class ReportGenerator {
                             formatDouble(espp.getPurchasePrice()),
                             formatDouble(espp.getPurchaseFmv()),
                             formatDouble(partialProfit),
-                            formatDouble(partialProfit*espp.getQuantity()),
-                            formatDouble(partialProfit*espp.getQuantity()*exchange)
+                            formatDouble(partialProfit * espp.getQuantity()),
+                            formatDouble(partialProfit * espp.getQuantity() * exchange)
                     )
             );
         }
@@ -185,9 +185,75 @@ public class ReportGenerator {
         return new Report(
                 reportData,
                 dividendReportData,
-                esppReportData
+                esppReportData,
+                generateSalesReport(parsedExport, interval, exchange)
         );
 
+
+    }
+
+    private String generateSalesReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+
+        List<SaleRecord> saleRecords = MoreFluentIterable.from(parsedExport.getSaleRecords())
+                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .sorted(Comparator.comparing(SaleRecord::getDate))
+                .toList();
+
+        List<PrintableSale> printableSalesList = new ArrayList<>();
+        double sellDollarValue = 0;
+        double profitDolarValue = 0;
+        double recentProfitDolarValue = 0;
+        int totalAmount = 0;
+
+        for (SaleRecord sale : saleRecords) {
+            double partialsellDolarValue = sale.getQuantity() * sale.getSalePrice();
+            double buyPriceDolarValue = sale.getQuantity() * sale.getPurchaseFmv();
+
+            double partialProfitValue = partialsellDolarValue - buyPriceDolarValue;
+            double partialRecentProfitValue = sale.isTaxable() ? partialProfitValue : 0;
+
+            sellDollarValue += partialsellDolarValue;
+            profitDolarValue += partialProfitValue;
+            recentProfitDolarValue += partialRecentProfitValue;
+            totalAmount += sale.getQuantity();
+
+            printableSalesList.add(
+                    new PrintableSale(
+                            DATE_FORMATTERTER.print(sale.getDate()),
+                            DATE_FORMATTERTER.print(sale.getPurchaseDate()),
+                            sale.getQuantity(),
+
+                            formatDouble(sale.getPurchaseFmv()),
+                            formatDouble(sale.getSalePrice()),
+                            formatDouble(sale.getSalePrice() - sale.getPurchaseFmv()),
+
+                            formatDouble(partialsellDolarValue),
+                            formatDouble(partialProfitValue),
+                            formatDouble(partialsellDolarValue * exchange),
+                            formatDouble(partialRecentProfitValue*exchange)
+                    )
+            );
+        }
+
+        String profitForTax;
+        if (sellDollarValue * exchange < 100000) {
+            // no need to pay taxes
+            profitForTax = "";
+        } else {
+            //pay taxes only from items bought in last 3 years
+            profitForTax=formatDouble(recentProfitDolarValue * exchange);
+        }
+
+        return salesTemplate.render(map(
+                "salesList", printableSalesList,
+                "sellCroneValue", formatDouble(sellDollarValue * exchange),
+                "sellDollarValue", formatDouble(sellDollarValue),
+                "profitDolarValue", formatDouble(profitDolarValue),
+                "profitRecentCroneValue", formatDouble(recentProfitDolarValue * exchange),
+                "exchange", exchange,
+                "totalAmount", totalAmount,
+                "profitForTax", profitForTax
+        ));
 
     }
 
