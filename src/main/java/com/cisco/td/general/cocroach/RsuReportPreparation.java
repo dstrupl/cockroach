@@ -17,7 +17,7 @@ public class RsuReportPreparation {
 
     public Map<String, ?> generateRsuReport(List<RsuRecord> rsuRecordList, TimeInterval interval, Double exchange) {
         List<RsuRecord> rsuRecords = MoreFluentIterable.from(rsuRecordList)
-                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .filter(a -> interval.includes(a.getVestDate().getMillis()))
                 .sorted(Comparator.comparing(RsuRecord::getDate))
                 .toList();
 
