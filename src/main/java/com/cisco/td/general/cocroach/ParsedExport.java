@@ -11,4 +11,6 @@ public class ParsedExport {
     List<DividendRecord> dividendRecords;
     List<TaxRecord> taxRecords;
     List<TaxReversalRecord> taxReversalRecords;
+    List<SaleRecord> saleRecords;
+    List<JournalRecord> journalRecords;
 }

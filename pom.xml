@@ -41,6 +41,10 @@
             <groupId>com.cisco.td.ade</groupId>
             <artifactId>handlebars-wrapper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.cisco.td.ade</groupId>
+            <artifactId>easy-logging</artifactId>
+        </dependency>
 
     </dependencies>
 

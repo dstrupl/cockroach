@@ -16,6 +16,8 @@ import java.util.List;
 public class ExportParser {
 
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("YYYY/MM/dd").withZoneUTC();
+    private static final DateTimeFormatter REVERSE_DATE_FORMATTERTER = DateTimeFormat.forPattern("MM/dd/YYYY").withZoneUTC();
+
     private final ObjectReader objectReader;
 
     public ExportParser() {
@@ -37,6 +39,8 @@ public class ExportParser {
         List<DividendRecord> dividendRecords = new ArrayList<>();
         List<TaxRecord> taxRecords = new ArrayList<>();
         List<TaxReversalRecord> taxReversalRecords = new ArrayList<>();
+        List<JournalRecord> journalRecords = new ArrayList<>();
+        List<SaleRecord> saleRecords = new ArrayList<>();
 
 
         List<String> lines = data.fluentLines().toList();
@@ -117,6 +121,32 @@ public class ExportParser {
                                     )
                             );
                             break;
+
+                        case "Journal":
+                            journalRecords.add(
+                                    new JournalRecord(
+                                            date,
+                                            Double.parseDouble(StringUtils.stripStart(amount, "$")),
+                                            description
+                                    )
+                            );
+                            break;
+
+                        case "Sale":
+                            String[] salesValues = objectReader.readValue(lines.get(i + 2));
+                            saleRecords.add(
+                                    new SaleRecord(
+                                            date,
+                                            salesValues[1],
+                                            Integer.parseInt(quantity),
+                                            Double.parseDouble(StringUtils.stripStart(salesValues[3], "$")),
+                                            Double.parseDouble(StringUtils.stripStart(salesValues[7], "$")),
+                                            Double.parseDouble(StringUtils.stripStart(salesValues[8], "$")),
+                                            REVERSE_DATE_FORMATTERTER.parseDateTime(salesValues[6])
+                                    )
+                            );
+                            break;
+
                         default:
                             throw new IllegalStateException("Unexpected value: " + action);
                     }
@@ -133,7 +163,9 @@ public class ExportParser {
                 esppRecords,
                 dividendRecords,
                 taxRecords,
-                taxReversalRecords
+                taxReversalRecords,
+                saleRecords,
+                journalRecords
         );
     }
 }
