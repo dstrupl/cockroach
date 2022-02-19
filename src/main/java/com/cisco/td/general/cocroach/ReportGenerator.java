@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
 import static com.cognitivesecurity.commons.util.Literals.map;
 
 public class ReportGenerator {
@@ -194,70 +195,13 @@ public class ReportGenerator {
 
     private String generateSalesReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
 
-        List<SaleRecord> saleRecords = MoreFluentIterable.from(parsedExport.getSaleRecords())
-                .filter(a -> interval.includes(a.getDate().getMillis()))
-                .sorted(Comparator.comparing(SaleRecord::getDate))
-                .toList();
+        SalesReportPreparation salesReportPreparation = new SalesReportPreparation();
 
-        List<PrintableSale> printableSalesList = new ArrayList<>();
-        double sellDollarValue = 0;
-        double profitDolarValue = 0;
-        double recentProfitDolarValue = 0;
-        int totalAmount = 0;
 
-        for (SaleRecord sale : saleRecords) {
-            double partialsellDolarValue = sale.getQuantity() * sale.getSalePrice();
-            double buyPriceDolarValue = sale.getQuantity() * sale.getPurchaseFmv();
 
-            double partialProfitValue = partialsellDolarValue - buyPriceDolarValue;
-            double partialRecentProfitValue = sale.isTaxable() ? partialProfitValue : 0;
-
-            sellDollarValue += partialsellDolarValue;
-            profitDolarValue += partialProfitValue;
-            recentProfitDolarValue += partialRecentProfitValue;
-            totalAmount += sale.getQuantity();
-
-            printableSalesList.add(
-                    new PrintableSale(
-                            DATE_FORMATTERTER.print(sale.getDate()),
-                            DATE_FORMATTERTER.print(sale.getPurchaseDate()),
-                            sale.getQuantity(),
-
-                            formatDouble(sale.getPurchaseFmv()),
-                            formatDouble(sale.getSalePrice()),
-                            formatDouble(sale.getSalePrice() - sale.getPurchaseFmv()),
-
-                            formatDouble(partialsellDolarValue),
-                            formatDouble(partialProfitValue),
-                            formatDouble(partialsellDolarValue * exchange),
-                            formatDouble(partialRecentProfitValue*exchange)
-                    )
-            );
-        }
-
-        String profitForTax;
-        if (sellDollarValue * exchange < 100000) {
-            // no need to pay taxes
-            profitForTax = "";
-        } else {
-            //pay taxes only from items bought in last 3 years
-            profitForTax=formatDouble(recentProfitDolarValue * exchange);
-        }
-
-        return salesTemplate.render(map(
-                "salesList", printableSalesList,
-                "sellCroneValue", formatDouble(sellDollarValue * exchange),
-                "sellDollarValue", formatDouble(sellDollarValue),
-                "profitDolarValue", formatDouble(profitDolarValue),
-                "profitRecentCroneValue", formatDouble(recentProfitDolarValue * exchange),
-                "exchange", exchange,
-                "totalAmount", totalAmount,
-                "profitForTax", profitForTax
-        ));
+        return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport,interval,exchange));
 
     }
 
-    private String formatDouble(double d) {
-        return String.format("%.4f", d);
-    }
+
 }
