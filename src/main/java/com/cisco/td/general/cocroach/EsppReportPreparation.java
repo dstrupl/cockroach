@@ -37,7 +37,7 @@ public class EsppReportPreparation {
 
             printableEsppList.add(
                     new PrintableEspp(
-                            DATE_FORMATTERTER.print(espp.getDate()),
+                            DATE_FORMATTERTER.print(espp.getPurchaseDate()),
                             espp.getQuantity(),
                             formatDouble(espp.getPurchasePrice()),
                             formatDouble(espp.getPurchaseFmv()),

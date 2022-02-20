@@ -36,7 +36,7 @@ public class RsuReportPreparation {
 
             printableRsuList.add(
                     new PrintableRsu(
-                            DATE_FORMATTERTER.print(rsu.getDate()),
+                            DATE_FORMATTERTER.print(rsu.getVestDate()),
                             rsu.getQuantity(),
                             String.format("%.4f", rsu.getVestFmv()),
                             String.format("%.4f", partialRsuDolarValue),
