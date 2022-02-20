@@ -1,5 +1,7 @@
 package com.cisco.td.general.cocroach;
 
+import com.cisco.logging.Logger;
+import com.cisco.logging.LoggerFactory;
 import com.cognitivesecurity.commons.io.ByteSourceChain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExportParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportParser.class);
 
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("YYYY/MM/dd").withZoneUTC();
     private static final DateTimeFormatter REVERSE_DATE_FORMATTERTER = DateTimeFormat.forPattern("MM/dd/YYYY").withZoneUTC();
@@ -150,7 +153,7 @@ public class ExportParser {
                             break;
 
                         default:
-                            throw new IllegalStateException("Unexpected value: " + action);
+                            LOGGER.warnGlobal("Unknow report type item {}, ignoring", action);
                     }
                 }
 
