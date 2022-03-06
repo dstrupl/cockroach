@@ -12,13 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
-import static com.cognitivesecurity.commons.util.Literals.map;
 
 public class DividentReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
 
-    public Map<String,?> generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public DividendReport generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
         List<DividendRecord> dividendRecords = MoreFluentIterable.from(dividendRecordList)
                 .filter(a -> interval.includes(a.getDate().getMillis()))
@@ -73,14 +72,14 @@ public class DividentReportPreparation {
             totalTaxReversalCrown += taxReversalRecord.getAmount() * exchangeRateProvider.rateAt(taxReversalRecord.getDate());
         }
 
-        return map(
-                "dividendList", printableDividendList,
-                "totalBruttoDollar", formatDouble(totalBruttoDollar),
-                "totalTaxDollar", formatDouble(totalTaxDollar),
-                "totalBruttoCrown", formatDouble(totalBruttoCrown),
-                "totalTaxCrown", formatDouble(totalTaxCrown),
-                "totalTaxReversal", totalTaxReversalDollar > 0 ? formatDouble(totalTaxReversalDollar) : "",
-                "totalTaxReversalCrown", totalTaxReversalCrown > 0 ? formatDouble(totalTaxReversalCrown) : ""
+        return new DividendReport(
+                printableDividendList,
+                totalBruttoDollar,
+                totalTaxDollar,
+                totalBruttoCrown,
+                totalTaxCrown,
+                totalTaxReversalDollar,
+                totalTaxReversalCrown
         );
 
     }

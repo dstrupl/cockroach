@@ -15,14 +15,14 @@ import static com.cognitivesecurity.commons.util.Literals.map;
 public class RsuReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-    public Map<String, ?> generateRsuReport(List<RsuRecord> rsuRecordList, TimeInterval interval,ExchangeRateProvider exchangeRateProvider) {
+    public RsuReport generateRsuReport(List<RsuRecord> rsuRecordList, TimeInterval interval,ExchangeRateProvider exchangeRateProvider) {
         List<RsuRecord> rsuRecords = MoreFluentIterable.from(rsuRecordList)
                 .filter(a -> interval.includes(a.getVestDate().getMillis()))
                 .sorted(Comparator.comparing(RsuRecord::getDate))
                 .toList();
 
 
-        ArrayList<Object> printableRsuList = new ArrayList<>();
+        ArrayList<PrintableRsu> printableRsuList = new ArrayList<>();
         double rsuCroneValue = 0;
         double rsuDolarValue = 0;
         int totalAmount = 0;
@@ -47,11 +47,12 @@ public class RsuReportPreparation {
             );
         }
 
-        return map(
-                "rsuList", printableRsuList,
-                "rsuCroneValue", String.format("%.4f", rsuCroneValue),
-                "rsuDolarValue", String.format("%.4f", rsuDolarValue),
-                "totalAmount", totalAmount
-        );
+
+        return new RsuReport(
+                printableRsuList,
+                rsuCroneValue,
+                rsuDolarValue,
+                totalAmount
+        ) ;
     }
 }

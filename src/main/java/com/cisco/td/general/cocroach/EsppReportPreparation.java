@@ -8,15 +8,13 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
-import static com.cognitivesecurity.commons.util.Literals.map;
 
 public class EsppReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-    public Map<String, ?> generateEsppReport(List<EsppRecord> esppRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public EsppReport generateEsppReport(List<EsppRecord> esppRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
         List<EsppRecord> esppRecords = MoreFluentIterable.from(esppRecordList)
                 .filter(a -> interval.includes(a.getPurchaseDate().getMillis()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
@@ -50,11 +48,11 @@ public class EsppReportPreparation {
             );
         }
 
-        return map(
-                "esppList", printableEsppList,
-                "profitCroneValue", formatDouble(profitCroneValue),
-                "profitDolarValue", formatDouble(profitDolarValue),
-                "totalAmount", totalEsppAmount
+        return new EsppReport(
+                printableEsppList,
+                profitCroneValue,
+                profitDolarValue,
+                totalEsppAmount
         );
     }
 }

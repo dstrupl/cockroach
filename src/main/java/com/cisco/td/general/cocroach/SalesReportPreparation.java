@@ -17,7 +17,7 @@ public class SalesReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
 
-    public Map<String,?> generateSalesReport(List<SaleRecord> salesRecords, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public SalesReport generateSalesReport(List<SaleRecord> salesRecords, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
         List<SaleRecord> saleRecords = MoreFluentIterable.from(salesRecords)
                 .filter(a -> interval.includes(a.getDate().getMillis()))
@@ -79,16 +79,16 @@ public class SalesReportPreparation {
             //pay taxes only from items bought in last 3 years
             profitForTax=formatDouble(recentProfitCroneValue);
         }
-
-        return map(
-                "salesList", printableSalesList,
-                "sellCroneValue", formatDouble(sellCroneValue),
-                "sellDollarValue", formatDouble(sellDollarValue),
-                "profitDolarValue", formatDouble(profitDolarValue),
-                "profitRecentCroneValue", formatDouble(recentProfitCroneValue),
-                "totalAmount", totalAmount,
-                "profitForTax", profitForTax
+        return new SalesReport(
+                printableSalesList,
+                sellCroneValue,
+                sellDollarValue,
+                profitDolarValue,
+                recentProfitCroneValue,
+                totalAmount,
+                profitForTax
         );
+
 
     }
 }

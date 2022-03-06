@@ -24,7 +24,7 @@ class SalesReportPreparationTest {
 
     @Test
     void oldPurchasesStillTakenAccountFor100KLimit() {
-        Map<String, ?> templateParams = salesReportPreparation.generateSalesReport(
+        SalesReport salesReport = salesReportPreparation.generateSalesReport(
                 list(
                         new SaleRecord(
                                 DateTime.parse("2021-06-30"),
@@ -50,12 +50,12 @@ class SalesReportPreparationTest {
         );
 
         assertThat(
-                templateParams.get("sellCroneValue"),
-                is("170000.0000")
+                salesReport.getSellCroneValue(),
+                is(170000.0000)
         );
 
         assertThat(
-                templateParams.get("profitForTax"),
+                salesReport.getProfitForTax(),
                 is("2000.0000")
         );
 
@@ -63,7 +63,7 @@ class SalesReportPreparationTest {
 
     @Test
     void lossInLast3YearsIsDistractedFromProfit() {
-        Map<String, ?> templateParams = salesReportPreparation.generateSalesReport(
+        SalesReport salesReport = salesReportPreparation.generateSalesReport(
                 list(
                         new SaleRecord(
                                 DateTime.parse("2021-06-30"),
@@ -89,17 +89,17 @@ class SalesReportPreparationTest {
         );
 
         assertThat(
-                templateParams.get("sellCroneValue"),
-                is("26000.0000")
+                salesReport.getSellCroneValue(),
+                is(26000.0000)
         );
 
         assertThat(
-                templateParams.get("profitRecentCroneValue"),
-                is("1600.0000")
+                salesReport.getRecentProfitCroneValue(),
+                is(1600.0000)
         );
 
         assertThat(
-                templateParams.get("profitForTax"),
+                salesReport.getProfitForTax(),
                 is("")
         );
     }
