@@ -51,7 +51,7 @@ public class ExchangeRatesReader {
                 values = objectReader.readValue(line);
                 return mapEntry(
                         DATE_FORMATTER.parseDateTime(values[datumIndex]),
-                        Double.parseDouble(values[usdIndex])
+                        Double.parseDouble(values[usdIndex].replace(',','.'))
                 );
 
             } catch (Exception e) {
