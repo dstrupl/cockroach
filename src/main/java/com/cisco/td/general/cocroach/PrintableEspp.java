@@ -6,6 +6,7 @@ import lombok.Value;
 public class PrintableEspp {
     String date;
     int amount;
+    double exchange;
     String onePricePurchaseDolarValue;
     String onePriceDolarValue;
     String oneProfitValue;

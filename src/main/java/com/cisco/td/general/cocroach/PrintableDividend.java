@@ -6,6 +6,7 @@ import lombok.Value;
 public class PrintableDividend {
     String date;
     String bruttoDollar;
+    double exchange;
     String taxDollar;
     String bruttoCrown;
     String taxCrown;

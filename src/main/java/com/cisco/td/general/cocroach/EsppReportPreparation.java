@@ -16,7 +16,7 @@ import static com.cognitivesecurity.commons.util.Literals.map;
 public class EsppReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-    public Map<String, ?> generateEsppReport(List<EsppRecord> esppRecordList, TimeInterval interval, Double exchange) {
+    public Map<String, ?> generateEsppReport(List<EsppRecord> esppRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
         List<EsppRecord> esppRecords = MoreFluentIterable.from(esppRecordList)
                 .filter(a -> interval.includes(a.getPurchaseDate().getMillis()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
@@ -29,6 +29,7 @@ public class EsppReportPreparation {
         int totalEsppAmount = 0;
 
         for (EsppRecord espp : esppRecords) {
+            double exchange = exchangeRateProvider.rateAt(espp.getPurchaseDate());
             double partialProfit = espp.getPurchaseFmv() - espp.getPurchasePrice();
             profitDolarValue += espp.getQuantity() * partialProfit;
             profitCroneValue += espp.getQuantity() * partialProfit * exchange;
@@ -39,6 +40,7 @@ public class EsppReportPreparation {
                     new PrintableEspp(
                             DATE_FORMATTERTER.print(espp.getPurchaseDate()),
                             espp.getQuantity(),
+                            exchange,
                             formatDouble(espp.getPurchasePrice()),
                             formatDouble(espp.getPurchaseFmv()),
                             formatDouble(partialProfit),
@@ -52,7 +54,6 @@ public class EsppReportPreparation {
                 "esppList", printableEsppList,
                 "profitCroneValue", formatDouble(profitCroneValue),
                 "profitDolarValue", formatDouble(profitDolarValue),
-                "exchange", exchange,
                 "totalAmount", totalEsppAmount
         );
     }

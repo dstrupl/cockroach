@@ -14,14 +14,7 @@ import java.util.Map;
 import static com.cognitivesecurity.commons.util.Literals.map;
 
 public class ReportGenerator {
-    private static final Map<Integer, Double> EXCHANGE = map(
-            2018, 21.780,
-            2019, 22.930,
-            2020, 23.140,
-            2021, 21.72
-    );
 
-    private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     private final Template rsuTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("rsu.hbs");
     private final Template dividendTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("dividend.hbs");
@@ -35,41 +28,38 @@ public class ReportGenerator {
                 new DateTime(year + 1, 1, 1, 0, 0, DateTimeZone.UTC).getMillis()
         );
 
-        Double exchange = EXCHANGE.get(year);
 
-
-
-
+        ExchangeRateProvider exchangeRateProvider =  YearConstantExchangeRateProvider.hardcoded();
 
 
         return new Report(
-                generateRsuReport(parsedExport, interval, exchange),
-                generateDividendReport(parsedExport, interval, exchange),
-                generateEsppReport(parsedExport, interval, exchange),
-                generateSalesReport(parsedExport, interval, exchange)
+                generateRsuReport(parsedExport, interval, exchangeRateProvider),
+                generateDividendReport(parsedExport, interval, exchangeRateProvider),
+                generateEsppReport(parsedExport, interval, exchangeRateProvider),
+                generateSalesReport(parsedExport, interval, exchangeRateProvider)
         );
 
 
     }
 
-    private String generateSalesReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+    private String generateSalesReport(ParsedExport parsedExport, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
         SalesReportPreparation salesReportPreparation = new SalesReportPreparation();
-        return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport.getSaleRecords(),interval,exchange));
+        return salesTemplate.render(salesReportPreparation.generateSalesReport(parsedExport.getSaleRecords(),interval,exchangeRateProvider));
     }
 
-    private String generateEsppReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+    private String generateEsppReport(ParsedExport parsedExport, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
         EsppReportPreparation esppReportPreparation = new EsppReportPreparation();
-        return esppTemplate.render(esppReportPreparation.generateEsppReport(parsedExport.getEsppRecords(),interval,exchange));
+        return esppTemplate.render(esppReportPreparation.generateEsppReport(parsedExport.getEsppRecords(),interval,exchangeRateProvider));
     }
 
-    private String generateRsuReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+    private String generateRsuReport(ParsedExport parsedExport, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
         RsuReportPreparation rsuReportPreparation = new RsuReportPreparation();
-        return rsuTemplate.render(rsuReportPreparation.generateRsuReport(parsedExport.getRsuRecords(),interval,exchange));
+        return rsuTemplate.render(rsuReportPreparation.generateRsuReport(parsedExport.getRsuRecords(),interval,exchangeRateProvider));
     }
 
-    private String generateDividendReport(ParsedExport parsedExport, TimeInterval interval, Double exchange) {
+    private String generateDividendReport(ParsedExport parsedExport, TimeInterval interval,ExchangeRateProvider exchangeRateProvider) {
         DividentReportPreparation dividentReportPreparation = new DividentReportPreparation();
-        return dividendTemplate.render(dividentReportPreparation.generateDividendReport(parsedExport.getDividendRecords(), parsedExport.getTaxRecords(), parsedExport.getTaxReversalRecords(),interval,exchange));
+        return dividendTemplate.render(dividentReportPreparation.generateDividendReport(parsedExport.getDividendRecords(), parsedExport.getTaxRecords(), parsedExport.getTaxReversalRecords(),interval,exchangeRateProvider));
     }
 
 }

@@ -18,7 +18,7 @@ public class DividentReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
 
-    public Map<String,?> generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, TimeInterval interval, Double exchange) {
+    public Map<String,?> generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
         List<DividendRecord> dividendRecords = MoreFluentIterable.from(dividendRecordList)
                 .filter(a -> interval.includes(a.getDate().getMillis()))
@@ -45,6 +45,7 @@ public class DividentReportPreparation {
         double totalTaxCrown = 0;
 
         for (DividendRecord dividendRecord : dividendRecords) {
+            double exchange = exchangeRateProvider.rateAt(dividendRecord.getDate());
             TaxRecord taxRecord = taxRecords.get(dividendRecord.getDate());
 
             totalBruttoDollar += dividendRecord.getAmount();
@@ -56,6 +57,7 @@ public class DividentReportPreparation {
                     new PrintableDividend(
                             DATE_FORMATTERTER.print(dividendRecord.getDate()),
                             formatDouble(dividendRecord.getAmount()),
+                            exchange,
                             formatDouble(taxRecord.getAmount()),
                             formatDouble(exchange * dividendRecord.getAmount()),
                             formatDouble(exchange * taxRecord.getAmount())
@@ -68,14 +70,13 @@ public class DividentReportPreparation {
 
         for (TaxReversalRecord taxReversalRecord : taxReversalRecords) {
             totalTaxReversalDollar += taxReversalRecord.getAmount();
-            totalTaxReversalCrown += taxReversalRecord.getAmount() * exchange;
+            totalTaxReversalCrown += taxReversalRecord.getAmount() * exchangeRateProvider.rateAt(taxReversalRecord.getDate());
         }
 
         return map(
                 "dividendList", printableDividendList,
                 "totalBruttoDollar", formatDouble(totalBruttoDollar),
                 "totalTaxDollar", formatDouble(totalTaxDollar),
-                "exchange", exchange,
                 "totalBruttoCrown", formatDouble(totalBruttoCrown),
                 "totalTaxCrown", formatDouble(totalTaxCrown),
                 "totalTaxReversal", totalTaxReversalDollar > 0 ? formatDouble(totalTaxReversalDollar) : "",

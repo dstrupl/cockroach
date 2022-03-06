@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.Map;
 
 import static com.cognitivesecurity.commons.util.Literals.list;
+import static com.cognitivesecurity.commons.util.Literals.map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -45,7 +46,7 @@ class SalesReportPreparationTest {
                         )
                 ),
                 new TimeInterval(Instant.parse("2021-01-01T00:00:00.00Z").toEpochMilli(), Instant.parse("2022-01-01T00:00:00.00Z").toEpochMilli()),
-                10.0
+                new YearConstantExchangeRateProvider(map(2021,10.0))
         );
 
         assertThat(
@@ -84,7 +85,7 @@ class SalesReportPreparationTest {
                         )
                 ),
                 new TimeInterval(Instant.parse("2021-01-01T00:00:00.00Z").toEpochMilli(), Instant.parse("2022-01-01T00:00:00.00Z").toEpochMilli()),
-                10.0
+                new YearConstantExchangeRateProvider(map(2021,10.0))
         );
 
         assertThat(

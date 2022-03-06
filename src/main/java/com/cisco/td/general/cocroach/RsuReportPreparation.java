@@ -15,7 +15,7 @@ import static com.cognitivesecurity.commons.util.Literals.map;
 public class RsuReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-    public Map<String, ?> generateRsuReport(List<RsuRecord> rsuRecordList, TimeInterval interval, Double exchange) {
+    public Map<String, ?> generateRsuReport(List<RsuRecord> rsuRecordList, TimeInterval interval,ExchangeRateProvider exchangeRateProvider) {
         List<RsuRecord> rsuRecords = MoreFluentIterable.from(rsuRecordList)
                 .filter(a -> interval.includes(a.getVestDate().getMillis()))
                 .sorted(Comparator.comparing(RsuRecord::getDate))
@@ -28,6 +28,7 @@ public class RsuReportPreparation {
         int totalAmount = 0;
 
         for (RsuRecord rsu : rsuRecords) {
+            double exchange = exchangeRateProvider.rateAt(rsu.getVestDate());
             double partialRsuDolarValue = rsu.getQuantity() * rsu.getVestFmv();
             double partialRsuCroneValue = partialRsuDolarValue * exchange;
             rsuCroneValue += partialRsuCroneValue;
@@ -38,6 +39,7 @@ public class RsuReportPreparation {
                     new PrintableRsu(
                             DATE_FORMATTERTER.print(rsu.getVestDate()),
                             rsu.getQuantity(),
+                            exchange,
                             String.format("%.4f", rsu.getVestFmv()),
                             String.format("%.4f", partialRsuDolarValue),
                             String.format("%.4f", partialRsuCroneValue)
@@ -49,7 +51,6 @@ public class RsuReportPreparation {
                 "rsuList", printableRsuList,
                 "rsuCroneValue", String.format("%.4f", rsuCroneValue),
                 "rsuDolarValue", String.format("%.4f", rsuDolarValue),
-                "exchange", exchange,
                 "totalAmount", totalAmount
         );
     }

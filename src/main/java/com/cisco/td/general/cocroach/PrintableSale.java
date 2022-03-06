@@ -7,6 +7,7 @@ public class PrintableSale {
     String date;
     String purchaseDate;
     int amount;
+    double exchange;
 
     String onePurchaseDollar;
     String oneSellDollar;
