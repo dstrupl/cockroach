@@ -11,7 +11,7 @@ import java.util.Map;
 public class TabularExchangeRateProvider implements ExchangeRateProvider {
     private final Map<DateTime, Double> knownRates;
 
-    public static TabularExchangeRateProvider hardcoded() throws JsonProcessingException {
+    public static TabularExchangeRateProvider hardcoded()  {
         return new ExchangeRatesReader()
                 .parse(ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2021.txt"));
     }

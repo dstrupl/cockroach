@@ -11,7 +11,7 @@ obchodník s cennými papíry: Charles Schwab & Co.
 | datum   |      brutto (USD)     |  sražená daň  *)  (USD) |  jednotný kurz Kč/USD - D49 |  brutto (CZK) |sražená daň   (CZK)|
 |----------|:-------------:|------:|------:|------:|------:|
 {{#each dividendList}}
-|{{this.date}}|{{this.bruttoDollar}}| {{this.taxDollar}}|{{exchange}} | {{this.bruttoCrown}}| {{this.taxCrown}}|
+|{{this.date}}|{{this.bruttoDollar}}| {{this.taxDollar}}|{{this.exchange}} | {{this.bruttoCrown}}| {{this.taxCrown}}|
 {{/each}}
 | celkem   |  **{{totalBruttoDollar}}**        | **{{totalTaxDollar}}** |  | **{{totalBruttoCrown}}**        | **{{totalTaxCrown}}**|
 

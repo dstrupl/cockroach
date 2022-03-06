@@ -12,7 +12,7 @@ obchodník s cennými papíry: Charles Schwab & Co.
 | datum prodeje   |      počet kusů  | datum nakupu  | nákupní cena  (tržní cena obchodníka ** v USD)  | prodejní cena v USD | zisk na 1 kus akcie (USD)  |prodejni cena za nákup v USD| zisk na nákup (USD)| jednotný kurz Kč/USD - D49 | prodejni cena za nákup v CZK)| Zisk na nákup po časovém testu (CZK)|
 |----------|:-------------:|------:|------:|------:|------:|------:|------:|------:|------:|------:|
 {{#each salesList}}
-|{{this.date}}|{{this.amount}}| {{this.purchaseDate}}|{{this.onePurchaseDollar}}|{{this.oneSellDollar}}|{{this.oneProfitDollar}}|{{this.sellDolar}}| {{this.sellProfitDollar}}|{{exchange}}|{{this.sellCrone}} |{{this.sellRecentProfitCrone}} |
+|{{this.date}}|{{this.amount}}| {{this.purchaseDate}}|{{this.onePurchaseDollar}}|{{this.oneSellDollar}}|{{this.oneProfitDollar}}|{{this.sellDolar}}| {{this.sellProfitDollar}}|{{this.exchange}}|{{this.sellCrone}} |{{this.sellRecentProfitCrone}} |
 {{/each}}
 | celkem   |  **{{totalAmount}}**    |    |  |  | | **{{sellDollarValue}}**  |**{{profitDolarValue}}** | |  **{{sellCroneValue}}**  | **{{profitRecentCroneValue}}**|
 

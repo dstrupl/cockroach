@@ -2,6 +2,7 @@ package com.cisco.td.general.cocroach;
 
 import com.cognitivesecurity.commons.collections.MoreFluentIterable;
 import com.cognitivesecurity.commons.io.ByteSourceChain;
+import com.cognitivesecurity.commons.util.ExceptionUtils;
 import com.cognitivesecurity.commons.util.Literals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -34,10 +35,10 @@ public class ExchangeRatesReader {
         this.objectReader = csvMapper.readerFor(String[].class).with(schema);
     }
 
-    public TabularExchangeRateProvider parse(ByteSourceChain data) throws JsonProcessingException {
+    public TabularExchangeRateProvider parse(ByteSourceChain data) {
         List<String> lines = data.fluentLines().toList();
         String header = lines.get(0);
-        Map<String, Integer> itemMap = MoreFluentIterable.from((String[]) objectReader.readValue(header))
+        Map<String, Integer> itemMap = MoreFluentIterable.from((String[]) ExceptionUtils.wrapChecked(()->objectReader.readValue(header)))
                 .mapWithIndex((i, item) -> mapEntry(item, i))
                 .collect(Literals::mapCopy);
 
