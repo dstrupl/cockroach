@@ -71,13 +71,13 @@ public class SalesReportPreparation {
             );
         }
 
-        String profitForTax;
+        double profitForTax;
         if (sellCroneValue< 100000) {
             // no need to pay taxes
-            profitForTax = "";
+            profitForTax =0;
         } else {
             //pay taxes only from items bought in last 3 years
-            profitForTax=formatDouble(recentProfitCroneValue);
+            profitForTax=recentProfitCroneValue;
         }
         return new SalesReport(
                 printableSalesList,

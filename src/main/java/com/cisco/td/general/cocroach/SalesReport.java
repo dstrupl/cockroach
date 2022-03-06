@@ -16,7 +16,7 @@ public class SalesReport {
     double profitDolarValue;
     double recentProfitCroneValue;
     int totalAmount;
-    String profitForTax;
+    double profitForTax;
 
     public Map<String,?> asMap(){
         return map(
@@ -26,7 +26,7 @@ public class SalesReport {
                 "profitDolarValue", formatDouble(profitDolarValue),
                 "profitRecentCroneValue", formatDouble(recentProfitCroneValue),
                 "totalAmount", totalAmount,
-                "profitForTax", profitForTax
+                "profitForTax",profitForTax>0 ?  formatDouble(profitForTax):""
         );
     }
 }

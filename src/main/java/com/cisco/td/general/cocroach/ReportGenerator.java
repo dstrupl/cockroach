@@ -4,6 +4,7 @@ import com.cisco.td.ade.generate.templating.GeneralTemplateHelpers;
 import com.cisco.td.ade.generate.templating.Template;
 import com.cisco.td.ade.generate.templating.TemplateEngine;
 import com.cognitivesecurity.commons.time.TimeInterval;
+import lombok.RequiredArgsConstructor;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -13,17 +14,15 @@ import java.util.Map;
 
 import static com.cognitivesecurity.commons.util.Literals.map;
 
+@RequiredArgsConstructor
 public class ReportGenerator {
 
 
-    public Report generateForYear(ParsedExport parsedExport, int year) {
+    public Report generateForYear(ParsedExport parsedExport, int year, ExchangeRateProvider exchangeRateProvider) {
         TimeInterval interval = new TimeInterval(
                 new DateTime(year, 1, 1, 0, 0, DateTimeZone.UTC).getMillis(),
                 new DateTime(year + 1, 1, 1, 0, 0, DateTimeZone.UTC).getMillis()
         );
-
-
-        ExchangeRateProvider exchangeRateProvider = YearConstantExchangeRateProvider.hardcoded();
 
 
         return new Report(

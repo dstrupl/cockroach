@@ -21,7 +21,7 @@ class ExportParserTest {
 
         ReportGenerator reportGenerator = new ReportGenerator();
 
-        Report data = reportGenerator.generateForYear(parsedExport, 2020);
+        Report data = reportGenerator.generateForYear(parsedExport, 2020, YearConstantExchangeRateProvider.hardcoded());
 
         FileUtils.writeStringToFile(new File("/tmp/divident.md"),data.getDividend(), StandardCharsets.UTF_8);
         FileUtils.writeStringToFile(new File("/tmp/rsu.md"),data.getRsu(), StandardCharsets.UTF_8);
