@@ -46,6 +46,11 @@
             <artifactId>easy-logging</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.cisco.td.ade</groupId>
+            <artifactId>csv-reader</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
