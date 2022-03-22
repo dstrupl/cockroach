@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
 public class ExchangeRatesReader {
     private final CsvReader csvReader = CsvReader.builder().separator('|').build();
@@ -15,7 +14,7 @@ public class ExchangeRatesReader {
     public TabularExchangeRateProvider parse(ByteSourceChain data) {
         return MoreFluentIterable.from(csvReader.readInputContainingHeader(data, Line.class))
                 .toFluentMap(
-                        line -> line.getDate().toDateTime(LocalTime.MIDNIGHT),
+                        Line::getDate,
                         line -> line.getRate().getAmount()
                 )
                 .convert(TabularExchangeRateProvider::new);

@@ -1,7 +1,6 @@
 package com.cisco.td.general.cocroach;
 
 import com.cognitivesecurity.commons.collections.MoreFluentIterable;
-import com.cognitivesecurity.commons.time.TimeInterval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -14,9 +13,9 @@ import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
 public class EsppReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-    public EsppReport generateEsppReport(List<EsppRecord> esppRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public EsppReport generateEsppReport(List<EsppRecord> esppRecordList, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
         List<EsppRecord> esppRecords = MoreFluentIterable.from(esppRecordList)
-                .filter(a -> interval.includes(a.getPurchaseDate().getMillis()))
+                .filter(a -> interval.contains(a.getPurchaseDate()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
                 .toList();
 

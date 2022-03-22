@@ -1,6 +1,6 @@
 package com.cisco.td.general.cocroach;
 
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,7 +12,7 @@ class TabularExchangeRateProviderTest {
     void canParseHardcoded() throws Exception {
         TabularExchangeRateProvider rateProvider = TabularExchangeRateProvider.hardcoded();
 
-        assertThat(rateProvider.rateAt(DateTime.parse("2021-05-16T00:00:00.00Z")),is(21.024));
-        assertThat(rateProvider.rateAt(DateTime.parse("2021-05-14T00:00:00.00Z")),is(21.024));
+        assertThat(rateProvider.rateAt(LocalDate.parse("2021-05-16")), is(21.024));
+        assertThat(rateProvider.rateAt(LocalDate.parse("2021-05-14")), is(21.024));
     }
 }

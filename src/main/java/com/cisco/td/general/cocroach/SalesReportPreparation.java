@@ -1,26 +1,22 @@
 package com.cisco.td.general.cocroach;
 
 import com.cognitivesecurity.commons.collections.MoreFluentIterable;
-import com.cognitivesecurity.commons.time.TimeInterval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
-import static com.cognitivesecurity.commons.util.Literals.map;
 
 public class SalesReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-
-    public SalesReport generateSalesReport(List<SaleRecord> salesRecords, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public SalesReport generateSalesReport(List<SaleRecord> salesRecords, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
         List<SaleRecord> saleRecords = MoreFluentIterable.from(salesRecords)
-                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(SaleRecord::getDate))
                 .toList();
 
@@ -40,7 +36,7 @@ public class SalesReportPreparation {
 
             double partialProfitValue = partialsellDolarValue - buyPriceDolarValue;
             double partialRecentProfitValue = sale.isTaxable() ? partialProfitValue : 0;
-            double partialRecentProfitCroneValue = partialRecentProfitValue*exchange;
+            double partialRecentProfitCroneValue = partialRecentProfitValue * exchange;
 
             sellDollarValue += partialsellDolarValue;
             sellCroneValue += partialsellCroneValue;
@@ -48,8 +44,6 @@ public class SalesReportPreparation {
             profitDolarValue += partialProfitValue;
             recentProfitCroneValue += partialRecentProfitCroneValue;
             totalAmount += sale.getQuantity();
-
-
 
 
             printableSalesList.add(
@@ -72,12 +66,12 @@ public class SalesReportPreparation {
         }
 
         double profitForTax;
-        if (sellCroneValue< 100000) {
+        if (sellCroneValue < 100000) {
             // no need to pay taxes
-            profitForTax =0;
+            profitForTax = 0;
         } else {
             //pay taxes only from items bought in last 3 years
-            profitForTax=recentProfitCroneValue;
+            profitForTax = recentProfitCroneValue;
         }
         return new SalesReport(
                 printableSalesList,

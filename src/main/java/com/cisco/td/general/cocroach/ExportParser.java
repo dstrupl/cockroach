@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -18,8 +18,8 @@ import java.util.List;
 public class ExportParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportParser.class);
 
-    private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("YYYY/MM/dd").withZoneUTC();
-    private static final DateTimeFormatter REVERSE_DATE_FORMATTERTER = DateTimeFormat.forPattern("MM/dd/YYYY").withZoneUTC();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("YYYY/MM/dd").withZoneUTC();
+    private static final DateTimeFormatter REVERSE_DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/YYYY").withZoneUTC();
 
     private final ObjectReader objectReader;
 
@@ -56,7 +56,7 @@ public class ExportParser {
 
                 if (values.length > 2 && !values[0].isEmpty()) {
 
-                    DateTime date = DATE_FORMATTERTER.parseDateTime(values[0]);
+                    LocalDate date = DATE_FORMATTER.parseLocalDate(values[0]);
 
                     String action = values[1];
                     String symbol = values[2];
@@ -75,7 +75,7 @@ public class ExportParser {
                                                     date,
                                                     Integer.parseInt(quantity),
                                                     parseAmount(rsValues[4]),
-                                                    REVERSE_DATE_FORMATTERTER.parseDateTime(rsValues[3])
+                                                    REVERSE_DATE_FORMATTER.parseLocalDate(rsValues[3])
                                             )
                                     );
                                     break;
@@ -89,7 +89,7 @@ public class ExportParser {
                                                     parseAmount(esppValues[2]),
                                                     parseAmount(esppValues[4]),
                                                     parseAmount(esppValues[5]),
-                                                    REVERSE_DATE_FORMATTERTER.parseDateTime(esppValues[1])
+                                                    REVERSE_DATE_FORMATTER.parseLocalDate(esppValues[1])
                                             )
                                     );
                                     break;
@@ -147,7 +147,7 @@ public class ExportParser {
                                             parseAmount(salesValues[3]),
                                             parseAmount(salesValues[7]),
                                             parseAmount(salesValues[8]),
-                                            REVERSE_DATE_FORMATTERTER.parseDateTime(salesValues[6])
+                                            REVERSE_DATE_FORMATTER.parseLocalDate(salesValues[6])
                                     )
                             );
                             break;

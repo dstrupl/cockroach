@@ -1,7 +1,7 @@
 package com.cisco.td.general.cocroach;
 
 import lombok.RequiredArgsConstructor;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.util.Map;
 
@@ -23,9 +23,8 @@ public class YearConstantExchangeRateProvider implements ExchangeRateProvider {
         );
     }
 
-
     @Override
-    public double rateAt(DateTime day) {
+    public double rateAt(LocalDate day) {
         Double maybeResult = exchange.get(day.getYear());
         if (maybeResult == null) {
             throw new IllegalArgumentException("can not find rate for " + day);

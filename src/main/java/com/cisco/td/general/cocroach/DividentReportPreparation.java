@@ -1,8 +1,7 @@
 package com.cisco.td.general.cocroach;
 
 import com.cognitivesecurity.commons.collections.MoreFluentIterable;
-import com.cognitivesecurity.commons.time.TimeInterval;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -14,24 +13,23 @@ import java.util.Map;
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
 
 public class DividentReportPreparation {
-    private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-
-    public DividendReport generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, TimeInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public DividendReport generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
         List<DividendRecord> dividendRecords = MoreFluentIterable.from(dividendRecordList)
-                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(DividendRecord::getDate))
                 .toList();
 
-        Map<DateTime, TaxRecord> taxRecords = MoreFluentIterable.from(taxRecordList)
-                .filter(a -> interval.includes(a.getDate().getMillis()))
+        Map<LocalDate, TaxRecord> taxRecords = MoreFluentIterable.from(taxRecordList)
+                .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(TaxRecord::getDate))
                 .fluentUniqueIndex(TaxRecord::getDate)
                 .immutableCopy();
 
         List<TaxReversalRecord> taxReversalRecords = MoreFluentIterable.from(taxReversalRecordList)
-                .filter(a -> interval.includes(a.getDate().getMillis()))
+                .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(TaxReversalRecord::getDate))
                 .toList();
 
@@ -54,7 +52,7 @@ public class DividentReportPreparation {
 
             printableDividendList.add(
                     new PrintableDividend(
-                            DATE_FORMATTERTER.print(dividendRecord.getDate()),
+                            DATE_FORMATTER.print(dividendRecord.getDate()),
                             formatDouble(dividendRecord.getAmount()),
                             exchange,
                             formatDouble(taxRecord.getAmount()),

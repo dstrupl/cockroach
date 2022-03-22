@@ -1,10 +1,10 @@
 package com.cisco.td.general.cocroach;
 
 import lombok.Value;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 @Value
 public class DividendRecord {
-    DateTime date;
+    LocalDate date;
     double amount;
 }

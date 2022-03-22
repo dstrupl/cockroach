@@ -1,9 +1,7 @@
 package com.cisco.td.general.cocroach;
 
-import org.joda.time.DateTime;
-
-import java.util.Date;
+import org.joda.time.LocalDate;
 
 public interface ExchangeRateProvider {
-    double rateAt(DateTime day);
+    double rateAt(LocalDate day);
 }

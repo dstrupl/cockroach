@@ -1,17 +1,17 @@
 package com.cisco.td.general.cocroach;
 
 import lombok.Value;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 @Value
 public class SaleRecord {
-    DateTime date;
+    LocalDate date;
     String type;
     int quantity;
     double salePrice;
     double purchasePrice;
     double purchaseFmv;
-    DateTime purchaseDate;
+    LocalDate purchaseDate;
 
     public boolean isTaxable(){
         return date.isBefore(purchaseDate.plusYears(3));

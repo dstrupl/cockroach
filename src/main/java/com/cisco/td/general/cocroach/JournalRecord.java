@@ -1,11 +1,11 @@
 package com.cisco.td.general.cocroach;
 
 import lombok.Value;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 @Value
 public class JournalRecord {
-    DateTime date;
+    LocalDate date;
     double amount;
     String description;
 }

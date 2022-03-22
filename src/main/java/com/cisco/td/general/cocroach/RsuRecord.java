@@ -1,12 +1,12 @@
 package com.cisco.td.general.cocroach;
 
 import lombok.Value;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 @Value
 public class RsuRecord {
-    DateTime date;
+    LocalDate date;
     int quantity;
     double vestFmv;
-    DateTime vestDate;
+    LocalDate vestDate;
 }

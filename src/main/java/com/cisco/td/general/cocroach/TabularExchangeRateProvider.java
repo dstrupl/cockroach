@@ -1,15 +1,14 @@
 package com.cisco.td.general.cocroach;
 
 import com.cognitivesecurity.commons.io.ByteSources;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.util.Map;
 
 @RequiredArgsConstructor
 public class TabularExchangeRateProvider implements ExchangeRateProvider {
-    private final Map<DateTime, Double> knownRates;
+    private final Map<LocalDate, Double> knownRates;
 
     public static TabularExchangeRateProvider hardcoded()  {
         return new ExchangeRatesReader()
@@ -17,7 +16,7 @@ public class TabularExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public double rateAt(DateTime day) {
+    public double rateAt(LocalDate day) {
         for (int i = 0; i < 10; i++) {
             Double maybeValue = knownRates.get(day.minusDays(i));
             if (maybeValue != null) {
