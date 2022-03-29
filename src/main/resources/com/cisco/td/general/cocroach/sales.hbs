@@ -14,10 +14,6 @@ obchodník s cennými papíry: Charles Schwab & Co.
 
 **) Jedná se o cenu akcie u stejného obchodníka k datu uskutečnění transakce. Je prokazována výpisem obchodníka s cennými papíry Charles Schwab & Co.
 
-{{#if profitForTax}}
-    Celková částka prodeje byla větší než 100 000 CZK, platí se daň ze všeho co nevyřadí časový test
-    Daňový základ: {{profitForTax}}
-{{else}}
-    Protože celková částka prodeje byla menší než 100 000 CZK, není potřeba nic danit
-    Danovy zaklad =0
+{{#if not profitForTax}}
+    Celková částka prodeje byla menší než 100 000 CZK a je tedy osvobozena od daně.
 {{/if}}
