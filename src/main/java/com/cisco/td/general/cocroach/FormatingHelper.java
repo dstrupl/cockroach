@@ -13,7 +13,7 @@ public class FormatingHelper {
     private FormatingHelper() {
         DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols();
         formatSymbols.setDecimalSeparator(',');
-        formatSymbols.setGroupingSeparator(' ');
+        formatSymbols.setGroupingSeparator('.');
 
         format = new DecimalFormat("#,##0.##", formatSymbols);
     }
