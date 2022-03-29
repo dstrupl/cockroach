@@ -34,9 +34,9 @@ public class Report {
         return salesTemplate.render(salesReport.asMap());
     }
 
-    public double taxToPay(){
-        System.out.println( (rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() +esppReport.getProfitCroneValue()+dividendReport.getTotalBruttoCrown())*0.15 +dividendReport.getTotalTaxCrown());
-        return (rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() +esppReport.getProfitCroneValue()+dividendReport.getTotalBruttoCrown())*0.15 +dividendReport.getTotalTaxCrown();
+    public double taxToPay() {
+        System.out.println((rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue() + dividendReport.getTotalBruttoCrown()) * 0.15 + dividendReport.getTotalTaxCrown());
+        return (rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue() + dividendReport.getTotalBruttoCrown()) * 0.15 + dividendReport.getTotalTaxCrown();
     }
 
 }
