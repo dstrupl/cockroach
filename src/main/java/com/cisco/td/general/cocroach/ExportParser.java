@@ -139,21 +139,40 @@ public class ExportParser {
 
                         case "Sale":
                             String[] salesValues = objectReader.readValue(lines.get(i + 2));
-                            saleRecords.add(
-                                    new SaleRecord(
-                                            date,
-                                            salesValues[1],
-                                            Integer.parseInt(quantity),
-                                            parseAmount(salesValues[3]),
-                                            parseAmount(salesValues[7]),
-                                            parseAmount(salesValues[8]),
-                                            REVERSE_DATE_FORMATTER.parseLocalDate(salesValues[6])
-                                    )
-                            );
+                            switch(salesValues[1]) {
+                                case "RS":
+                                    saleRecords.add(
+                                            new SaleRecord(
+                                                    date,
+                                                    salesValues[1],
+                                                    Integer.parseInt(quantity),
+                                                    parseAmount(salesValues[3]),
+                                                    parseAmount(salesValues[12]),
+                                                    parseAmount(salesValues[12]),
+                                                    REVERSE_DATE_FORMATTER.parseLocalDate(salesValues[11])
+                                            )
+                                    );
+                                    break;
+                                case "ESPP":
+                                    saleRecords.add(
+                                            new SaleRecord(
+                                                    date,
+                                                    salesValues[1],
+                                                    Integer.parseInt(quantity),
+                                                    parseAmount(salesValues[3]),
+                                                    parseAmount(salesValues[7]),
+                                                    parseAmount(salesValues[8]),
+                                                    REVERSE_DATE_FORMATTER.parseLocalDate(salesValues[6])
+                                            )
+                                    );
+                                    break;
+                                default:
+                                    LOGGER.warnGlobal("Unknown Sale type {}, ignoring", salesValues[1]);
+                            }
                             break;
 
                         default:
-                            LOGGER.warnGlobal("Unknow report type item {}, ignoring", action);
+                            LOGGER.warnGlobal("Unknown report type item {}, ignoring", action);
                     }
                 }
 
