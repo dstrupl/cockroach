@@ -6,7 +6,7 @@ import lombok.Value;
 public class PrintableRsu {
     String date;
     int amount;
-    double exchange;
+    String exchange;
     String onePriceDolarValue;
     String vestDolarValue;
     String vestCroneValue;

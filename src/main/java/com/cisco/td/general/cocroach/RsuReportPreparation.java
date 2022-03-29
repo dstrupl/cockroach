@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.cisco.td.general.cocroach.FormatingHelper.formatExchangeRate;
+
 public class RsuReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
@@ -35,7 +37,7 @@ public class RsuReportPreparation {
                     new PrintableRsu(
                             DATE_FORMATTER.print(rsu.getVestDate()),
                             rsu.getQuantity(),
-                            exchange,
+                            formatExchangeRate(exchange),
                             String.format("%.4f", rsu.getVestFmv()),
                             String.format("%.4f", partialRsuDolarValue),
                             String.format("%.4f", partialRsuCroneValue)

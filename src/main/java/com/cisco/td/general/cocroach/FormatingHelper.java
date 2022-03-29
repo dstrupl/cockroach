@@ -25,4 +25,8 @@ public class FormatingHelper {
     public static String formatDouble(double d) {
         return INSTANCE.format(d);
     }
+
+    public static String formatExchangeRate(double d) {
+        return String.valueOf(d).replace('.', ',');
+    }
 }

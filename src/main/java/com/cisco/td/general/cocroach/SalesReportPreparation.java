@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
+import static com.cisco.td.general.cocroach.FormatingHelper.formatExchangeRate;
 
 public class SalesReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
@@ -51,7 +52,7 @@ public class SalesReportPreparation {
                             DATE_FORMATTERTER.print(sale.getDate()),
                             DATE_FORMATTERTER.print(sale.getPurchaseDate()),
                             sale.getQuantity(),
-                            exchange,
+                            formatExchangeRate(exchange),
 
                             formatDouble(sale.getPurchaseFmv()),
                             formatDouble(sale.getSalePrice()),

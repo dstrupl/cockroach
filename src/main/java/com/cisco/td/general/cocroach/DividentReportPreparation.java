@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
+import static com.cisco.td.general.cocroach.FormatingHelper.formatExchangeRate;
 
 public class DividentReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
@@ -54,7 +55,7 @@ public class DividentReportPreparation {
                     new PrintableDividend(
                             DATE_FORMATTER.print(dividendRecord.getDate()),
                             formatDouble(dividendRecord.getAmount()),
-                            exchange,
+                            formatExchangeRate(exchange),
                             formatDouble(taxRecord.getAmount()),
                             formatDouble(exchange * dividendRecord.getAmount()),
                             formatDouble(exchange * taxRecord.getAmount())
