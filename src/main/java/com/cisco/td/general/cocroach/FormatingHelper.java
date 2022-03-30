@@ -15,7 +15,7 @@ public class FormatingHelper {
         formatSymbols.setDecimalSeparator(',');
         formatSymbols.setGroupingSeparator('.');
 
-        format = new DecimalFormat("#,##0.##", formatSymbols);
+        format = new DecimalFormat("#,##0.00", formatSymbols);
     }
 
     private String format(double d) {

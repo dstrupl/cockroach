@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
 import static com.cisco.td.general.cocroach.FormatingHelper.formatExchangeRate;
 
 public class RsuReportPreparation {
@@ -38,9 +39,9 @@ public class RsuReportPreparation {
                             DATE_FORMATTER.print(rsu.getVestDate()),
                             rsu.getQuantity(),
                             formatExchangeRate(exchange),
-                            String.format("%.4f", rsu.getVestFmv()),
-                            String.format("%.4f", partialRsuDolarValue),
-                            String.format("%.4f", partialRsuCroneValue)
+                            formatDouble(rsu.getVestFmv()),
+                            formatDouble(partialRsuDolarValue),
+                            formatDouble(partialRsuCroneValue)
                     )
             );
         }
