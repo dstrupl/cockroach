@@ -1,14 +1,14 @@
 Dividendy (§8) - rozpis
 ====================================================================================
 
-### cenný papír: Cisco Systems
-### stát zdroje příjmů: USA
+### Cenný papír: Cisco Systems
+### Stát zdroje příjmů: USA
 
-obchodník s cennými papíry: Charles Schwab & Co.
+Obchodník s cennými papíry: Charles Schwab & Co.
 
 
 
-| datum   |      brutto (USD)     |  sražená daň  *)  (USD) |  kurz Kč/USD - D54 |  brutto (CZK) |sražená daň   (CZK)|
+| datum   |      brutto (USD)     |  sražená daň (USD) |  kurz D54 (Kč/USD) |  brutto (Kč) | sražená daň (Kč)|
 |----------|:-------------:|------:|------:|------:|------:|
 {{#each dividendList}}
 |{{this.date}}|{{this.bruttoDollar}}| {{this.taxDollar}}|{{this.exchange}} | {{this.bruttoCrown}}| {{this.taxCrown}}|
@@ -18,8 +18,3 @@ obchodník s cennými papíry: Charles Schwab & Co.
 {{#if totalTaxReversal}}
 Vrácená daň (tax reversal):  {{totalTaxReversalCrown}} CZK ({{totalTaxReversal}} USD)
 {{/if}}
-
-
-
-
-*) Srážka daně u dividend Cisco Systems je prokazována výpisem obchodníka s cennými papíry Charles Schwab & Co.
