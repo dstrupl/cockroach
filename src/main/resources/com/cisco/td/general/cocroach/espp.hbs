@@ -1,19 +1,16 @@
 Nepeněžní příjmy dle §6 ze zahraničí - akciový program pro zaměstnance (§6, odst.3)
 ====================================================================================
 
-Program ESPP - nákup akcií mateřské společnosti (USA) za zvýhodněnou cenu
--------------------------------------------------------------------
+Program ESPP - nákup akcií za zvýhodněnou cenu
+----------------------------------------------
 
-### cenný papír: Cisco Systems
-obchodník s cennými papíry: Charles Schwab & Co.
+### Cenný papír: Cisco Systems
+Obchodník s cennými papíry: Charles Schwab & Co.
 
 
-
-| datum   |      počet kusů    | nákupní cena  (zvýhodněná v USD) |  tržní cena obchodníka **) v USD | zisk na 1 kus akcie (USD)  | zisk na nákup (USD)| kurz Kč/USD - D54 | zisk na nákup (Kč) |
-|----------|:-------------:|------:|------:|------:|------:|------:|------:|
+| datum nákupu  |      počet akcií    | zvýhodněná nákupní cena (USD) | tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) |
+|----------|:-------------:|------:|------:|------:|------:|------:|
 {{#each esppList}}
-|{{this.date}}|{{this.amount}}|{{this.onePricePurchaseDolarValue}}| {{this.onePriceDolarValue}}|{{this.oneProfitValue}} | {{this.buyProfitValue}}|{{this.exchange}}| {{this.buyCronePofitValue}}|
+|{{this.date}}|{{this.amount}}|{{this.onePricePurchaseDolarValue}}| {{this.onePriceDolarValue}}|{{this.buyProfitValue}}|{{this.exchange}}| {{this.buyCronePofitValue}}|
 {{/each}}
-| celkem   |  **{{totalAmount}}**    |    |  |  | **{{profitDolarValue}}** | |**{{profitCroneValue}}** |
-
-**) Jedná se o cenu akcie u stejného obchodníka k datu uskutečnění transakce. Je prokazována výpisem obchodníka s cennými papíry Charles Schwab & Co.
+| celkem   |  **{{totalAmount}}**    |    |  | **{{profitDolarValue}}** | |**{{profitCroneValue}}** |
