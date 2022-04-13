@@ -39,4 +39,16 @@ public class Report {
         return (rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue() + dividendReport.getTotalBruttoCrown()) * 0.15 + dividendReport.getTotalTaxCrown();
     }
 
+    public double taxableIncome() {
+        return (rsuReport.getRsuCroneValue() + esppReport.getProfitCroneValue());
+    }
+
+    public double taxableDividendIncome() {
+        return dividendReport.getTotalBruttoCrown();
+    }
+
+    public double payedDividendTax() {
+        return dividendReport.getTotalTaxCrown();
+    }
+
 }

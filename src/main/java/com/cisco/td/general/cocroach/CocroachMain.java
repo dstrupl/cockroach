@@ -4,6 +4,7 @@ import com.cisco.td.ade.commandline.CommandLineApplication;
 import com.cisco.td.ade.logging.ConsoleLogging;
 import com.cognitivesecurity.commons.collections.MoreFluentIterable;
 import com.cognitivesecurity.commons.io.ByteSources;
+import lombok.CustomLog;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 
 @ConsoleLogging
+@CustomLog
 public class CocroachMain extends CommandLineApplication {
 
     public void report(File schwabExportFile, int year, File outputDir) throws IOException {
@@ -29,6 +31,12 @@ public class CocroachMain extends CommandLineApplication {
         FileUtils.writeStringToFile(new File(outputDir, "rsu_" + year + ".md"), data.getRsu(), StandardCharsets.UTF_8);
         FileUtils.writeStringToFile(new File(outputDir, "espp_" + year + ".md"), data.getEspp(), StandardCharsets.UTF_8);
         FileUtils.writeStringToFile(new File(outputDir, "sales_" + year + ".md"), data.getSales(), StandardCharsets.UTF_8);
+
+
+        LOGGER.infoGlobal("35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {}",data.taxableIncome());
+        LOGGER.infoGlobal("38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {}",data.taxableDividendIncome());
+        LOGGER.infoGlobal("323 Daň zaplacená v zahraničí : {}",data.payedDividendTax());
+
 
     }
 }
