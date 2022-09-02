@@ -12,8 +12,8 @@
     <artifactId>cockroach</artifactId>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <java.long.version>11</java.long.version>
+        <java.short.version>11</java.short.version>
     </properties>
 
     <dependencies>
