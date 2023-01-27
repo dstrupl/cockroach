@@ -18,7 +18,8 @@ public class YearConstantExchangeRateProvider implements ExchangeRateProvider {
                         2018, 21.780,
                         2019, 22.930,
                         2020, 23.140,
-                        2021, 21.72
+                        2021, 21.72,
+                        2022, 23.41
                 )
         );
     }
