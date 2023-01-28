@@ -25,7 +25,7 @@ public class CocroachMain extends CommandLineApplication {
         Report fixedRateReport = reportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded());
         Report dynamicRateReport = reportGenerator.generateForYear(parsedExport, year, TabularExchangeRateProvider.hardcoded());
 
-        Report data = MoreFluentIterable.of(fixedRateReport, dynamicRateReport).checkMin(Comparator.comparingDouble(Report::taxToPay));
+        Report data = chooseBetterAltertnative(fixedRateReport,dynamicRateReport);
 
         FileUtils.writeStringToFile(new File(outputDir, "dividend_" + year + ".md"), data.getDividend(), StandardCharsets.UTF_8);
         FileUtils.writeStringToFile(new File(outputDir, "rsu_" + year + ".md"), data.getRsu(), StandardCharsets.UTF_8);
@@ -33,10 +33,32 @@ public class CocroachMain extends CommandLineApplication {
         FileUtils.writeStringToFile(new File(outputDir, "sales_" + year + ".md"), data.getSales(), StandardCharsets.UTF_8);
 
 
-        LOGGER.infoGlobal("35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {}",data.taxableIncome());
-        LOGGER.infoGlobal("38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {}",data.taxableDividendIncome());
-        LOGGER.infoGlobal("323 Daň zaplacená v zahraničí : {}",data.payedDividendTax());
+        LOGGER.infoGlobal("35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {}",FormatingHelper.formatDouble(data.taxableIncome()));
+        LOGGER.infoGlobal("38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {}",FormatingHelper.formatDouble(data.taxableDividendIncome()));
+        LOGGER.infoGlobal("323 Daň zaplacená v zahraničí : {}",FormatingHelper.formatDouble(data.payedDividendTax()));
 
 
+    }
+
+    private Report chooseBetterAltertnative(Report fixedRateReport ,Report dynamicRateReport){
+        double taxWhenUsedFixedRate = fixedRateReport.taxToPay();
+        double taxWhenUsedDynamicRate = dynamicRateReport.taxToPay();
+        if(taxWhenUsedFixedRate<=taxWhenUsedDynamicRate){
+            LOGGER.infoGlobal(
+                    "Using fixed Dollar conversion rate, because {}<={} (diff={})",
+                    FormatingHelper.formatDouble(taxWhenUsedFixedRate),
+                    FormatingHelper.formatDouble(taxWhenUsedDynamicRate),
+                    FormatingHelper.formatDouble(taxWhenUsedDynamicRate-taxWhenUsedFixedRate)
+            );
+            return fixedRateReport;
+        } else{
+            LOGGER.infoGlobal(
+                    "Using dynamic Dollar conversion rate, because {}<{} (diff={})",
+                    FormatingHelper.formatDouble(taxWhenUsedDynamicRate),
+                    FormatingHelper.formatDouble(taxWhenUsedFixedRate),
+                    FormatingHelper.formatDouble(taxWhenUsedFixedRate-taxWhenUsedDynamicRate)
+            );
+            return dynamicRateReport;
+        }
     }
 }

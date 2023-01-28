@@ -14,6 +14,7 @@ Obchodník s cennými papíry: Charles Schwab & Co.
 
 *) Zisk z prodeje akcií po zohlednění tříletého časového testu.
 
-{{#if not profitForTax}}
+{{#if profitForTax}}
+{{else}}
     Celková částka prodeje byla menší než 100 000 CZK a je tedy osvobozena od daně.
 {{/if}}

@@ -52,7 +52,7 @@ class SalesReportPreparationTest {
 
         assertThat(
                 salesReport.getProfitForTax(),
-                is("2000.0000")
+                is(2000.0)
         );
 
     }
@@ -96,7 +96,7 @@ class SalesReportPreparationTest {
 
         assertThat(
                 salesReport.getProfitForTax(),
-                is("")
+                is(0.0)
         );
     }
 }

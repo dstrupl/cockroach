@@ -1,6 +1,7 @@
 package com.cisco.td.general.cocroach;
 
 import com.cisco.td.ade.csv.CsvReader;
+import com.cognitivesecurity.commons.collections.CollectionUtils;
 import com.cognitivesecurity.commons.collections.MoreFluentIterable;
 import com.cognitivesecurity.commons.io.ByteSourceChain;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -8,16 +9,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;
 import org.joda.time.LocalDate;
 
+import java.util.Map;
+
 public class ExchangeRatesReader {
     private final CsvReader csvReader = CsvReader.builder().separator('|').build();
 
-    public TabularExchangeRateProvider parse(ByteSourceChain data) {
+    public TabularExchangeRateProvider parse(ByteSourceChain ... data) {
+
+        Map<LocalDate, Double> mapping = MoreFluentIterable.from(data).map(this::parseOne)
+                .collect(CollectionUtils::mergeMapsWithDistinctKeys);
+
+        return new TabularExchangeRateProvider(mapping);
+
+    }
+
+    public Map<LocalDate, Double> parseOne(ByteSourceChain data) {
+
         return MoreFluentIterable.from(csvReader.readInputContainingHeader(data, Line.class))
                 .toFluentMap(
                         Line::getDate,
                         line -> line.getRate().getAmount()
                 )
-                .convert(TabularExchangeRateProvider::new);
+                .immutableCopy();
     }
 
     @Value

@@ -56,7 +56,7 @@ public class ExportParser {
 
                 if (values.length > 2 && !values[0].isEmpty()) {
 
-                    LocalDate date = DATE_FORMATTER.parseLocalDate(values[0]);
+                    LocalDate date = REVERSE_DATE_FORMATTER.parseLocalDate(values[0]);
 
                     String action = values[1];
                     String symbol = values[2];

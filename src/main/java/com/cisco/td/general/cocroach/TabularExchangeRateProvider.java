@@ -15,8 +15,11 @@ public class TabularExchangeRateProvider implements ExchangeRateProvider {
     }
 
     public static TabularExchangeRateProvider hardcoded() {
-        return new ExchangeRatesReader()
-                .parse(ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2021.txt"));
+        return new ExchangeRatesReader().parse(
+                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2021.txt"),
+                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2022_a.txt"),
+                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2022_b.txt")
+        );
     }
 
     @Override

@@ -16,7 +16,7 @@ class ExportParserTest {
     void canParse() throws IOException {
         ExportParser exportParser = new ExportParser();
 
-        ParsedExport parsedExport = exportParser.parse(ByteSources.fromFile(new File("/Users/jandryse/Downloads/EquityAwardsCenter_Transactions_2021811145652.csv")));
+        ParsedExport parsedExport = exportParser.parse(ByteSources.fromFile(new File("/Users/jandryse/Downloads/EquityAwardsCenter_Transactions_20230127201321.csv")));
 
 
         ReportGenerator reportGenerator = new ReportGenerator();
