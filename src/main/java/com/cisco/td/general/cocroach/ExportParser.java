@@ -48,7 +48,7 @@ public class ExportParser {
 
         List<String> lines = data.fluentLines().toList();
 
-        for (int i = 2; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
 
             try {
                 String[] values;
@@ -69,29 +69,32 @@ public class ExportParser {
                         case "Deposit":
                             switch (description) {
                                 case "RS":
-                                    String[] rsValues = objectReader.readValue(lines.get(i + 2));
+                                    String[] rsValues = objectReader.readValue(lines.get(i + 1));
                                     rsuRecords.add(
                                             new RsuRecord(
                                                     date,
                                                     Integer.parseInt(quantity),
-                                                    parseAmount(rsValues[4]),
-                                                    REVERSE_DATE_FORMATTER.parseLocalDate(rsValues[3])
+                                                    parseAmount(rsValues[16]),
+                                                    REVERSE_DATE_FORMATTER.parseLocalDate(rsValues[15])
                                             )
                                     );
                                     break;
 
                                 case "ESPP":
-                                    String[] esppValues = objectReader.readValue(lines.get(i + 2));
+                                    String[] esppValues = objectReader.readValue(lines.get(i + 1));
                                     esppRecords.add(
                                             new EsppRecord(
                                                     date,
                                                     Integer.parseInt(quantity),
-                                                    parseAmount(esppValues[2]),
-                                                    parseAmount(esppValues[4]),
-                                                    parseAmount(esppValues[5]),
-                                                    REVERSE_DATE_FORMATTER.parseLocalDate(esppValues[1])
+                                                    parseAmount(esppValues[9]),
+                                                    parseAmount(esppValues[11]),
+                                                    parseAmount(esppValues[12]),
+                                                    REVERSE_DATE_FORMATTER.parseLocalDate(esppValues[8])
                                             )
                                     );
+                                    break;
+
+                                case "Div Reinv":
                                     break;
 
                                 default:
