@@ -1,0 +1,149 @@
+{
+  "FromDate": "01/01/2023",
+  "ToDate": "12/31/2023",
+  "Transactions": [
+    {
+      "Date": "12/23/2023",
+      "Action": "Deposit",
+      "Symbol": "CSCO",
+      "Quantity": "40",
+      "Description": "ESPP",
+      "FeesAndCommissions": null,
+      "DisbursementElection": null,
+      "Amount": null,
+      "TransactionDetails": [
+        {
+          "Details": {
+            "PurchaseDate": "12/20/2023",
+            "PurchasePrice": "$36.21",
+            "SubscriptionDate": "07/01/2022",
+            "SubscriptionFairMarketValue": "$42.60",
+            "PurchaseFairMarketValue": "$50.52"
+          }
+        }
+      ]
+    },
+    {
+      "Date": "12/13/2023",
+      "Action": "Deposit",
+      "Symbol": "CSCO",
+      "Quantity": "2",
+      "Description": "RS",
+      "FeesAndCommissions": null,
+      "DisbursementElection": null,
+      "Amount": null,
+      "TransactionDetails": [
+        {
+          "Details": {
+            "AwardDate": "06/10/2023",
+            "AwardId": "1461994",
+            "VestDate": "12/10/2023",
+            "VestFairMarketValue": "$48.38"
+          }
+        }
+      ]
+    },
+    {
+      "Date": "10/25/2023",
+      "Action": "Tax Withholding",
+      "Symbol": "CSCO",
+      "Quantity": null,
+      "Description": "Debit",
+      "FeesAndCommissions": null,
+      "DisbursementElection": null,
+      "Amount": "-$12.66",
+      "TransactionDetails": []
+    },
+    {
+      "Date": "10/25/2023",
+      "Action": "Dividend",
+      "Symbol": "CSCO",
+      "Quantity": null,
+      "Description": "Credit",
+      "FeesAndCommissions": null,
+      "DisbursementElection": null,
+      "Amount": "$84.38",
+      "TransactionDetails": []
+    },
+    {
+      "Date": "09/27/2023",
+      "Action": "Sale",
+      "Symbol": "CSCO",
+      "Quantity": "80",
+      "Description": "Share Sale",
+      "FeesAndCommissions": "$0.09",
+      "DisbursementElection": null,
+      "Amount": "$200,000,809.51",
+      "TransactionDetails": [
+        {
+          "Details": {
+            "Type": "RS",
+            "Shares": "30",
+            "SalePrice": "$47.62",
+            "SubscriptionDate": "",
+            "SubscriptionFairMarketValue": "",
+            "PurchaseDate": "",
+            "PurchasePrice": "",
+            "PurchaseFairMarketValue": "",
+            "DispositionType": null,
+            "GrantId": "1538646",
+            "VestDate": "11/10/2022",
+            "VestFairMarketValue": "$43.91",
+            "GrossProceeds": "$200,000,809.21"
+          }
+        }
+      ]
+    },
+    {
+      "Date": "02/12/2023",
+      "Action": "Journal",
+      "Symbol": "CSCO",
+      "Quantity": null,
+      "Description": "Journal To Account ...889",
+      "FeesAndCommissions": "",
+      "DisbursementElection": null,
+      "Amount": "-$667,873.89",
+      "TransactionDetails": []
+    },
+    {
+      "Date": "02/07/2023",
+      "Action": "Tax Reversal",
+      "Symbol": "CSCO",
+      "Quantity": null,
+      "Description": "Credit",
+      "FeesAndCommissions": null,
+      "DisbursementElection": null,
+      "Amount": "$1.88",
+      "TransactionDetails": []
+    },
+    {
+      "Date": "01/23/2023",
+      "Action": "Sale",
+      "Symbol": "CSCO",
+      "Quantity": "45",
+      "Description": "Share Sale",
+      "FeesAndCommissions": "$0.01",
+      "DisbursementElection": null,
+      "Amount": "$637.89",
+      "TransactionDetails": [
+        {
+          "Details": {
+            "Type": "ESPP",
+            "Shares": "15",
+            "SalePrice": "$58.62",
+            "SubscriptionDate": "01/04/2021",
+            "SubscriptionFairMarketValue": "$43.96",
+            "PurchaseDate": "01/10/2023",
+            "PurchasePrice": "$37.366",
+            "PurchaseFairMarketValue": "$53.00",
+            "DispositionType": "Disqualified",
+            "GrantId": null,
+            "VestDate": "",
+            "VestFairMarketValue": "",
+            "GrossProceeds": "$500,637.90"
+          }
+        }
+      ]
+    }
+  ]
+}
