@@ -14,6 +14,7 @@
     <properties>
         <java.long.version>11</java.long.version>
         <java.short.version>11</java.short.version>
+        <kotlin-serialization.version>1.6.2</kotlin-serialization.version>
     </properties>
 
     <dependencies>
@@ -28,8 +29,24 @@
         </dependency>
 
         <dependency>
+            <groupId>com.cisco.td.ade</groupId>
+            <artifactId>kotlin-commons</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-core-jvm</artifactId>
+            <version>${kotlin-serialization.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json-jvm</artifactId>
+            <version>${kotlin-serialization.version}</version>
         </dependency>
 
         <dependency>
@@ -52,5 +69,43 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                        <plugin>lombok</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
+                        <scope>provided</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
