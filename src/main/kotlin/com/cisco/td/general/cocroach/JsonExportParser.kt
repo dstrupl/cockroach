@@ -3,7 +3,6 @@
 package com.cisco.td.general.cocroach
 
 import com.cognitivesecurity.commons.io.ByteSourceChain
-import com.cognitivesecurity.commons.io.ByteSources
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -35,6 +34,7 @@ class JsonExportParser {
 
         return ParsedExport(
             export.transactions.filterIsInstance(Transaction.RsuDepositTransaction::class.java).map {
+                check(it.transactionDetails.size==1)
                 RsuRecord(
                     it.date,
                     it.quantity,
@@ -43,6 +43,7 @@ class JsonExportParser {
                 )
             },
             export.transactions.filterIsInstance(Transaction.EsppDepositTransaction::class.java).map {
+                check(it.transactionDetails.size==1)
                 EsppRecord(
                     it.date,
                     it.quantity,
@@ -72,6 +73,7 @@ class JsonExportParser {
             },
 
             export.transactions.filterIsInstance(Transaction.SaleTransaction::class.java).map {
+                check(it.transactionDetails.size==1)
                 SaleRecord(
                     it.date,
                     it.transactionDetails[0].details.type(),
