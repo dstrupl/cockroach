@@ -6,6 +6,7 @@ import com.cognitivesecurity.commons.collections.MoreFluentIterable;
 import com.cognitivesecurity.commons.io.ByteSources;
 import lombok.CustomLog;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,10 +19,9 @@ public class CocroachMain extends CommandLineApplication {
 
     public void report(File schwabExportFile, int year, File outputDir) throws IOException {
 
-        ExportParser exportParser = new ExportParser();
         ReportGenerator reportGenerator = new ReportGenerator();
 
-        ParsedExport parsedExport = exportParser.parse(ByteSources.fromFile(schwabExportFile));
+        ParsedExport parsedExport = parseExportFile(schwabExportFile);
         Report fixedRateReport = reportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded());
         Report dynamicRateReport = reportGenerator.generateForYear(parsedExport, year, TabularExchangeRateProvider.hardcoded());
 
@@ -36,7 +36,21 @@ public class CocroachMain extends CommandLineApplication {
         LOGGER.infoGlobal("35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {}",FormatingHelper.formatDouble(data.taxableIncome()));
         LOGGER.infoGlobal("38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {}",FormatingHelper.formatDouble(data.taxableDividendIncome()));
         LOGGER.infoGlobal("323 Daň zaplacená v zahraničí : {}",FormatingHelper.formatDouble(data.payedDividendTax()));
+    }
 
+    private ParsedExport parseExportFile(File schwabExportFile){
+        String extension = FilenameUtils.getExtension(schwabExportFile.getName());
+
+        if(extension.equals("json")) {
+            JsonExportParser exportParser = new JsonExportParser();
+            return exportParser.parse(ByteSources.fromFile(schwabExportFile));
+        } else if(extension.equals("csv")){
+            LOGGER.warnGlobal("You are using legacy version based on CSV export. This functionality will be removed. Nex time, please pass JSON export file!");
+            ExportParser exportParser = new ExportParser();
+            return exportParser.parse(ByteSources.fromFile(schwabExportFile));
+        }else{
+            throw new IllegalArgumentException("only .json .csv files are supported");
+        }
 
     }
 
