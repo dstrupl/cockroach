@@ -72,22 +72,24 @@ class JsonExportParser {
                 )
             },
 
-            export.transactions.filterIsInstance(Transaction.SaleTransaction::class.java).map {
-                check(it.transactionDetails.size==1)
-                SaleRecord(
-                    it.date,
-                    it.transactionDetails[0].details.type(),
-                    it.transactionDetails[0].details.shares,
-                    it.transactionDetails[0].details.salePrice,
-                    it.transactionDetails[0].details.purchasePrice(),
-                    it.transactionDetails[0].details.purchaseFmv(),
-                    it.transactionDetails[0].details.purchaseDate()
-                )
+            export.transactions.filterIsInstance(Transaction.SaleTransaction::class.java).flatMap {
+               it.transactionDetails.map {transactionDetail->
+                   SaleRecord(
+                       it.date,
+                       transactionDetail.details.type(),
+                       transactionDetail.details.shares,
+                       transactionDetail.details.salePrice,
+                       transactionDetail.details.purchasePrice(),
+                       transactionDetail.details.purchaseFmv(),
+                       transactionDetail.details.purchaseDate()
+                   )
+               }
+
             },
             export.transactions.filterIsInstance(Transaction.JournalTransaction::class.java).map {
                 JournalRecord(
                     it.date,
-                    it.amount,
+                    it.amount?:0.0,
                     it.description
                 )
             },
@@ -113,9 +115,12 @@ object TransactionSerializer : JsonContentPolymorphicSerializer<Transaction>(
                 when (desc) {
                     "ESPP" -> Transaction.EsppDepositTransaction.serializer()
                     "RS" -> Transaction.RsuDepositTransaction.serializer()
+                    "Div Reinv" ->Transaction.DivReinvTransaction.serializer()
                     else -> error("invalid deposit desc $desc")
                 }
             }
+            "Dividend Reinvested" ->  Transaction.DividentReinvestedTransaction.serializer()
+            "Wire Transfer" -> Transaction.WireTransferTransaction.serializer()
 
             "Tax Withholding" -> Transaction.TaxWithholdingTransaction.serializer()
             "Tax Reversal" -> Transaction.TaxReversalTransaction.serializer()
@@ -168,6 +173,14 @@ sealed class Transaction {
     ) : Transaction()
 
     @Serializable
+    data class DivReinvTransaction(
+        @Contextual
+        override val date: LocalDate,
+
+        val quantity: Double,
+    ) : Transaction()
+
+    @Serializable
     data class TaxWithholdingTransaction(
         @Contextual
         override val date: LocalDate,
@@ -187,6 +200,29 @@ sealed class Transaction {
 
     @Serializable
     data class JournalTransaction(
+        @Contextual
+        override val date: LocalDate,
+
+        @Contextual
+        val amount: Double?,
+
+        val description: String
+    ) : Transaction()
+
+    @Serializable
+    data class DividentReinvestedTransaction(
+        @Contextual
+        override val date: LocalDate,
+
+        @Contextual
+        val amount: Double,
+
+        val description: String
+    ) : Transaction()
+
+
+    @Serializable
+    data class WireTransferTransaction(
         @Contextual
         override val date: LocalDate,
 
