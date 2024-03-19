@@ -1,22 +1,19 @@
 package com.cisco.td.general.cocroach;
 
-import com.cisco.logging.Logger;
-import com.cisco.logging.LoggerFactory;
-import com.cognitivesecurity.commons.io.ByteSourceChain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ExportParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExportParser.class);
+    private static final Logger LOGGER = Logger.getLogger(ExportParser.class.getName());
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("YYYY/MM/dd").withZoneUTC();
     private static final DateTimeFormatter REVERSE_DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/YYYY").withZoneUTC();

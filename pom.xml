@@ -2,42 +2,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>core-tools</artifactId>
-        <groupId>com.cisco.td.ade</groupId>
-        <version>7.4-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>cockroach.solutions.cz</groupId>
     <artifactId>cockroach</artifactId>
+    <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <java.long.version>11</java.long.version>
-        <java.short.version>11</java.short.version>
+        <java.long.version>17</java.long.version>
+        <java.short.version>17</java.short.version>
         <kotlin-serialization.version>1.6.2</kotlin-serialization.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.cognitivesecurity</groupId>
-            <artifactId>commons</artifactId>
-        </dependency>
-
            <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.cisco.td.ade</groupId>
-            <artifactId>kotlin-commons</artifactId>
+            <version>1.18.30</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-csv</artifactId>
+            <version>2.17.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.12.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.0.0-jre</version>
+        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-serialization-core-jvm</artifactId>
@@ -48,26 +46,11 @@
             <artifactId>kotlinx-serialization-json-jvm</artifactId>
             <version>${kotlin-serialization.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>com.cognitivesecurity</groupId>
-            <artifactId>commons-testutils</artifactId>
-            <scope>test</scope>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>3.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.cisco.td.ade</groupId>
-            <artifactId>handlebars-wrapper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.cisco.td.ade</groupId>
-            <artifactId>easy-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.cisco.td.ade</groupId>
-            <artifactId>csv-reader</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -75,7 +58,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
+                <version>1.9.23</version>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -95,12 +78,12 @@
                     <dependency>
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-serialization</artifactId>
-                        <version>${kotlin.version}</version>
+                        <version>1.9.23</version>
                     </dependency>
                     <dependency>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
-                        <version>${lombok.version}</version>
+                        <version>1.18.30</version>
                     </dependency>
                 </dependencies>
             </plugin>

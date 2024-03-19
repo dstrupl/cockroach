@@ -1,22 +1,13 @@
 package com.cisco.td.general.cocroach;
 
-import com.cisco.td.ade.commandline.CommandLineApplication;
-import com.cisco.td.ade.logging.ConsoleLogging;
-import com.cognitivesecurity.commons.collections.MoreFluentIterable;
-import com.cognitivesecurity.commons.io.ByteSources;
-import lombok.CustomLog;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
+import java.util.logging.Logger;
 
-@ConsoleLogging
-@CustomLog
-public class CocroachMain extends CommandLineApplication {
 
+public class CocroachMain {
+    private static final Logger LOGGER = Logger.getLogger(CocroachMain.class.getName());
     public void report(File schwabExportFile, int year, File outputDir) throws IOException {
 
         ReportGenerator reportGenerator = new ReportGenerator();
@@ -33,9 +24,9 @@ public class CocroachMain extends CommandLineApplication {
         FileUtils.writeStringToFile(new File(outputDir, "sales_" + year + ".md"), data.getSales(), StandardCharsets.UTF_8);
 
 
-        LOGGER.infoGlobal("35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {}",FormatingHelper.formatDouble(data.taxableIncome()));
-        LOGGER.infoGlobal("38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {}",FormatingHelper.formatDouble(data.taxableDividendIncome()));
-        LOGGER.infoGlobal("323 Daň zaplacená v zahraničí : {}",FormatingHelper.formatDouble(data.payedDividendTax()));
+        LOGGER.info("35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {}",FormatingHelper.formatDouble(data.taxableIncome()));
+        LOGGER.info("38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {}",FormatingHelper.formatDouble(data.taxableDividendIncome()));
+        LOGGER.info("323 Daň zaplacená v zahraničí : {}",FormatingHelper.formatDouble(data.payedDividendTax()));
     }
 
     private ParsedExport parseExportFile(File schwabExportFile){
@@ -45,7 +36,7 @@ public class CocroachMain extends CommandLineApplication {
             JsonExportParser exportParser = new JsonExportParser();
             return exportParser.parse(ByteSources.fromFile(schwabExportFile));
         } else if(extension.equals("csv")){
-            LOGGER.warnGlobal("You are using legacy version based on CSV export. This functionality will be removed. Nex time, please pass JSON export file!");
+            LOGGER.warn("You are using legacy version based on CSV export. This functionality will be removed. Nex time, please pass JSON export file!");
             ExportParser exportParser = new ExportParser();
             return exportParser.parse(ByteSources.fromFile(schwabExportFile));
         }else{
@@ -58,7 +49,7 @@ public class CocroachMain extends CommandLineApplication {
         double taxWhenUsedFixedRate = fixedRateReport.taxToPay();
         double taxWhenUsedDynamicRate = dynamicRateReport.taxToPay();
         if(taxWhenUsedFixedRate<=taxWhenUsedDynamicRate){
-            LOGGER.infoGlobal(
+            LOGGER.info(
                     "Using fixed Dollar conversion rate, because {}<={} (diff={})",
                     FormatingHelper.formatDouble(taxWhenUsedFixedRate),
                     FormatingHelper.formatDouble(taxWhenUsedDynamicRate),
@@ -66,7 +57,7 @@ public class CocroachMain extends CommandLineApplication {
             );
             return fixedRateReport;
         } else{
-            LOGGER.infoGlobal(
+            LOGGER.info(
                     "Using dynamic Dollar conversion rate, because {}<{} (diff={})",
                     FormatingHelper.formatDouble(taxWhenUsedDynamicRate),
                     FormatingHelper.formatDouble(taxWhenUsedFixedRate),
@@ -74,5 +65,10 @@ public class CocroachMain extends CommandLineApplication {
             );
             return dynamicRateReport;
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        CocroachMain cocroachMain = new CocroachMain();
+        cocroachMain.report(new File(args[0]), Integer.parseInt(args[1]), new File(args[2]));
     }
 }
