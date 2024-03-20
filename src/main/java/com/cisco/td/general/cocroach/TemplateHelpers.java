@@ -1,8 +1,5 @@
 package com.cisco.td.general.cocroach;
 
-import com.cognitivesecurity.commons.time.Duration;
-import com.cognitivesecurity.commons.time.DurationUtils;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -21,9 +18,9 @@ public class TemplateHelpers {
             .toFormatter()
             .withZone(ZoneOffset.UTC);
 
-    public static String durationRound(Duration input) {
-        return DurationUtils.roundDurationToLargest(input);
-    }
+//    public static String durationRound(Duration input) {
+//        return DurationUtils.roundDurationToLargest(input);
+//    }
     
     public static String upperCase(Object input) {
         return input.toString().toUpperCase();

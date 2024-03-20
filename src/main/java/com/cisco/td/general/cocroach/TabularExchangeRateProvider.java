@@ -1,8 +1,13 @@
 package com.cisco.td.general.cocroach;
 
+import com.github.jknack.handlebars.Template;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.io.CharStreams;
 import org.joda.time.LocalDate;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.NavigableMap;
 
@@ -15,10 +20,10 @@ public class TabularExchangeRateProvider implements ExchangeRateProvider {
 
     public static TabularExchangeRateProvider hardcoded() {
         return new ExchangeRatesReader().parse(
-                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2021.txt"),
-                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2022_a.txt"),
-                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2022_b.txt"),
-                ByteSources.fromResource(TabularExchangeRateProvider.class, "rates_2023.txt")
+                load("rates_2021.txt"),
+                load("rates_2022_a.txt"),
+                load("rates_2022_b.txt"),
+                load("rates_2023.txt")
         );
     }
 
@@ -29,6 +34,15 @@ public class TabularExchangeRateProvider implements ExchangeRateProvider {
             return maybeEntry.getValue();
         } else {
             throw new IllegalArgumentException("can not find rate for " + day);
+        }
+    }
+
+    public static String load(String fileName) {
+        try {
+            InputStream is = TabularExchangeRateProvider.class.getResourceAsStream(fileName);
+            return CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load template " + fileName, e);
         }
     }
 }

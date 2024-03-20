@@ -4,8 +4,9 @@ import org.joda.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.cognitivesecurity.commons.util.Literals.list;
-import static com.cognitivesecurity.commons.util.Literals.map;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -21,7 +22,7 @@ class SalesReportPreparationTest {
     @Test
     void oldPurchasesStillTakenAccountFor100KLimit() {
         SalesReport salesReport = salesReportPreparation.generateSalesReport(
-                list(
+                List.of(
                         new SaleRecord(
                                 LocalDate.parse("2021-06-30"),
                                 "ESPP",
@@ -42,7 +43,7 @@ class SalesReportPreparationTest {
                         )
                 ),
                 DateInterval.year(2021),
-                new YearConstantExchangeRateProvider(map(2021, 10.0))
+                new YearConstantExchangeRateProvider(Map.of(2021, 10.0))
         );
 
         assertThat(
@@ -60,7 +61,7 @@ class SalesReportPreparationTest {
     @Test
     void lossInLast3YearsIsDistractedFromProfit() {
         SalesReport salesReport = salesReportPreparation.generateSalesReport(
-                list(
+                List.of(
                         new SaleRecord(
                                 LocalDate.parse("2021-06-30"),
                                 "ESPP",
@@ -81,7 +82,7 @@ class SalesReportPreparationTest {
                         )
                 ),
                 DateInterval.year(2021),
-                new YearConstantExchangeRateProvider(map(2021, 10.0))
+                new YearConstantExchangeRateProvider(Map.of(2021, 10.0))
         );
 
         assertThat(

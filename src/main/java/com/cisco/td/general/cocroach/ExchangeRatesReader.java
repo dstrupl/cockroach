@@ -1,32 +1,42 @@
 package com.cisco.td.general.cocroach;
 
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class ExchangeRatesReader {
-    private final CsvReader csvReader = CsvReader.builder().separator('|').build();
 
-    public TabularExchangeRateProvider parse(ByteSourceChain ... data) {
+    public TabularExchangeRateProvider parse(String ... files) {
 
-        Map<LocalDate, Double> mapping = MoreFluentIterable.from(data).map(this::parseOne)
-                .collect(CollectionUtils::mergeMapsWithDistinctKeys);
+        Map<LocalDate, Double> mapping = Arrays.stream(files)
+                .map(this::parseOne)
+                .reduce((firstMap, secondMap) -> {
+                    firstMap.putAll(secondMap);
+                    return firstMap;
+                }).orElse(Map.of());
 
         return new TabularExchangeRateProvider(mapping);
 
     }
 
-    public Map<LocalDate, Double> parseOne(ByteSourceChain data) {
+    public Map<LocalDate, Double> parseOne(String data) {
+        return data.lines()
+                .skip(1)
+                .map(this::parseLine)
+                .collect(Collectors.toMap(Line::getDate, Line::getAmount));
+    }
 
-        return MoreFluentIterable.from(csvReader.readInputContainingHeader(data, Line.class))
-                .toFluentMap(
-                        Line::getDate,
-                        line -> line.getRate().getAmount()
-                )
-                .immutableCopy();
+    private Line parseLine(String line) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.YYYY");
+        String[] parts = line.split("\\|");
+        return new Line(LocalDate.parse(parts[0], formatter), Money.fromString(parts[31]));
     }
 
     @Value
@@ -36,6 +46,10 @@ public class ExchangeRatesReader {
         LocalDate date;
         @JsonProperty("1 USD")
         Money rate;
+
+        public double getAmount() {
+            return rate.getAmount();
+        }
     }
 
     @Value
