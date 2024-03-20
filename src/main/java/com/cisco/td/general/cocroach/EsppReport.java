@@ -15,7 +15,7 @@ public class EsppReport {
     int totalEsppAmount;
 
     public Map<String,?> asMap(){
-        return map(
+        return Map.of(
                 "esppList", printableEsppList,
                 "profitCroneValue", formatDouble(profitCroneValue),
                 "profitDolarValue", formatDouble(profitDolarValue),

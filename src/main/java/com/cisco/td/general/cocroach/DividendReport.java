@@ -18,7 +18,7 @@ public class DividendReport {
     double totalTaxReversalCrown;
 
     public Map<String,?> asMap(){
-        return map(
+        return Map.of(
                 "dividendList", printableDividendList,
                 "totalBruttoDollar", formatDouble(totalBruttoDollar),
                 "totalTaxDollar", formatDouble(totalTaxDollar),

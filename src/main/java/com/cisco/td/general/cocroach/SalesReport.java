@@ -18,7 +18,7 @@ public class SalesReport {
     double profitForTax;
 
     public Map<String,?> asMap(){
-        return map(
+        return Map.of(
                 "salesList", printableSalesList,
                 "sellCroneValue", formatDouble(sellCroneValue),
                 "sellDollarValue", formatDouble(sellDollarValue),

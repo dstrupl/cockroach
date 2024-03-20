@@ -15,7 +15,7 @@ public class RsuReport {
     int totalAmount;
 
     public Map<String, ?> asMap() {
-        return map(
+        return Map.of(
                 "rsuList", printableRsuList,
                 "rsuCroneValue", formatDouble(rsuCroneValue),
                 "rsuDolarValue", formatDouble(rsuDollarValue),

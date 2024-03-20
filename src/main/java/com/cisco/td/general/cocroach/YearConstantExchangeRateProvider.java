@@ -13,7 +13,7 @@ public class YearConstantExchangeRateProvider implements ExchangeRateProvider {
 
     public static YearConstantExchangeRateProvider hardcoded() {
         return new YearConstantExchangeRateProvider(
-                map(
+                Map.of(
                         2018, 21.780,
                         2019, 22.930,
                         2020, 23.140,
