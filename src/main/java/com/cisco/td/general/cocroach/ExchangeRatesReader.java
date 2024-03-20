@@ -40,7 +40,7 @@ public class ExchangeRatesReader {
 
     @Value
     private static class Money {
-        private final double amount;
+        double amount;
 
         public static Money fromString(String input) {
             return new Money(Double.parseDouble(input.replace(',', '.')));

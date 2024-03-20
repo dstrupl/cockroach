@@ -1,13 +1,21 @@
 package com.cisco.td.general.cocroach;
 
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
 import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class Report {
-    private final Template rsuTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("rsu.hbs");
-    private final Template dividendTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("dividend.hbs");
-    private final Template esppTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("espp.hbs");
-    private final Template salesTemplate = new TemplateEngine(ReportGenerator.class, GeneralTemplateHelpers.class).load("sales.hbs");
+    private final Template rsuTemplate = new TemplateEngine(ReportGenerator.class, TemplateHelpers.class).load("rsu.hbs");
+    private final Template dividendTemplate = new TemplateEngine(ReportGenerator.class, TemplateHelpers.class).load("dividend.hbs");
+    private final Template esppTemplate = new TemplateEngine(ReportGenerator.class, TemplateHelpers.class).load("espp.hbs");
+    private final Template salesTemplate = new TemplateEngine(ReportGenerator.class, TemplateHelpers.class).load("sales.hbs");
 
 
     private final RsuReport rsuReport;
@@ -16,19 +24,19 @@ public class Report {
     private final SalesReport salesReport;
 
     public String getRsu() {
-        return rsuTemplate.render(rsuReport.asMap());
+        return render(rsuTemplate, rsuReport.asMap());
     }
 
     public String getDividend() {
-        return dividendTemplate.render(dividendReport.asMap());
+        return render(dividendTemplate, dividendReport.asMap());
     }
 
     public String getEspp() {
-        return esppTemplate.render(esppReport.asMap());
+        return render(esppTemplate, esppReport.asMap());
     }
 
     public String getSales() {
-        return salesTemplate.render(salesReport.asMap());
+        return render(salesTemplate, salesReport.asMap());
     }
 
     public double taxToPay() {
@@ -46,5 +54,21 @@ public class Report {
     public double payedDividendTax() {
         return dividendReport.getTotalTaxCrown();
     }
+
+    public String render(Template template, Map<String, ?> variables) {
+        try {
+            Context context = Context.newBuilder(variables)
+                    .resolver(
+                            MapValueResolver.INSTANCE,
+                            JavaBeanValueResolver.INSTANCE,
+                            FieldValueResolver.INSTANCE
+                    )
+                    .build();
+            return template.apply(context);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not render template", e);
+        }
+    }
+
 
 }

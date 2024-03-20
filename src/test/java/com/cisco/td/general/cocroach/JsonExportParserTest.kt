@@ -1,7 +1,5 @@
 package com.cisco.td.general.cocroach
 
-import com.cisco.td.cta.common.testutils.resources.TestResource
-import com.cognitivesecurity.commons.io.ByteSources
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.Test

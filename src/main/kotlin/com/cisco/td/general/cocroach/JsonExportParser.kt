@@ -2,7 +2,6 @@
 
 package com.cisco.td.general.cocroach
 
-import com.cognitivesecurity.commons.io.ByteSourceChain
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
