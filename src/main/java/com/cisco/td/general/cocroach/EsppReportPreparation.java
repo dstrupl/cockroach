@@ -14,7 +14,7 @@ public class EsppReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     public EsppReport generateEsppReport(List<EsppRecord> esppRecordList, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
-        List<EsppRecord> esppRecords = MoreFluentIterable.from(esppRecordList)
+        List<EsppRecord> esppRecords = esppRecordList.stream()
                 .filter(a -> interval.contains(a.getPurchaseDate()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
                 .toList();

@@ -15,7 +15,7 @@ public class SalesReportPreparation {
 
     public SalesReport generateSalesReport(List<SaleRecord> salesRecords, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
-        List<SaleRecord> saleRecords = MoreFluentIterable.from(salesRecords)
+        List<SaleRecord> saleRecords = salesRecords.stream()
                 .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(SaleRecord::getDate))
                 .toList();

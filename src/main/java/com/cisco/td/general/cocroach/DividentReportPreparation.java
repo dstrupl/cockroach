@@ -17,18 +17,18 @@ public class DividentReportPreparation {
 
     public DividendReport generateDividendReport(List<DividendRecord> dividendRecordList, List<TaxRecord> taxRecordList, List<TaxReversalRecord> taxReversalRecordList, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
 
-        List<DividendRecord> dividendRecords = MoreFluentIterable.from(dividendRecordList)
+        List<DividendRecord> dividendRecords = dividendRecordList.stream()
                 .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(DividendRecord::getDate))
                 .toList();
 
-        Map<LocalDate, TaxRecord> taxRecords = MoreFluentIterable.from(taxRecordList)
+        Map<LocalDate, TaxRecord> taxRecords = taxRecordList.stream()
                 .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(TaxRecord::getDate))
                 .fluentUniqueIndex(TaxRecord::getDate)
                 .immutableCopy();
 
-        List<TaxReversalRecord> taxReversalRecords = MoreFluentIterable.from(taxReversalRecordList)
+        List<TaxReversalRecord> taxReversalRecords = taxReversalRecordList.stream()
                 .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(TaxReversalRecord::getDate))
                 .toList();

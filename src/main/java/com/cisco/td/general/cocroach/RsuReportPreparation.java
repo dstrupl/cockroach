@@ -14,7 +14,7 @@ public class RsuReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     public RsuReport generateRsuReport(List<RsuRecord> rsuRecordList, DateInterval interval,ExchangeRateProvider exchangeRateProvider) {
-        List<RsuRecord> rsuRecords = MoreFluentIterable.from(rsuRecordList)
+        List<RsuRecord> rsuRecords = rsuRecordList.stream()
                 .filter(a -> interval.contains(a.getVestDate()))
                 .sorted(Comparator.comparing(RsuRecord::getDate))
                 .toList();
