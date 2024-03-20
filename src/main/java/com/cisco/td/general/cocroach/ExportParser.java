@@ -4,14 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.io.ByteSource;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,7 @@ public class ExportParser {
     }
 
     @SuppressWarnings("NestedSwitchStatement")
-    public ParsedExport parse(String data) throws IOException {
+    public ParsedExport parse(String data) {
 
         List<RsuRecord> rsuRecords = new ArrayList<>();
         List<EsppRecord> esppRecords = new ArrayList<>();

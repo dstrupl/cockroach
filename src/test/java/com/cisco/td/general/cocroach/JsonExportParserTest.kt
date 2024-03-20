@@ -3,7 +3,6 @@ package com.cisco.td.general.cocroach
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class JsonExportParserTest {
 

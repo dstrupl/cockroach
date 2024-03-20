@@ -1,6 +1,5 @@
 package com.cisco.td.general.cocroach;
 
-import com.github.jknack.handlebars.Template;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.CharStreams;
@@ -40,6 +39,7 @@ public class TabularExchangeRateProvider implements ExchangeRateProvider {
     public static String load(String fileName) {
         try {
             InputStream is = TabularExchangeRateProvider.class.getResourceAsStream(fileName);
+            assert is != null;
             return CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
         } catch (Exception e) {
             throw new RuntimeException("Could not load template " + fileName, e);
