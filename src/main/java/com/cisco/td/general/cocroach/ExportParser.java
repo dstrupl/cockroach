@@ -4,10 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.google.common.io.ByteSource;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -32,7 +37,7 @@ public class ExportParser {
     }
 
     @SuppressWarnings("NestedSwitchStatement")
-    public ParsedExport parse(ByteSourceChain data) {
+    public ParsedExport parse(ByteSource data) throws IOException {
 
         List<RsuRecord> rsuRecords = new ArrayList<>();
         List<EsppRecord> esppRecords = new ArrayList<>();
@@ -42,8 +47,7 @@ public class ExportParser {
         List<JournalRecord> journalRecords = new ArrayList<>();
         List<SaleRecord> saleRecords = new ArrayList<>();
 
-
-        List<String> lines = data.fluentLines().toList();
+        List<String> lines = data.asCharSource(Charset.defaultCharset()).lines().toList();
 
         for (int i = 1; i < lines.size(); i++) {
 
@@ -167,12 +171,14 @@ public class ExportParser {
                                     );
                                     break;
                                 default:
-                                    LOGGER.warnGlobal("Unknown Sale type {}, ignoring", salesValues[17]);
+                                    LOGGER.warning(MessageFormat.format(
+                                            "Unknown Sale type {0}, ignoring", salesValues[17]));
                             }
                             break;
 
                         default:
-                            LOGGER.warnGlobal("Unknown report type item {}, ignoring", action);
+                            LOGGER.warning(MessageFormat.format(
+                                    "Unknown report type item {0}, ignoring", action));
                     }
                 }
 
