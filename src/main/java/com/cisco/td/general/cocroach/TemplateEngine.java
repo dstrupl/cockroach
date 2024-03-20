@@ -4,6 +4,12 @@ import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ResourceBundle;
 
 public class TemplateEngine {
     private final Handlebars handlebars;
@@ -29,7 +35,8 @@ public class TemplateEngine {
 
     public Template load(String templateName) {
         try {
-            String templateText = "<TODO: load template from file called templateName>";
+            InputStream is = this.getClass().getResourceAsStream(templateName);
+            String templateText = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
             return handlebars.compileInline(templateText);
         } catch (Exception e) {
             throw new RuntimeException("Could not load template " + templateName, e);
