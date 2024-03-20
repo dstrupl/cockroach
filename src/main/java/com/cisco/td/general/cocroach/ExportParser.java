@@ -37,7 +37,7 @@ public class ExportParser {
     }
 
     @SuppressWarnings("NestedSwitchStatement")
-    public ParsedExport parse(ByteSource data) throws IOException {
+    public ParsedExport parse(String data) throws IOException {
 
         List<RsuRecord> rsuRecords = new ArrayList<>();
         List<EsppRecord> esppRecords = new ArrayList<>();
@@ -47,7 +47,7 @@ public class ExportParser {
         List<JournalRecord> journalRecords = new ArrayList<>();
         List<SaleRecord> saleRecords = new ArrayList<>();
 
-        List<String> lines = data.asCharSource(Charset.defaultCharset()).lines().toList();
+        List<String> lines = data.lines().toList();
 
         for (int i = 1; i < lines.size(); i++) {
 

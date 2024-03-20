@@ -3,13 +3,17 @@ package com.cisco.td.general.cocroach
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.Test
+import java.io.File
 
 class JsonExportParserTest {
+
+    private fun loadResource(file: String) = {}::class.java.getResource(file)?.readText()
+
     @Test
     fun parses() {
-        val actual = JsonExportParser().parse(
-            ByteSources.fromFile(TestResource.resourceAsFile("json_export.json"))
-        )
+        val actual = loadResource("json_export.json")?.let {
+            JsonExportParser().parse(it)
+        }
 
         assertThat(actual).isEqualTo(
             ParsedExport(

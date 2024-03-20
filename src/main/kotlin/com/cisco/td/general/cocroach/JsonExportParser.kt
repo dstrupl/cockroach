@@ -27,8 +27,8 @@ class JsonExportParser {
         }
     }
 
-    fun parse(data: ByteSourceChain): ParsedExport {
-        val export: SchwabExport = jsonReader.decodeFromString(data.asString())
+    fun parse(data: String): ParsedExport {
+        val export: SchwabExport = jsonReader.decodeFromString(data)
 
 
         return ParsedExport(
