@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
 import static com.cisco.td.general.cocroach.FormatingHelper.formatExchangeRate;
@@ -25,8 +26,9 @@ public class DividentReportPreparation {
         Map<LocalDate, TaxRecord> taxRecords = taxRecordList.stream()
                 .filter(a -> interval.contains(a.getDate()))
                 .sorted(Comparator.comparing(TaxRecord::getDate))
-                .fluentUniqueIndex(TaxRecord::getDate)
-                .immutableCopy();
+                .collect(Collectors.toMap(
+                        TaxRecord::getDate,
+                        value -> value));
 
         List<TaxReversalRecord> taxReversalRecords = taxReversalRecordList.stream()
                 .filter(a -> interval.contains(a.getDate()))
