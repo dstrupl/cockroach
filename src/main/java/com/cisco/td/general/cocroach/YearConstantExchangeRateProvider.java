@@ -5,7 +5,6 @@ import org.joda.time.LocalDate;
 
 import java.util.Map;
 
-import static com.cognitivesecurity.commons.util.Literals.map;
 
 @RequiredArgsConstructor
 public class YearConstantExchangeRateProvider implements ExchangeRateProvider {

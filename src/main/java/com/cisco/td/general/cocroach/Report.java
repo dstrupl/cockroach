@@ -1,8 +1,5 @@
 package com.cisco.td.general.cocroach;
 
-import com.cisco.td.ade.generate.templating.GeneralTemplateHelpers;
-import com.cisco.td.ade.generate.templating.Template;
-import com.cisco.td.ade.generate.templating.TemplateEngine;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

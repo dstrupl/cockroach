@@ -1,6 +1,5 @@
 package com.cisco.td.general.cocroach;
 
-import com.cognitivesecurity.commons.collections.MoreFluentIterable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 

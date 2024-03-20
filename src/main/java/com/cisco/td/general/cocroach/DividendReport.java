@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cisco.td.general.cocroach.FormatingHelper.formatDouble;
-import static com.cognitivesecurity.commons.util.Literals.map;
 
 @Value
 public class DividendReport {
