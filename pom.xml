@@ -135,7 +135,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.cisco.td.general.cocroach.CocroachMain</mainClass>
+                            <mainClass>cz.solutions.cockroach.CockroachMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
