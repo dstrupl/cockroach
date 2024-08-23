@@ -1,8 +1,10 @@
 # Cockroach will help you with your taxes
 
+This small utility is for people using [Charles Schwab brokerage](https://www.schwab.com/) services in
+the [Czech Republic](https://en.wikipedia.org/wiki/Czech_Republic).
+
 The program reads the Schwab export of your stock transactions and creates a summary of your sales and purchases
 for the tax year.
-
 
 # Obtaining Schwab CSV export for last year
 
