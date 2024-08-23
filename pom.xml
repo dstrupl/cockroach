@@ -11,9 +11,9 @@
     <properties>
         <java.long.version>17</java.long.version>
         <java.short.version>17</java.short.version>
-        <kotlin-serialization.version>1.6.2</kotlin-serialization.version>
+        <kotlin-serialization.version>1.7.1</kotlin-serialization.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.9.23</kotlin.version>
+        <kotlin.version>2.0.0</kotlin.version>
     </properties>
 
     <dependencies>
