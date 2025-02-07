@@ -42,7 +42,7 @@ for the tax year.
     export options under Tools \> Markdown Converter menu.\
     ![](media/image2.png)
 
-# Compiling and Running (probably very redundant information)
+# Compiling and Running
 
 mvn clean install -am
 
