@@ -22,7 +22,8 @@ public class TabularExchangeRateProvider implements ExchangeRateProvider {
                 load("rates_2021.txt"),
                 load("rates_2022_a.txt"),
                 load("rates_2022_b.txt"),
-                load("rates_2023.txt")
+                load("rates_2023.txt"),
+                load("rates_2024.txt")
         );
     }
 

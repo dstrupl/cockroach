@@ -27,16 +27,19 @@ public class ExchangeRatesReader {
     }
 
     public Map<LocalDate, Double> parseOne(String data) {
+        String header = data.lines().findFirst().orElseThrow();
+        String[] headerParts = header.split("\\|");
+        int usdIndex = Arrays.asList(headerParts).indexOf("1 USD");
         return data.lines()
                 .skip(1)
-                .map(this::parseLine)
+                .map(line -> parseLine(line, usdIndex))
                 .collect(Collectors.toMap(Line::getDate, Line::getAmount));
     }
 
-    private Line parseLine(String line) {
+    private Line parseLine(String line, int usdIndex) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.YYYY");
         String[] parts = line.split("\\|");
-        return new Line(LocalDate.parse(parts[0], formatter), Money.fromString(parts[31]));
+        return new Line(LocalDate.parse(parts[0], formatter), Money.fromString(parts[usdIndex]));
     }
 
     @Value

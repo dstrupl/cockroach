@@ -193,6 +193,10 @@
                         <goals> <goal>testCompile</goal> </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <source>${java.long.version}</source>
+                    <target>${java.long.version}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
