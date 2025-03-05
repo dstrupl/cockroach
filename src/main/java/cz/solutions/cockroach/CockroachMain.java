@@ -49,12 +49,8 @@ public class CockroachMain {
         if(extension.equals("json")) {
             JsonExportParser exportParser = new JsonExportParser();
             return exportParser.parse(load(schwabExportFile));
-        } else if(extension.equals("csv")){
-            LOGGER.warning("You are using legacy version based on CSV export. This functionality will be removed. Nex time, please pass JSON export file!");
-            ExportParser exportParser = new ExportParser();
-            return exportParser.parse(load(schwabExportFile));
         }else{
-            throw new IllegalArgumentException("only .json .csv files are supported");
+            throw new IllegalArgumentException("only .json  files are supported");
         }
 
     }
