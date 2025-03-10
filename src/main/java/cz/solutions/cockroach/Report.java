@@ -39,8 +39,8 @@ public class Report {
         return render(salesTemplate, salesReport.asMap());
     }
 
-    public double taxToPay() {
-        return (rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue() + dividendReport.getTotalBruttoCrown()) * 0.15 + dividendReport.getTotalTaxCrown();
+    public double rsuAndEsppAndSalesProfitCroneVakue() {
+        return rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue() ;
     }
 
     public double taxableIncome() {

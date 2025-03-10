@@ -56,22 +56,22 @@ public class CockroachMain {
     }
 
     private Report chooseBetterAltertnative(Report fixedRateReport ,Report dynamicRateReport){
-        double taxWhenUsedFixedRate = fixedRateReport.taxToPay();
-        double taxWhenUsedDynamicRate = dynamicRateReport.taxToPay();
-        if(taxWhenUsedFixedRate<=taxWhenUsedDynamicRate){
+        double profitWhenUsedFixedRate = fixedRateReport.rsuAndEsppAndSalesProfitCroneVakue();
+        double profitWhenUsedDynamicRate = dynamicRateReport.rsuAndEsppAndSalesProfitCroneVakue();
+        if(profitWhenUsedFixedRate<=profitWhenUsedDynamicRate){
             LOGGER.info(MessageFormat.format(
                     "Using fixed Dollar conversion rate, because {0}<={1} (diff={2})",
-                    FormatingHelper.formatDouble(taxWhenUsedFixedRate),
-                    FormatingHelper.formatDouble(taxWhenUsedDynamicRate),
-                    FormatingHelper.formatDouble(taxWhenUsedDynamicRate-taxWhenUsedFixedRate)
+                    FormatingHelper.formatDouble(profitWhenUsedFixedRate),
+                    FormatingHelper.formatDouble(profitWhenUsedDynamicRate),
+                    FormatingHelper.formatDouble(profitWhenUsedDynamicRate-profitWhenUsedFixedRate)
             ));
             return fixedRateReport;
         } else{
             LOGGER.info(MessageFormat.format(
                     "Using dynamic Dollar conversion rate, because {0}<{1} (diff={2})",
-                    FormatingHelper.formatDouble(taxWhenUsedDynamicRate),
-                    FormatingHelper.formatDouble(taxWhenUsedFixedRate),
-                    FormatingHelper.formatDouble(taxWhenUsedFixedRate-taxWhenUsedDynamicRate)
+                    FormatingHelper.formatDouble(profitWhenUsedDynamicRate),
+                    FormatingHelper.formatDouble(profitWhenUsedFixedRate),
+                    FormatingHelper.formatDouble(profitWhenUsedFixedRate-profitWhenUsedDynamicRate)
             ));
             return dynamicRateReport;
         }
