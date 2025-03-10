@@ -16,6 +16,8 @@ public class SalesReport {
     double recentProfitCroneValue;
     int totalAmount;
     double profitForTax;
+    double sellCroneForTax;
+    double buyCroneForTax;
 
     public Map<String,?> asMap(){
         return Map.of(

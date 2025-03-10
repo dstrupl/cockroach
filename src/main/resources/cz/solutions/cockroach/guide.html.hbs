@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide</title>
+    <style>
+        body {
+            background-color: #f8d7d6;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .button-container {
+            margin-top: 10px;
+        }
+        button {
+            background-color: #f8d7d6;
+            border: 1px solid black;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .delete-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .light-green {
+            background-color: #f9ffe5;
+        }
+        .large-button {
+            background-color: #f8d7d6;
+            padding: 10px;
+            font-weight: bold;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ESPP + RSU  Older Legislative</h1>
+<h2>2. ODDÍL - Dílčí základ daně, základ daně, ztráta</h2>
+<p><strong>1. Výpočet dílčího základu daně z příjmů fyzických osob ze závislé činnosti a z funkčních požitků (§ 6 zákona)</strong></p>
+<table>
+    <tr>
+        <td>31 Úhrn příjmů od všech zaměstnavatelů</td>
+        <td class="light-green">XXXX + {{rsuAndEsppProfitCroneValue}}</td>
+        <td><button class="large-button">VÝPOČTOVÁ TABULKA K § 6</button></td>
+    </tr>
+</table>
+
+<h3>Tabulka pro zadání údajů o příjmech podle § 6 zákona v členění dle jednotlivých zaměstnavatelů</h3>
+<table>
+    <tr>
+        <th>Název zaměstnavatele</th>
+        <th>Úhrn příjmů ze závislé činnosti</th>
+        <th>Sražená záloha na daň v úhrnné výši</th>
+        <th>Úhrn vyplacených měsíčních daňových bonusů podle § 35d zákona</th>
+        <th>Sražená daň podle § 36 odst. 6 zákona</th>
+        <th>Sražená daň podle § 36 odst. 7 zákona</th>
+        <th></th>
+    </tr>
+    <tr>
+        <td>CISCO SYSTEMS</td>
+        <td>row 1. of POTVRZENÍ o zdan....</td>
+        <td>row 8. of POTVRZENÍ o zdan....</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>🗑️</td>
+    </tr>
+    <tr>
+        <td>CISCO SYSTEMS RSU</td>
+        <td>{{rsuProfitCroneValue}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>🗑️</td>
+    </tr>
+    <tr>
+        <td>CISCO SYSTEMS ESPP</td>
+        <td>{{esppProfitCroneValue}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>🗑️</td>
+</table>
+
+    <h1>ESPP + RSU 2024 Legislative</h1>
+        <h2>2. ODDÍL - Dílčí základ daně, základ daně, ztráta</h2>
+        <p><strong>1. Výpočet dílčího základu daně z příjmů fyzických osob ze závislé činnosti a z funkčních požitků (§ 6 zákona)</strong></p>
+        <table>
+            <tr>
+                <td>31 Úhrn příjmů od všech zaměstnavatelů</td>
+                <td class="light-green">XXXX + {{rsuAndEsppTaxableProfitCroneValue}}</td>
+                <td><button class="large-button">VÝPOČTOVÁ TABULKA K § 6</button></td>
+            </tr>
+        </table>
+
+        <h3>Tabulka pro zadání údajů o příjmech podle § 6 zákona v členění dle jednotlivých zaměstnavatelů</h3>
+        <table>
+            <tr>
+                <th>Název zaměstnavatele</th>
+                <th>Úhrn příjmů ze závislé činnosti</th>
+                <th>Sražená záloha na daň v úhrnné výši</th>
+                <th>Úhrn vyplacených měsíčních daňových bonusů podle § 35d zákona</th>
+                <th>Sražená daň podle § 36 odst. 6 zákona</th>
+                <th>Sražená daň podle § 36 odst. 7 zákona</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>CISCO SYSTEMS</td>
+                <td>row 1. of POTVRZENÍ o zdan....</td>
+                <td>row 8. of POTVRZENÍ o zdan....</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>🗑️</td>
+            </tr>
+            <tr>
+                <td>CISCO SYSTEMS RSU</td>
+                <td>{{rsuTaxableProfitCroneValue}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>🗑️</td>
+            </tr>
+            <tr>
+                <td>CISCO SYSTEMS ESPP</td>
+                <td>{{esppTaxableProfitCroneValue}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>🗑️</td>
+        </table>
+
+
+<br><br><br>
+
+<h1>Sales</h1>
+<table>
+    <tr>
+        <td>40 Dílčí základ daně z ostatních příjmů podle § 10 zákona (ř. 209 přílohy 2 DAP) <span title="Info">ℹ️</span></td>
+        <td class="light-green">{{taxableSellProfitCroneValue}}</td>
+        <td><button class="large-button">PŘÍLOHA 2</button></td>
+    </tr>
+</table>
+
+<h2 class="highlighted">2. Výpočet dílčího základu daně z ostatních příjmů (§ 10 zákona)</h2>
+<p>Příjmy plynoucí ze zdrojů na území České republiky a příjmy plynoucí ze zahraničí</p>
+<table>
+    <tr>
+        <th></th>
+        <th>Označení druhu příjmů podle § 10 odst. 1 zákona</th>
+        <th>Slovní popis druhu příjmů podle § 10 odst. 1 zákona</th>
+        <th>Příjmy</th>
+        <th>Výdaje</th>
+        <th>Rozdíl (příjmy - výdaje)</th>
+        <th>Kód</th>
+        <th></th>
+    </tr>
+    <tr>
+        <td>1.</td>
+        <td>D - PRODEJ CENNÝCH PAPÍRŮ</td>
+        <td>příjmy z úplatného převodu cenného papíru</td>
+        <td>{{taxableSellPriceCroneValue}}</td>
+        <td>{{taxableBuyPriceCroneValue}}</td>
+        <td class="light-green">{{taxableSellProfitCroneValue}}</td>
+        <td>Z</td>
+        <td><button class="delete-button">🗑️</button></td>
+    </tr>
+
+</table>
+
+<br><br>
+
+<h1>Dividend</h1>
+
+<table>
+    <tr>
+        <td>74a Daň ze samotného základu daně podle § 16a zákona (částka z ř. 414 přílohy č. 4 DAP) <span title="Info">ℹ️</span></td>
+        <td class="light-green">0</td>
+        <td><button class="large-button">PŘÍLOHA 4</button></td>
+    </tr>
+</table>
+
+<h2 class="highlighted">PŘÍLOHA 4</h2>
+<p>je součástí tiskopisu PŘIZNÁNÍ k dani z příjmů fyzických osob za zdaňovací období 2024 – 25 5405 MFin 5405 vzor č. 29 (dále jen „DAP“)</p>
+<p>Částky uveďte v celých Kč. Číselné hodnoty počítané v průběhu výpočtu daňové povinnosti jsou ukazateli ve smyslu ustanovení § 146 zákona č. 280/2009 Sb., daňový řád, ve znění pozdějších předpisů a jejich zaokrouhlení se provádí s přesností na dvě desetinná místa. Postupné zaokrouhlování ve dvou nebo více stupních je nepřípustné.</p>
+
+<h3>1. Výpočet daně ze samotného základu daně podle § 16a zákona</h3>
+<table>
+    <tr>
+        <th>Popis</th>
+        <th>Vyplní v celých Kč</th>
+    </tr>
+    <tr><td>401 Příjmy podle § 7 odst. 14 zákona...</td><td></td></tr>
+    <tr><td>401a Příjmy podle § 8 odst. 1 písm. a) až f)...</td><td>{{dividendCroneValue}}</td></tr>
+    <tr><td>402 Příjmy podle § 10 odst. 1 písm. h) bod 1, ch) a)...</td><td></td></tr>
+    <tr><td>403 Výdaje k příjmům z ceny z veřejné soutěže...</td><td></td></tr>
+    <tr><td>404 Příjmy podle § 10 odst. 1 písm. f) a písm. g)...</td><td></td></tr>
+    <tr><td>405 Výdaje k příjmům podle § 10 odst. 1 písm. f)...</td><td></td></tr>
+    <tr><td>406 Úhrn dílčího samostatného základu daně...</td><td>{{dividendCroneValue}}</td></tr>
+    <tr><td>407 Dílčí samostatný základ daně z příjmů...</td><td></td></tr>
+    <tr><td>408 Dílčí samostatný základ daně z příjmů...</td><td></td></tr>
+    <tr><td>409 Součet dílčích základů daně...</td><td class="light-green"></td></tr>
+    <tr><td>410 Daň se sazbou 15 % ze součtu dílčích základů daně...</td><td></td></tr>
+    <tr><td>411 Úhrn příjmů, u nichž se uplatní zápočet...</td><td>{{dividendCroneValue}}</td></tr>
+    <tr><td>412 Daň zaplacená v zahraničí...</td><td>{{dividendPayedTaxCroneValue}}</td></tr>
+    <tr><td>413 Daň uznaná k zápočtu...</td><td></td></tr>
+    <tr><td>414 Daň ze samotného základu daně podle § 16a zákona...</td><td class="light-green">0</td></tr>
+</table>
+
+
+
+</body>
+</html>

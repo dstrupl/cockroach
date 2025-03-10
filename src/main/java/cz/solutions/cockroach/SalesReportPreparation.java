@@ -22,6 +22,9 @@ public class SalesReportPreparation {
         double sellCroneValue = 0;
         double profitDolarValue = 0;
         double recentProfitCroneValue = 0;
+        double recentSellCroneValue = 0;
+        double recentBuyCroneValue = 0;
+
         int totalAmount = 0;
 
         for (SaleRecord sale : saleRecords) {
@@ -40,6 +43,11 @@ public class SalesReportPreparation {
 
             profitDolarValue += partialProfitValue;
             recentProfitCroneValue += partialRecentProfitCroneValue;
+
+            if(sale.isTaxable()){
+                recentSellCroneValue += partialsellCroneValue;
+                recentBuyCroneValue += buyPriceDolarValue * exchange;
+            }
             totalAmount += sale.getQuantity();
 
 
@@ -63,12 +71,18 @@ public class SalesReportPreparation {
         }
 
         double profitForTax;
+        double sellCroneForTax;
+        double buyCroneForTax;
         if (sellCroneValue < 100000) {
             // no need to pay taxes
             profitForTax = 0;
+            sellCroneForTax = 0;
+            buyCroneForTax=0;
         } else {
             //pay taxes only from items bought in last 3 years
             profitForTax = recentProfitCroneValue;
+            sellCroneForTax = recentSellCroneValue;
+            buyCroneForTax = recentBuyCroneValue;
         }
         return new SalesReport(
                 printableSalesList,
@@ -77,7 +91,9 @@ public class SalesReportPreparation {
                 profitDolarValue,
                 recentProfitCroneValue,
                 totalAmount,
-                profitForTax
+                profitForTax,
+                sellCroneForTax,
+                buyCroneForTax
         );
 
 

@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
+import static java.lang.Math.round;
+
 public class FormatingHelper {
 
     private static final FormatingHelper INSTANCE = new FormatingHelper();
@@ -24,6 +26,10 @@ public class FormatingHelper {
 
     public static String formatDouble(double d) {
         return INSTANCE.format(d);
+    }
+
+    public static String formatRounded(double d) {
+        return  String.valueOf(round(d));
     }
 
     public static String formatExchangeRate(double d) {
