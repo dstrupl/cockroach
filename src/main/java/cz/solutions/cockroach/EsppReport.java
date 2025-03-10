@@ -13,13 +13,15 @@ public class EsppReport {
     double profitCroneValue;
     double profitDolarValue;
     int totalEsppAmount;
+    double taxableProfitCroneValue;
 
     public Map<String,?> asMap(){
         return Map.of(
                 "esppList", printableEsppList,
                 "profitCroneValue", formatDouble(profitCroneValue),
                 "profitDolarValue", formatDouble(profitDolarValue),
-                "totalAmount", totalEsppAmount
+                "totalAmount", totalEsppAmount,
+                "taxableProfitCroneValue",taxableProfitCroneValue
         );
     }
 }

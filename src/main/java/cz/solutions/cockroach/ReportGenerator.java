@@ -16,6 +16,7 @@ public class ReportGenerator {
         return new Report(
                 rsuReportPreparation.generateRsuReport(
                         parsedExport.getRsuRecords(),
+                        parsedExport.getSaleRecords(),
                         interval,
                         exchangeRateProvider
                 ),
@@ -28,6 +29,7 @@ public class ReportGenerator {
                 ),
                 esppReportPreparation.generateEsppReport(
                         parsedExport.getEsppRecords(),
+                        parsedExport.getSaleRecords(),
                         interval,
                         exchangeRateProvider
                 ),

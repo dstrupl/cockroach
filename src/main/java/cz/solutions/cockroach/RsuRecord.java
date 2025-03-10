@@ -9,4 +9,5 @@ public class RsuRecord {
     int quantity;
     double vestFmv;
     LocalDate vestDate;
+    String grantId;
 }

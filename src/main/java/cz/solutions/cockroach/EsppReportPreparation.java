@@ -1,5 +1,7 @@
 package cz.solutions.cockroach;
 
+import lombok.Value;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -10,45 +12,99 @@ import java.util.List;
 public class EsppReportPreparation {
     private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
-    public EsppReport generateEsppReport(List<EsppRecord> esppRecordList, DateInterval interval, ExchangeRateProvider exchangeRateProvider) {
+    public EsppReport generateEsppReport(List<EsppRecord> esppRecordList,
+                                         List<SaleRecord> saleRecordList,
+                                         DateInterval interval,
+                                         ExchangeRateProvider exchangeRateProvider) {
         List<EsppRecord> esppRecords = esppRecordList.stream()
                 .filter(a -> interval.contains(a.getPurchaseDate()))
                 .sorted(Comparator.comparing(EsppRecord::getDate))
+                .toList();
+
+        List<SaleRecord> esppSaleRecords = saleRecordList.stream()
+                .filter(a -> interval.contains(a.getDate()))
+                .filter(a->a.getType().equals("ESPP"))
+                .sorted(Comparator.comparing(SaleRecord::getDate))
                 .toList();
 
 
         ArrayList<PrintableEspp> printableEsppList = new ArrayList<>();
         double profitDolarValue = 0;
         double profitCroneValue = 0;
+        double taxablePofitCroneValue = 0;
         int totalEsppAmount = 0;
 
         for (EsppRecord espp : esppRecords) {
-            double exchange = exchangeRateProvider.rateAt(espp.getPurchaseDate());
-            double partialProfit = espp.getPurchaseFmv() - espp.getPurchasePrice();
-            profitDolarValue += espp.getQuantity() * partialProfit;
-            profitCroneValue += espp.getQuantity() * partialProfit * exchange;
+            int soldQuantity = esppSaleRecords.stream()
+                    .filter(it -> espp.getPurchaseDate().equals(it.getPurchaseDate()))
+                    .mapToInt(SaleRecord::getQuantity)
+                    .sum();
+
+            EsppInfo esppInfo = withConvertedPrices(espp,soldQuantity,exchangeRateProvider);
+
+
+            printableEsppList.add(esppInfo.toPrintable());
+            profitDolarValue += esppInfo.getBuyProfitValue();
+            profitCroneValue += esppInfo.getBuyCronePofitValue();
 
             totalEsppAmount += espp.getQuantity();
-
-            printableEsppList.add(
-                    new PrintableEspp(
-                            DATE_FORMATTERTER.print(espp.getPurchaseDate()),
-                            espp.getQuantity(),
-                            FormatingHelper.formatExchangeRate(exchange),
-                            FormatingHelper.formatDouble(espp.getPurchasePrice()),
-                            FormatingHelper.formatDouble(espp.getPurchaseFmv()),
-                            FormatingHelper.formatDouble(partialProfit),
-                            FormatingHelper.formatDouble(partialProfit * espp.getQuantity()),
-                            FormatingHelper.formatDouble(partialProfit * espp.getQuantity() * exchange)
-                    )
-            );
+            taxablePofitCroneValue+=esppInfo.getTaxableBuyCronePofitValue();
         }
 
         return new EsppReport(
                 printableEsppList,
                 profitCroneValue,
                 profitDolarValue,
-                totalEsppAmount
+                totalEsppAmount,
+                taxablePofitCroneValue
         );
     }
+
+        private EsppInfo  withConvertedPrices(EsppRecord espp, int soldAmount, ExchangeRateProvider exchangeRateProvider){
+            double exchange = exchangeRateProvider.rateAt(espp.getPurchaseDate());
+            double partialProfit = espp.getPurchaseFmv() - espp.getPurchasePrice();
+
+            return new EsppInfo(
+                    espp.getPurchaseDate(),
+                    espp.getQuantity(),
+                    exchange,
+                    espp.getPurchasePrice(),
+                    espp.getPurchaseFmv(),
+                    partialProfit,
+                    partialProfit * espp.getQuantity(),
+                    partialProfit * espp.getQuantity() * exchange,
+                    soldAmount,
+                    partialProfit*soldAmount*exchange
+            );
+        }
+
+        @Value
+        private static class EsppInfo {
+            LocalDate date;
+            int amount;
+            double exchange;
+            double onePricePurchaseDolarValue;
+            double onePriceDolarValue;
+            double oneProfitValue;
+            double buyProfitValue;
+            double buyCronePofitValue;
+            int soldAmount;
+            double taxableBuyCronePofitValue;
+
+            PrintableEspp toPrintable() {
+                return new PrintableEspp(
+                        DATE_FORMATTERTER.print(date),
+                        amount,
+                        FormatingHelper.formatExchangeRate(exchange),
+                        FormatingHelper.formatDouble(onePricePurchaseDolarValue),
+                        FormatingHelper.formatDouble(onePriceDolarValue),
+                        FormatingHelper.formatDouble(oneProfitValue),
+                        FormatingHelper.formatDouble(buyCronePofitValue),
+                        FormatingHelper.formatDouble(buyCronePofitValue),
+                        soldAmount,
+                        FormatingHelper.formatDouble(taxableBuyCronePofitValue)
+                );
+            }
+        }
+
 }

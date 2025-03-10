@@ -13,6 +13,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
+import java.util.*
 
 class JsonExportParser {
 
@@ -39,6 +40,7 @@ class JsonExportParser {
                     it.quantity,
                     it.transactionDetails[0].details.vestFairMarketValue,
                     it.transactionDetails[0].details.vestDate,
+                    it.transactionDetails[0].details.awardId
                 )
             },
             export.transactions.filterIsInstance(Transaction.EsppDepositTransaction::class.java).map {
@@ -80,7 +82,8 @@ class JsonExportParser {
                        transactionDetail.details.salePrice,
                        transactionDetail.details.purchasePrice(),
                        transactionDetail.details.purchaseFmv(),
-                       transactionDetail.details.purchaseDate()
+                       transactionDetail.details.purchaseDate(),
+                       Optional.ofNullable(transactionDetail.details.grantId())
                    )
                }
 
@@ -276,6 +279,8 @@ data class RsuTransactionDetails(
         @Contextual
         val vestDate: LocalDate,
 
+        val awardId: String
+
         )
 }
 
@@ -293,6 +298,7 @@ data class SalesTransactionDetails(
         abstract fun purchasePrice(): Double
         abstract fun purchaseFmv(): Double
         abstract fun purchaseDate(): LocalDate
+        abstract fun grantId(): String?
 
         abstract fun type(): String
 
@@ -305,6 +311,8 @@ data class SalesTransactionDetails(
 
             @Contextual
             val vestDate: LocalDate,
+
+            val grantId: String,
 
             @Contextual
             val vestFairMarketValue: Double,
@@ -319,6 +327,10 @@ data class SalesTransactionDetails(
 
             override fun purchaseDate(): LocalDate {
                 return vestDate
+            }
+
+            override fun grantId(): String {
+                return grantId
             }
 
             override fun type(): String {
@@ -353,6 +365,10 @@ data class SalesTransactionDetails(
 
             override fun purchaseDate(): LocalDate {
                 return purchaseDate
+            }
+
+            override fun grantId(): String? {
+                return null
             }
 
             override fun type(): String {

@@ -10,6 +10,7 @@ public class RsuReport {
     List<PrintableRsu> printableRsuList;
     double rsuCroneValue;
     double rsuDollarValue;
+    double taxableRsuCroneValue;
     int totalAmount;
 
     public Map<String, ?> asMap() {
@@ -17,7 +18,8 @@ public class RsuReport {
                 "rsuList", printableRsuList,
                 "rsuCroneValue", FormatingHelper.formatDouble(rsuCroneValue),
                 "rsuDolarValue", FormatingHelper.formatDouble(rsuDollarValue),
-                "totalAmount", totalAmount
+                "totalAmount", totalAmount,
+                "taxableRsuCroneValue", FormatingHelper.formatDouble(taxableRsuCroneValue)
         );
     }
 }

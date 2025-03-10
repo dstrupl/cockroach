@@ -9,9 +9,9 @@ Obchodník s cennými papíry: Charles Schwab & Co.
 
 
 
-| datum připsání  |      počet akcií      |  tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) |
-|----------|:-------------:|------:|------:|------:|------:|
+| datum připsání  |      počet akcií      |  tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) | prodáno v akt. období  | zdanitelný zisk v akt. období (Kč)
+|----------|:-------------:|------:|------:|------:|------:|------:|------:|
 {{#each rsuList}}
-|{{this.date}}|{{this.amount}}| {{this.onePriceDolarValue}}| {{this.vestDolarValue}}|{{this.exchange}}| {{this.vestCroneValue}}|
+|{{this.date}}|{{this.amount}}| {{this.onePriceDolarValue}}| {{this.vestDolarValue}}|{{this.exchange}}| {{this.vestCroneValue}}| {{this.soldAmount}}|{{this.taxableVestCroneValue}}|
 {{/each}}
-| celkem   |  **{{totalAmount}}**        |  | **{{rsuDolarValue}}** | |**{{rsuCroneValue}}** |
+| celkem   |  **{{totalAmount}}**        |  | **{{rsuDolarValue}}** | |**{{rsuCroneValue}}** | |**{{taxableRsuCroneValue}}**|
