@@ -35,8 +35,6 @@ public class CockroachMain {
         System.out.println("######################################################");
         System.out.println("# Let's see the guide in" + new File(outputDir, "guide_" + year + ".html").getAbsolutePath());
         System.out.println("######################################################");
-
-
     }
 
     private ParsedExport parseExportFile(File schwabExportFile) throws IOException {

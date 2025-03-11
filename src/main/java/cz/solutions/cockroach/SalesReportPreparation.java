@@ -25,7 +25,7 @@ public class SalesReportPreparation {
         double recentSellCroneValue = 0;
         double recentBuyCroneValue = 0;
 
-        int totalAmount = 0;
+        double totalAmount = 0;
 
         for (SaleRecord sale : saleRecords) {
             double exchange = exchangeRateProvider.rateAt(sale.getDate());
@@ -55,7 +55,7 @@ public class SalesReportPreparation {
                     new PrintableSale(
                             DATE_FORMATTERTER.print(sale.getDate()),
                             DATE_FORMATTERTER.print(sale.getPurchaseDate()),
-                            sale.getQuantity(),
+                            FormatingHelper.formatDouble(sale.getQuantity()),
                             FormatingHelper.formatExchangeRate(exchange),
 
                             FormatingHelper.formatDouble(sale.getPurchaseFmv()),

@@ -30,7 +30,8 @@ class SalesReportPreparationTest {
                                 50.0,
                                 30.0,
                                 40.0,
-                                LocalDate.parse("2020-06-30")
+                                LocalDate.parse("2020-06-30"),
+                                null
                         ),
                         new SaleRecord(
                                 LocalDate.parse("2021-06-30"),
@@ -39,7 +40,8 @@ class SalesReportPreparationTest {
                                 40.0,
                                 10.0,
                                 30.0,
-                                LocalDate.parse("2017-06-30")
+                                LocalDate.parse("2017-06-30"),
+                                null
                         )
                 ),
                 DateInterval.year(2021),
@@ -69,7 +71,8 @@ class SalesReportPreparationTest {
                                 50.0,
                                 30.0,
                                 40.0,
-                                LocalDate.parse("2020-06-30")
+                                LocalDate.parse("2020-06-30"),
+                                null
                         ),
                         new SaleRecord(
                                 LocalDate.parse("2021-06-15"),
@@ -78,7 +81,8 @@ class SalesReportPreparationTest {
                                 40.0,
                                 10.0,
                                 41.0,
-                                LocalDate.parse("2021-05-30")
+                                LocalDate.parse("2021-05-30"),
+                                null
                         )
                 ),
                 DateInterval.year(2021),

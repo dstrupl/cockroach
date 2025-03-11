@@ -293,7 +293,7 @@ data class SalesTransactionDetails(
     @JsonClassDiscriminator("Type")
     sealed class SalesTransactionDetails {
         abstract val salePrice: Double
-        abstract val shares: Int
+        abstract val shares: Double
 
         abstract fun purchasePrice(): Double
         abstract fun purchaseFmv(): Double
@@ -307,7 +307,7 @@ data class SalesTransactionDetails(
         data class RSUSalesTransactionDetails(
             @Contextual
             override val salePrice: Double,
-            override val shares: Int,
+            override val shares: Double,
 
             @Contextual
             val vestDate: LocalDate,
@@ -344,7 +344,7 @@ data class SalesTransactionDetails(
             @Contextual
             override val salePrice: Double,
 
-            override val shares: Int,
+            override val shares: Double,
 
             @Contextual
             val purchaseDate: LocalDate,
@@ -373,6 +373,41 @@ data class SalesTransactionDetails(
 
             override fun type(): String {
                 return "ESPP"
+            }
+        }
+
+        @Serializable
+        @SerialName("Div Reinv")
+        data class DividendReinvestedSalesTransactionDetails(
+            @Contextual
+            override val salePrice: Double,
+
+            override val shares: Double,
+
+            @Contextual
+            val purchaseDate: LocalDate,
+
+            @Contextual
+            val purchasePrice: Double,
+        ) : SalesTransactionDetails() {
+            override fun purchasePrice(): Double {
+                return purchasePrice
+            }
+
+            override fun purchaseFmv(): Double {
+                return purchasePrice
+            }
+
+            override fun purchaseDate(): LocalDate {
+                return purchaseDate
+            }
+
+            override fun type(): String {
+                return "Dividend Reinvested"
+            }
+
+            override fun grantId(): String? {
+                return null
             }
         }
     }
@@ -416,4 +451,3 @@ object FirstUpperCase : JsonNamingStrategy {
         return serialName.replaceFirstChar { it.uppercase() }
     }
 }
-

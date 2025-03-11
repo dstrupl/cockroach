@@ -6,7 +6,7 @@ import lombok.Value;
 public class PrintableSale {
     String date;
     String purchaseDate;
-    int amount;
+    String amount;
     String exchange;
 
     String onePurchaseDollar;

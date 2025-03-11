@@ -35,9 +35,9 @@ public class EsppReportPreparation {
         int totalEsppAmount = 0;
 
         for (EsppRecord espp : esppRecords) {
-            int soldQuantity = esppSaleRecords.stream()
+            double soldQuantity = esppSaleRecords.stream()
                     .filter(it -> espp.getPurchaseDate().equals(it.getPurchaseDate()))
-                    .mapToInt(SaleRecord::getQuantity)
+                    .mapToDouble(SaleRecord::getQuantity)
                     .sum();
 
             EsppInfo esppInfo = withConvertedPrices(espp,soldQuantity,exchangeRateProvider);
@@ -60,7 +60,7 @@ public class EsppReportPreparation {
         );
     }
 
-        private EsppInfo  withConvertedPrices(EsppRecord espp, int soldAmount, ExchangeRateProvider exchangeRateProvider){
+        private EsppInfo  withConvertedPrices(EsppRecord espp, double soldAmount, ExchangeRateProvider exchangeRateProvider){
             double exchange = exchangeRateProvider.rateAt(espp.getPurchaseDate());
             double partialProfit = espp.getPurchaseFmv() - espp.getPurchasePrice();
 
@@ -88,7 +88,7 @@ public class EsppReportPreparation {
             double oneProfitValue;
             double buyProfitValue;
             double buyCronePofitValue;
-            int soldAmount;
+            double soldAmount;
             double taxableBuyCronePofitValue;
 
             PrintableEspp toPrintable() {

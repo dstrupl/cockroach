@@ -12,6 +12,6 @@ public class PrintableEspp {
     String oneProfitValue;
     String buyProfitValue;
     String buyCronePofitValue;
-    int soldAmount;
+    double soldAmount;
     String taxableBuyCroneProfitValue;
 }
