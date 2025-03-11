@@ -9,7 +9,7 @@ import java.util.Optional;
 public class SaleRecord {
     LocalDate date;
     String type;
-    int quantity;
+    double quantity;
     double salePrice;
     double purchasePrice;
     double purchaseFmv;

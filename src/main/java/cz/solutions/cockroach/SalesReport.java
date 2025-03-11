@@ -14,7 +14,7 @@ public class SalesReport {
     double sellDollarValue;
     double profitDolarValue;
     double recentProfitCroneValue;
-    int totalAmount;
+    double totalAmount;
     double profitForTax;
     double sellCroneForTax;
     double buyCroneForTax;

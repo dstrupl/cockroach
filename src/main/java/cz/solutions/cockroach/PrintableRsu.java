@@ -10,6 +10,6 @@ public class PrintableRsu {
     String onePriceDolarValue;
     String vestDolarValue;
     String vestCroneValue;
-    int soldAmount;
+    String soldAmount;
     String taxableVestCroneValue;
 }

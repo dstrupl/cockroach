@@ -22,6 +22,7 @@ class JsonExportParserTest {
                         2,
                         48.38,
                         LocalDate(2023,12,10),
+                        null
                     )
                 ),
                 listOf(
@@ -56,20 +57,22 @@ class JsonExportParserTest {
                     SaleRecord(
                         LocalDate(2023,9,27),
                         "RS",
-                        30,
+                        30.0,
                         47.62,
                         43.91,
                         43.91,
                         LocalDate(2022,11,10),
+                        null
                     ),
                     SaleRecord(
                         LocalDate(2023,1,23),
                         "ESPP",
-                        15,
+                        15.0,
                         58.62,
                         37.366,
                         53.00,
                         LocalDate(2023,1,10),
+                        null
                     )
                 ),
                 listOf(

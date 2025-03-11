@@ -43,10 +43,10 @@ public class RsuReportPreparation {
             // only part may have been sold
             //multiple sell operations may exist
 
-            int soldQuantity = rsuSaleRecords.stream()
+            double soldQuantity = rsuSaleRecords.stream()
                     .filter(it -> rsu.getVestDate().equals(it.getPurchaseDate()))
                     .filter(it -> rsu.getGrantId().equals(it.getGrantId().orElseThrow()))
-                    .mapToInt(SaleRecord::getQuantity)
+                    .mapToDouble(SaleRecord::getQuantity)
                     .sum();
 
             RsuInfo rsuInfo= withConvertedPrices(rsu,soldQuantity,exchangeRateProvider);
@@ -70,7 +70,7 @@ public class RsuReportPreparation {
         ) ;
     }
 
-    private RsuInfo withConvertedPrices( RsuRecord rsu,int soldAmount, ExchangeRateProvider exchangeRateProvider){
+    private RsuInfo withConvertedPrices( RsuRecord rsu,double soldAmount, ExchangeRateProvider exchangeRateProvider){
 
         double exchange = exchangeRateProvider.rateAt(rsu.getVestDate());
         double partialRsuDolarValue = rsu.getQuantity() * rsu.getVestFmv();
@@ -98,7 +98,7 @@ public class RsuReportPreparation {
         double onePriceDolarValue;
         double vestDolarValue;
         double vestCroneValue;
-        int soldAmount;
+        double soldAmount;
         double taxableVestCroneValue;
 
         PrintableRsu toPrintable(){
@@ -109,7 +109,7 @@ public class RsuReportPreparation {
                     formatDouble(onePriceDolarValue),
                     formatDouble(vestDolarValue),
                     formatDouble(vestCroneValue),
-                    soldAmount,
+                    formatDouble(soldAmount),
                     formatDouble(taxableVestCroneValue)
 
             );
