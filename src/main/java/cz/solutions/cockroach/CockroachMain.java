@@ -35,16 +35,6 @@ public class CockroachMain {
         System.out.println("######################################################");
         System.out.println("# Let's see the guide in" + new File(outputDir, "guide_" + year + ".html").getAbsolutePath());
         System.out.println("######################################################");
-
-        LOGGER.info(MessageFormat.format(
-                "35 Úhrn příjmů plynoucí ze zahraničí podle § 6 zákona (o tuto castku je traba navysit radek 31) : {0}",
-                FormatingHelper.formatDouble(data.taxableIncome())));
-        LOGGER.info(MessageFormat.format(
-                "38 Dílčí základ daně z kapitálového majetku podle § 8 zákona : {0}",
-                FormatingHelper.formatDouble(data.taxableDividendIncome())));
-        LOGGER.info(MessageFormat.format(
-                "323 Daň zaplacená v zahraničí : {0}",
-                FormatingHelper.formatDouble(data.payedDividendTax())));
     }
 
     private ParsedExport parseExportFile(File schwabExportFile) throws IOException {
