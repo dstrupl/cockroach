@@ -77,21 +77,15 @@ public class Report {
     }
 
 
-    public double rsuAndEsppAndSalesProfitCroneVakue() {
-        return rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue() ;
+    public double rsuAndEsppAndSalesProfitCroneValue( boolean use2024Legislative) {
+        if (use2024Legislative) {
+            return rsuReport.getTaxableRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getTaxableProfitCroneValue();
+        }else{
+            return rsuReport.getRsuCroneValue() + salesReport.getProfitForTax() + esppReport.getProfitCroneValue();
+        }
     }
 
-    public double taxableIncome() {
-        return (rsuReport.getRsuCroneValue() + esppReport.getProfitCroneValue());
-    }
 
-    public double taxableDividendIncome() {
-        return dividendReport.getTotalBruttoCrown();
-    }
-
-    public double payedDividendTax() {
-        return dividendReport.getTotalTaxCrown();
-    }
 
     public String render(Template template, Map<String, ?> variables) {
         try {
