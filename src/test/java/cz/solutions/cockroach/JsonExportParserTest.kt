@@ -3,6 +3,7 @@ package cz.solutions.cockroach
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class JsonExportParserTest {
 
@@ -22,7 +23,7 @@ class JsonExportParserTest {
                         2,
                         48.38,
                         LocalDate(2023,12,10),
-                        null
+                        "1461994"
                     )
                 ),
                 listOf(
@@ -62,7 +63,7 @@ class JsonExportParserTest {
                         43.91,
                         43.91,
                         LocalDate(2022,11,10),
-                        null
+                        Optional.of("1538646")
                     ),
                     SaleRecord(
                         LocalDate(2023,1,23),
@@ -72,7 +73,7 @@ class JsonExportParserTest {
                         37.366,
                         53.00,
                         LocalDate(2023,1,10),
-                        null
+                        Optional.empty()
                     )
                 ),
                 listOf(
