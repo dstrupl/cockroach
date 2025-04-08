@@ -121,7 +121,7 @@ object TransactionSerializer : JsonContentPolymorphicSerializer<Transaction>(
                     else -> error("invalid deposit desc $desc")
                 }
             }
-            "Dividend Reinvested" ->  Transaction.DividentReinvestedTransaction.serializer()
+            "Dividend Reinvested","Dividend Reinvestment" ->  Transaction.DividentReinvestedTransaction.serializer()
             "Wire Transfer" -> Transaction.WireTransferTransaction.serializer()
 
             "Tax Withholding" -> Transaction.TaxWithholdingTransaction.serializer()
