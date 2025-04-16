@@ -31,7 +31,7 @@ public class EsppReportPreparation {
         ArrayList<PrintableEspp> printableEsppList = new ArrayList<>();
         double profitDolarValue = 0;
         double profitCroneValue = 0;
-        double taxablePofitCroneValue = 0;
+        double taxableProfitCroneValue = 0;
         int totalEsppAmount = 0;
 
         for (EsppRecord espp : esppRecords) {
@@ -45,10 +45,10 @@ public class EsppReportPreparation {
 
             printableEsppList.add(esppInfo.toPrintable());
             profitDolarValue += esppInfo.getBuyProfitValue();
-            profitCroneValue += esppInfo.getBuyCronePofitValue();
+            profitCroneValue += esppInfo.getBuyCroneProfitValue();
 
             totalEsppAmount += espp.getQuantity();
-            taxablePofitCroneValue+=esppInfo.getTaxableBuyCronePofitValue();
+            taxableProfitCroneValue +=esppInfo.getTaxableBuyCroneProfitValue();
         }
 
         return new EsppReport(
@@ -56,7 +56,7 @@ public class EsppReportPreparation {
                 profitCroneValue,
                 profitDolarValue,
                 totalEsppAmount,
-                taxablePofitCroneValue
+                taxableProfitCroneValue
         );
     }
 
@@ -87,9 +87,9 @@ public class EsppReportPreparation {
             double onePriceDolarValue;
             double oneProfitValue;
             double buyProfitValue;
-            double buyCronePofitValue;
+            double buyCroneProfitValue;
             double soldAmount;
-            double taxableBuyCronePofitValue;
+            double taxableBuyCroneProfitValue;
 
             PrintableEspp toPrintable() {
                 return new PrintableEspp(
@@ -100,9 +100,9 @@ public class EsppReportPreparation {
                         FormatingHelper.formatDouble(onePriceDolarValue),
                         FormatingHelper.formatDouble(oneProfitValue),
                         FormatingHelper.formatDouble(buyProfitValue),
-                        FormatingHelper.formatDouble(buyCronePofitValue),
+                        FormatingHelper.formatDouble(buyCroneProfitValue),
                         soldAmount,
-                        FormatingHelper.formatDouble(taxableBuyCronePofitValue)
+                        FormatingHelper.formatDouble(taxableBuyCroneProfitValue)
                 );
             }
         }
