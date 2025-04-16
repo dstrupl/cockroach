@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class EsppReportPreparation {
-    private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     public EsppReport generateEsppReport(List<EsppRecord> esppRecordList,
                                          List<SaleRecord> saleRecordList,
@@ -93,13 +93,13 @@ public class EsppReportPreparation {
 
             PrintableEspp toPrintable() {
                 return new PrintableEspp(
-                        DATE_FORMATTERTER.print(date),
+                        DATE_FORMATTER.print(date),
                         amount,
                         FormatingHelper.formatExchangeRate(exchange),
                         FormatingHelper.formatDouble(onePricePurchaseDolarValue),
                         FormatingHelper.formatDouble(onePriceDolarValue),
                         FormatingHelper.formatDouble(oneProfitValue),
-                        FormatingHelper.formatDouble(buyCronePofitValue),
+                        FormatingHelper.formatDouble(buyProfitValue),
                         FormatingHelper.formatDouble(buyCronePofitValue),
                         soldAmount,
                         FormatingHelper.formatDouble(taxableBuyCronePofitValue)
