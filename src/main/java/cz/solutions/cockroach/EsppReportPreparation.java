@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class EsppReportPreparation {
-    private static final DateTimeFormatter DATE_FORMATTERTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("dd.MM.YYYY").withZoneUTC();
 
     public EsppReport generateEsppReport(List<EsppRecord> esppRecordList,
                                          List<SaleRecord> saleRecordList,
@@ -31,7 +31,7 @@ public class EsppReportPreparation {
         ArrayList<PrintableEspp> printableEsppList = new ArrayList<>();
         double profitDolarValue = 0;
         double profitCroneValue = 0;
-        double taxablePofitCroneValue = 0;
+        double taxableProfitCroneValue = 0;
         int totalEsppAmount = 0;
 
         for (EsppRecord espp : esppRecords) {
@@ -45,10 +45,10 @@ public class EsppReportPreparation {
 
             printableEsppList.add(esppInfo.toPrintable());
             profitDolarValue += esppInfo.getBuyProfitValue();
-            profitCroneValue += esppInfo.getBuyCronePofitValue();
+            profitCroneValue += esppInfo.getBuyCroneProfitValue();
 
             totalEsppAmount += espp.getQuantity();
-            taxablePofitCroneValue+=esppInfo.getTaxableBuyCronePofitValue();
+            taxableProfitCroneValue +=esppInfo.getTaxableBuyCroneProfitValue();
         }
 
         return new EsppReport(
@@ -56,7 +56,7 @@ public class EsppReportPreparation {
                 profitCroneValue,
                 profitDolarValue,
                 totalEsppAmount,
-                taxablePofitCroneValue
+                taxableProfitCroneValue
         );
     }
 
@@ -87,22 +87,22 @@ public class EsppReportPreparation {
             double onePriceDolarValue;
             double oneProfitValue;
             double buyProfitValue;
-            double buyCronePofitValue;
+            double buyCroneProfitValue;
             double soldAmount;
-            double taxableBuyCronePofitValue;
+            double taxableBuyCroneProfitValue;
 
             PrintableEspp toPrintable() {
                 return new PrintableEspp(
-                        DATE_FORMATTERTER.print(date),
+                        DATE_FORMATTER.print(date),
                         amount,
                         FormatingHelper.formatExchangeRate(exchange),
                         FormatingHelper.formatDouble(onePricePurchaseDolarValue),
                         FormatingHelper.formatDouble(onePriceDolarValue),
                         FormatingHelper.formatDouble(oneProfitValue),
-                        FormatingHelper.formatDouble(buyCronePofitValue),
-                        FormatingHelper.formatDouble(buyCronePofitValue),
+                        FormatingHelper.formatDouble(buyProfitValue),
+                        FormatingHelper.formatDouble(buyCroneProfitValue),
                         soldAmount,
-                        FormatingHelper.formatDouble(taxableBuyCronePofitValue)
+                        FormatingHelper.formatDouble(taxableBuyCroneProfitValue)
                 );
             }
         }

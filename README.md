@@ -8,7 +8,7 @@ for the tax year.
 
 # Obtaining Schwab CSV export for last year
 
-1.  Go to "History" tab.
+1.  Go to "Transaction History" tab.
 
 2.  Choose "Equity Award Center" from the dropdown.
 
