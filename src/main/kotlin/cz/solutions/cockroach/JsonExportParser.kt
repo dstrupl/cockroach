@@ -83,7 +83,7 @@ class JsonExportParser {
                        transactionDetail.details.purchasePrice(),
                        transactionDetail.details.purchaseFmv(),
                        transactionDetail.details.purchaseDate(),
-                       Optional.ofNullable(transactionDetail.details.grantId())
+                       transactionDetail.details.grantId()
                    )
                }
 
