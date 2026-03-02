@@ -63,7 +63,7 @@ class JsonExportParserTest {
                         43.91,
                         43.91,
                         LocalDate(2022,11,10),
-                        Optional.of("1538646")
+                        "1538646"
                     ),
                     SaleRecord(
                         LocalDate(2023,1,23),
@@ -73,7 +73,7 @@ class JsonExportParserTest {
                         37.366,
                         53.00,
                         LocalDate(2023,1,10),
-                        Optional.empty()
+                        null
                     )
                 ),
                 listOf(

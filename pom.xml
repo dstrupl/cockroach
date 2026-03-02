@@ -6,7 +6,7 @@
 
     <groupId>cockroach.solutions.cz</groupId>
     <artifactId>cockroach</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
 
     <properties>
         <java.long.version>17</java.long.version>
