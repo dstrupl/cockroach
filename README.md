@@ -1,10 +1,10 @@
 # Cockroach will help you with your taxes
 
-This small utility is for people using [Charles Schwab brokerage](https://www.schwab.com/) services in
-the [Czech Republic](https://en.wikipedia.org/wiki/Czech_Republic).
+This small utility is for people using [Charles Schwab brokerage](https://www.schwab.com/) and/or
+[E-Trade](https://www.etrade.com/) services in the [Czech Republic](https://en.wikipedia.org/wiki/Czech_Republic).
 
-The program reads the Schwab export of your stock transactions and creates a summary of your sales and purchases
-for the tax year.
+The program reads the Schwab JSON export of your stock transactions and optionally an E-Trade Gain and Loss CSV
+export, then creates a summary of your sales and purchases for the tax year.
 
 # Obtaining Schwab CSV export for last year
 
@@ -25,18 +25,59 @@ for the tax year.
 ![](media/image1.png)
 
 
+# Obtaining E-Trade Gain and Loss CSV export
+
+1.  Go to "Stock Plan" > "My Account" > "Gains & Losses".
+2.  Select the relevant tax year.
+3.  Export the data as CSV.
+
+## E-Trade Gain and Loss CSV format
+
+The file is a semicolon-delimited CSV using European number formatting (comma as
+decimal separator, space as thousands separator, `$` prefix for currency values).
+It contains 47 columns. The first data row is a `Summary` row (ignored by the parser),
+followed by individual `Sell` rows.
+
+Key columns used by the parser:
+
+| Column | Index | Description |
+|--------|-------|-------------|
+| Record Type | 0 | `Summary` or `Sell` |
+| Plan Type | 2 | e.g. `RS` for Restricted Stock |
+| Quantity | 3 | Number of shares sold |
+| Adjusted Cost Basis Per Share | 11 | Vest FMV per share (used instead of the corrupted Vest Date FMV column) |
+| Date Sold | 12 | Sale date in MM/DD/YYYY format |
+| Proceeds Per Share | 14 | Sale price per share |
+| Grant Number | 39 | Grant identifier |
+| Vest Date | 41 | Vesting date in MM/DD/YYYY format |
+
+Example (header + one data row):
+
+```
+Record Type;Symbol;Plan Type;Quantity;Date Acquired;...;Adjusted Cost Basis Per Share;Date Sold;Total Proceeds;Proceeds Per Share;...;Grant Number;...;Vest Date;Vest Date FMV;...
+Sell;ACME;RS;100;06/15/2025;...;$65,50;06/16/2025;$6 800,00;$68,00;...;1234567;...;06/15/2025;...;...
+```
+
+In this example, 100 RSU shares vested on 06/15/2025 at a FMV of $65.50 per share
+and were sold the next day at $68.00 per share.
+
+**Note:** The E-Trade Gain and Loss report only contains shares that were actually
+sold. RSUs that vested but have not yet been sold will not appear in this file.
+If you need to report income from unsold vestings, you will need to obtain that
+information separately (e.g. from E-Trade confirmation PDFs or vesting statements).
+
 # Running the application
 
 -   Compile and run
-    cockroach/src/main/java/cz/solutions/cockroach/CockroachMain.java
+    cockroach/src/main/kotlin/cz/solutions/cockroach/CockroachMain.kt
 
--   it gets 3 command line arguments - path to csv export, year, and
-    output dir.
+-   it gets 3 required command line arguments - path to Schwab JSON export, year, and
+    output dir. An optional 4th argument specifies the path to the E-Trade Gain and Loss CSV file.
 
 -   it uses templates located here:
     cockroach/src/main/resources/cz/solutions/cockroach
 
--   the output are 4 simple .md files
+-   the output are 4 simple .md files and an HTML guide
 
 -   In InteliJ IDEA, you can convert the md files into pdf in Markdown
     export options under Tools \> Markdown Converter menu.\
@@ -48,8 +89,11 @@ mvn clean install -am
 
 mvn clean install shade:shade
 
-java -jar target/cockroach-0.1-SNAPSHOT.jar /tmp/219114411.json 2023
-/tmp/taxes
+java -jar target/cockroach-0.2-SNAPSHOT.jar /tmp/219114411.json 2025 /tmp/taxes
+
+With E-Trade data:
+
+java -jar target/cockroach-0.2-SNAPSHOT.jar /tmp/219114411.json 2025 /tmp/taxes /tmp/e-trade-gain-and-loss-2025.csv
 
 # Converting to PDF
 

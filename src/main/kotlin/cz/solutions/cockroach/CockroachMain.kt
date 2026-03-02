@@ -5,14 +5,17 @@ import java.nio.charset.StandardCharsets
 import java.util.logging.Logger
 
 fun main(args: Array<String>) {
-    CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]))
+    val eTradeFile = if (args.size > 3) File(args[3]) else null
+    CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]), eTradeFile)
 }
 
 object CockroachMain {
     private val LOGGER = Logger.getLogger(CockroachMain::class.java.name)
 
-    fun report(schwabExportFile: File, year: Int, outputDir: File) {
-        val parsedExport = parseExportFile(schwabExportFile)
+    fun report(schwabExportFile: File, year: Int, outputDir: File, eTradeFile: File? = null) {
+        val schwabExport = parseExportFile(schwabExportFile)
+        val eTradeExport = eTradeFile?.let { parseETradeFile(it) } ?: ParsedExport.empty()
+        val parsedExport = schwabExport + eTradeExport
         val fixedRateReport = ReportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded())
         val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, TabularExchangeRateProvider.hardcoded())
 
@@ -40,6 +43,14 @@ object CockroachMain {
             JsonExportParser().parse(load(schwabExportFile))
         } else {
             throw IllegalArgumentException("only .json files are supported")
+        }
+    }
+
+    private fun parseETradeFile(eTradeFile: File): ParsedExport {
+        return if (eTradeFile.extension == "csv") {
+            ETradeGainLossParser.parse(load(eTradeFile))
+        } else {
+            throw IllegalArgumentException("E-Trade file must be a .csv file")
         }
     }
 
