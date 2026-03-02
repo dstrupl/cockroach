@@ -18,6 +18,7 @@ object ExchangeRatesReader {
         val usdIndex = headerParts.indexOf("1 USD")
         return lines
             .drop(1)
+            .filter { it.isNotBlank() }
             .map { parseLine(it, usdIndex) }
             .associate { it.date to it.getAmount() }
     }

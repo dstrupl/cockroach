@@ -3,20 +3,13 @@ package cz.solutions.cockroach
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.joda.time.LocalDate
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-internal class SalesReportPreparationTest {
-    private lateinit var salesReportPreparation: SalesReportPreparation
-
-    @BeforeEach
-    fun setUp() {
-        salesReportPreparation = SalesReportPreparation()
-    }
+class SalesReportPreparationTest {
 
     @Test
     fun `old purchases still taken account for 100K limit`() {
-        val salesReport = salesReportPreparation.generateSalesReport(
+        val salesReport = SalesReportPreparation.generateSalesReport(
             listOf(
                 SaleRecord(
                     LocalDate.parse("2021-06-30"),
@@ -48,7 +41,7 @@ internal class SalesReportPreparationTest {
 
     @Test
     fun `loss in last 3 years is distracted from profit`() {
-        val salesReport = salesReportPreparation.generateSalesReport(
+        val salesReport = SalesReportPreparation.generateSalesReport(
             listOf(
                 SaleRecord(
                     LocalDate.parse("2021-06-30"),
