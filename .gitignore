@@ -1,4 +1,5 @@
-/cockroach.iml
+*.iml
 /target/
 /.idea/
+/.claude/
 comparison_workdir/
