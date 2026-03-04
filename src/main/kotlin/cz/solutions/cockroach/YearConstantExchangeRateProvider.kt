@@ -14,7 +14,8 @@ class YearConstantExchangeRateProvider(private val exchange: Map<Int, Double>) :
                     2021 to 21.72,
                     2022 to 23.41,
                     2023 to 22.14,
-                    2024 to 23.28
+                    2024 to 23.28,
+                    2025 to 21.91
                 )
             )
         }
