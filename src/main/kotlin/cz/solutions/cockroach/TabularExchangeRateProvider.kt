@@ -14,7 +14,8 @@ class TabularExchangeRateProvider(knownRates: Map<LocalDate, Double>) : Exchange
                 load("rates_2022_a.txt"),
                 load("rates_2022_b.txt"),
                 load("rates_2023.txt"),
-                load("rates_2024.txt")
+                load("rates_2024.txt"),
+                load("rates_2025.txt")
             )
         }
 

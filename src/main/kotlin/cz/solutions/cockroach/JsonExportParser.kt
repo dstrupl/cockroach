@@ -270,8 +270,8 @@ data class RsuTransactionDetails(
 
     @Serializable
     data class RsuTransactionDetails(
-        @Contextual
-        val awardDate: LocalDate,
+        @Serializable(with = NullableLocalDateSerializer::class)
+        val awardDate: LocalDate?,
 
         @Contextual
         val vestFairMarketValue: Double,
@@ -425,6 +425,21 @@ object LocalDateSerializer : KSerializer<LocalDate> {
 
     override fun deserialize(decoder: Decoder): LocalDate {
         return LocalDate.parse(decoder.decodeString(), formatter)
+    }
+}
+
+object NullableLocalDateSerializer : KSerializer<LocalDate?> {
+    private val formatter = DateTimeFormat.forPattern("MM/dd/yyyy")
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("NullableLocalDate", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: LocalDate?) {
+        encoder.encodeString(value?.toString(formatter) ?: "")
+    }
+
+    override fun deserialize(decoder: Decoder): LocalDate? {
+        val str = decoder.decodeString()
+        return if (str.isBlank()) null else LocalDate.parse(str, formatter)
     }
 }
 
