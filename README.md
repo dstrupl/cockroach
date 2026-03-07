@@ -27,9 +27,51 @@ export, then creates a summary of your sales and purchases for the tax year.
 
 # Obtaining E-Trade Gain and Loss CSV export
 
-1.  Go to "Stock Plan" > "My Account" > "Gains & Losses".
-2.  Select the relevant tax year.
-3.  Export the data as CSV.
+1.  Go to [Gains & Losses](https://us.etrade.com/etx/sp/stockplan?accountIndex=0&traxui=tsp_accountshome#/myAccount/gainsLosses).
+
+2.  Select Year **2025**, Benefit type **All**, Capital Gain Status **All**, Covered Status **All**.
+    ![](media/gains_losses_0.jpg)
+
+3.  Click **Download** → **Download Collapsed** to export the data as CSV.
+ 
+4.  Save the csf into directory called 'sales'
+
+# Obtaining E-Trade ESPP confirmation PDFs
+
+1.  Go to [Stock Plan Confirmations](https://us.etrade.com/etx/sp/stockplan?accountIndex=0&traxui=tsp_accountshome#/myAccount/stockPlanConfirmations).
+
+2.  Select the relevant year and Benefit type: **ESPP**.
+    ![](media/espp_confirm_0.jpg)
+
+3.  Download all available confirmations.
+ 
+4. Save the PDFs into directory called 'espp'
+
+# Obtaining E-Trade RSU release confirmation PDFs
+
+1.  Go to [Stock Plan Confirmations](https://us.etrade.com/etx/sp/stockplan?accountIndex=0&traxui=tsp_accountshome#/myAccount/stockPlanConfirmations).
+
+2.  Select the relevant year and Benefit type: **Restricted stock units**.
+    ![](media/rsu_confirm_0.jpg)
+
+3.  Download all available confirmations.
+ 
+4. Save the PDFs into directory called 'rsu'
+
+# Obtaining E-Trade Dividends XLSX export
+
+1.  Go to [Holdings](https://us.etrade.com/etx/sp/stockplan#/holdings).
+
+2.  Scroll down to **Other Holdings**, expand it and then expand **Cash transactions**.
+    Select the right date range. Don't tick "Dividends only" because you also want to see
+    the withholding tax rows.
+    ![](media/dividends_0.png)
+
+3.  Download the report as **Excel**.
+
+4.  Save the XLSX file into directory called 'dividends'
+
+    
 
 ## E-Trade Gain and Loss CSV format
 
