@@ -29,7 +29,7 @@ class JsonExportParserTest {
                 listOf(
                     EsppRecord(
                         LocalDate(2023,12,23),
-                        40,
+                        40.0,
                         36.21,
                         42.60,
                         50.52,

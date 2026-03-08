@@ -4,7 +4,7 @@ data class EsppReport(
     val printableEsppList: List<PrintableEspp>,
     val profitCroneValue: Double,
     val profitDolarValue: Double,
-    val totalEsppAmount: Int,
+    val totalEsppAmount: Double,
     val taxableProfitCroneValue: Double
 ) {
     fun asMap(): Map<String, Any> {

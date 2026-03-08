@@ -2,7 +2,7 @@ package cz.solutions.cockroach
 
 data class PrintableEspp(
     val date: String,
-    val amount: Int,
+    val amount: Double,
     val exchange: String,
     val onePricePurchaseDolarValue: String,
     val onePriceDolarValue: String,

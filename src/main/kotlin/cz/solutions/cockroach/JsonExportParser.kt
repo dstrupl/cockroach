@@ -47,7 +47,7 @@ class JsonExportParser {
                 check(it.transactionDetails.size==1)
                 EsppRecord(
                     it.date,
-                    it.quantity,
+                    it.quantity.toDouble(),
                     it.transactionDetails[0].details.purchasePrice,
                     it.transactionDetails[0].details.subscriptionFairMarketValue,
                     it.transactionDetails[0].details.purchaseFairMarketValue,
