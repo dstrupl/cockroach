@@ -20,6 +20,9 @@ object PdfParserUtils {
     }
 
     fun <T> parseDirectory(directory: File, parseSingle: (File) -> T): List<T> {
+        if(!directory.exists()) {
+            return emptyList()
+        }
         require(directory.isDirectory) { "${directory.absolutePath} is not a directory" }
         return directory.listFiles { file -> file.extension.lowercase() == "pdf" }
             ?.sorted()
