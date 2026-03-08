@@ -5,13 +5,13 @@ Program RS - bezplatné poskytnutí akcií
 ----------------------------------------
 
 ### Cenný papír: Cisco Systems
-Obchodník s cennými papíry: Charles Schwab & Co.
+Obchodník s cennými papíry: Charles Schwab & Co., Morgan Stanley & Co.
 
 
 
-| datum připsání  |      počet akcií      |  tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) | prodáno v akt. období  | zdanitelný zisk v akt. období (Kč)
-|----------|:-------------:|------:|------:|------:|------:|------:|------:|
+| datum připsání  |      počet akcií      |  tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) |
+|----------|:-------------:|------:|------:|------:|------:|
 {{#each rsuList}}
-|{{this.date}}|{{this.amount}}| {{this.onePriceDolarValue}}| {{this.vestDolarValue}}|{{this.exchange}}| {{this.vestCroneValue}}| {{this.soldAmount}}|{{this.taxableVestCroneValue}}|
+|{{this.date}}|{{this.amount}}| {{this.onePriceDolarValue}}| {{this.vestDolarValue}}|{{this.exchange}}| {{this.vestCroneValue}}|
 {{/each}}
-| celkem   |  **{{totalAmount}}**        |  | **{{rsuDolarValue}}** | |**{{rsuCroneValue}}** | |**{{taxableRsuCroneValue}}**|
+| celkem   |  **{{totalAmount}}**        |  | **{{rsuDolarValue}}** | |**{{rsuCroneValue}}** |

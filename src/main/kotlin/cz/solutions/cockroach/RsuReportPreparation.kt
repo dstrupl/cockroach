@@ -11,7 +11,8 @@ object RsuReportPreparation {
         rsuRecordList: List<RsuRecord>,
         saleRecordList: List<SaleRecord>,
         interval: DateInterval,
-        exchangeRateProvider: ExchangeRateProvider
+        exchangeRateProvider: ExchangeRateProvider,
+        taxableAmount: (Double, Double) -> Double = { quantity,_ -> quantity }
     ): RsuReport {
         val rsuRecords = rsuRecordList
             .filter { interval.contains(it.vestDate) }
@@ -24,7 +25,7 @@ object RsuReportPreparation {
         val rsuInfos = rsuRecords.map { rsu ->
             val soldQuantity = rsuSaleRecordsByDateAndGrantId[rsu.vestDate to rsu.grantId]
                 ?.sumOf { it.quantity } ?: 0.0
-            withConvertedPrices(rsu, soldQuantity, exchangeRateProvider)
+            withConvertedPrices(rsu, soldQuantity,taxableAmount(rsu.quantity.toDouble(),soldQuantity), exchangeRateProvider)
         }
 
         return RsuReport(
@@ -36,11 +37,11 @@ object RsuReportPreparation {
         )
     }
 
-    private fun withConvertedPrices(rsu: RsuRecord, soldAmount: Double, exchangeRateProvider: ExchangeRateProvider): RsuInfo {
+    private fun withConvertedPrices(rsu: RsuRecord, soldAmount: Double, taxableAmount: Double,exchangeRateProvider: ExchangeRateProvider): RsuInfo {
         val exchange = exchangeRateProvider.rateAt(rsu.vestDate)
         val partialRsuDolarValue = rsu.quantity * rsu.vestFmv
         val partialRsuCroneValue = partialRsuDolarValue * exchange
-        val taxableVestCroneValue = soldAmount * rsu.vestFmv * exchange
+        val taxableVestCroneValue = taxableAmount * rsu.vestFmv * exchange
 
         return RsuInfo(
             date = rsu.vestDate,

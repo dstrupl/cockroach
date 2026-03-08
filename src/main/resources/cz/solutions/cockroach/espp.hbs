@@ -5,12 +5,12 @@ Program ESPP - nákup akcií za zvýhodněnou cenu
 ----------------------------------------------
 
 ### Cenný papír: Cisco Systems
-Obchodník s cennými papíry: Charles Schwab & Co.
+Obchodník s cennými papíry: Charles Schwab & Co., Morgan Stanley & Co.
 
 
-| datum nákupu  |      počet akcií    | zvýhodněná nákupní cena (USD) | tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) | prodáno v akt. období  | zdanitelný zisk v akt. období (Kč)
-|----------|:-------------:|------:|------:|------:|------:|------:|------:|------:|
+| datum nákupu  |      počet akcií    | zvýhodněná nákupní cena (USD) | tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč)
+|----------|:-------------:|------:|------:|------:|------:|------:|
 {{#each esppList}}
-|{{this.date}}|{{this.amount}}|{{this.onePricePurchaseDolarValue}}| {{this.onePriceDolarValue}}|{{this.buyProfitValue}}|{{this.exchange}}| {{this.buyCroneProfitValue}}| {{this.soldAmount}}|{{this.taxableBuyCroneProfitValue}}|
+|{{this.date}}|{{this.amount}}|{{this.onePricePurchaseDolarValue}}| {{this.onePriceDolarValue}}|{{this.buyProfitValue}}|{{this.exchange}}| {{this.buyCroneProfitValue}}|
 {{/each}}
-| celkem   |  **{{totalAmount}}**    |    |  | **{{profitDolarValue}}** | |**{{profitCroneValue}}** ||**{{taxableProfitCroneValue}}**|
+| celkem   |  **{{totalAmount}}**    |    |  | **{{profitDolarValue}}** | |**{{profitCroneValue}}** |

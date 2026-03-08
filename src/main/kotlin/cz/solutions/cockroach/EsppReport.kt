@@ -13,7 +13,7 @@ data class EsppReport(
             "profitCroneValue" to FormatingHelper.formatDouble(profitCroneValue),
             "profitDolarValue" to FormatingHelper.formatDouble(profitDolarValue),
             "totalAmount" to totalEsppAmount,
-            "taxableProfitCroneValue" to taxableProfitCroneValue
+            "taxableProfitCroneValue" to FormatingHelper.formatDouble(taxableProfitCroneValue)
         )
     }
 }
