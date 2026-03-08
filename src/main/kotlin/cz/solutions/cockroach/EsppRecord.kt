@@ -4,7 +4,7 @@ import org.joda.time.LocalDate
 
 data class EsppRecord(
     val date: LocalDate,
-    val quantity: Int,
+    val quantity: Double,
     val purchasePrice: Double,
     val subscriptionFmv: Double,
     val purchaseFmv: Double,

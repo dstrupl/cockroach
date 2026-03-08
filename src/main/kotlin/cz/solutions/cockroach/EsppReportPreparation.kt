@@ -56,7 +56,7 @@ object EsppReportPreparation {
 
     private data class EsppInfo(
         val date: LocalDate,
-        val amount: Int,
+        val amount: Double,
         val exchange: Double,
         val onePricePurchaseDolarValue: Double,
         val onePriceDolarValue: Double,

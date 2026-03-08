@@ -9,7 +9,7 @@ import java.io.File
 class EsppPdfParserTest {
 
     companion object {
-        private val EXTERNAL_PDF = File("/Users/jandryse/Documents/dane/2026/espp/getEsppConfirmation.pdf")
+        private val EXTERNAL_PDF = File("/Users/jandryse/Documents/dane/2026/input/e-trade/espp/getEsppConfirmation.pdf")
     }
 
     @Test
@@ -38,7 +38,7 @@ class EsppPdfParserTest {
         assertThat(record).isEqualTo(
             EsppRecord(
                 date = LocalDate(2025, 12, 31),
-                quantity = 133,
+                quantity = 133.687,
                 purchasePrice = 40.392,
                 subscriptionFmv = 47.52,
                 purchaseFmv = 77.03,
@@ -73,7 +73,7 @@ class EsppPdfParserTest {
         assertThat(record).isEqualTo(
             EsppRecord(
                 date = LocalDate(2025, 6, 30),
-                quantity = 50,
+                quantity = 50.1234,
                 purchasePrice = 46.75,
                 subscriptionFmv = 55.0,
                 purchaseFmv = 65.5,
@@ -91,7 +91,7 @@ class EsppPdfParserTest {
         assertThat(record).isEqualTo(
             EsppRecord(
                 date = LocalDate(2025, 12, 31),
-                quantity = 133,
+                quantity = 133.687,
                 purchasePrice = 40.392,
                 subscriptionFmv = 47.52,
                 purchaseFmv = 77.03,

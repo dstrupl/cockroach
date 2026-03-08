@@ -42,6 +42,12 @@ object PdfParserUtils {
         return match.groupValues[1].toDouble().toInt()
     }
 
+    fun extractDouble(text: String, label: String): Double {
+        val regex = Regex("""$label\s+([\d.]+)""")
+        val match = regex.find(text) ?: error("Could not find $label in PDF")
+        return match.groupValues[1].toDouble()
+    }
+
     fun extractDollarAmount(text: String, label: String): Double {
         val regex = Regex("""$label\s+\$([\d.]+)""")
         val match = regex.find(text) ?: error("Could not find $label in PDF")

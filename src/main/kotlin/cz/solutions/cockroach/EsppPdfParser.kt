@@ -22,7 +22,7 @@ object EsppPdfParser {
     fun parseFromText(text: String): EsppRecord {
         // "Purchase Date 12-31-2025Shares Purchased..." due to column merge
         val purchaseDate = PdfParserUtils.extractDate(text, "Purchase Date")
-        val sharesPurchased = PdfParserUtils.extractInt(text, "Shares Purchased")
+        val sharesPurchased = PdfParserUtils.extractDouble(text, "Shares Purchased")
         val purchasePricePerShare = extractPurchasePricePerShare(text)
         val grantDateMarketValue = PdfParserUtils.extractDollarAmount(text, "Grant Date Market Value")
         val purchaseValuePerShare = PdfParserUtils.extractDollarAmount(text, "Purchase Value per Share")
