@@ -11,7 +11,8 @@ object EsppReportPreparation {
         esppRecordList: List<EsppRecord>,
         saleRecordList: List<SaleRecord>,
         interval: DateInterval,
-        exchangeRateProvider: ExchangeRateProvider
+        exchangeRateProvider: ExchangeRateProvider,
+        taxableAmount: (Double, Double) -> Double = { quantity,_ -> quantity }
     ): EsppReport {
         val esppRecords = esppRecordList
             .filter { interval.contains(it.purchaseDate) }
@@ -24,7 +25,7 @@ object EsppReportPreparation {
         val esppInfos = esppRecords.map { espp ->
             val soldQuantity = esppSaleRecordsByDate[espp.purchaseDate]
                 ?.sumOf { it.quantity } ?: 0.0
-            withConvertedPrices(espp, soldQuantity, exchangeRateProvider)
+            withConvertedPrices(espp, soldQuantity,taxableAmount(espp.quantity,soldQuantity), exchangeRateProvider)
         }
 
         return EsppReport(
@@ -36,7 +37,7 @@ object EsppReportPreparation {
         )
     }
 
-    private fun withConvertedPrices(espp: EsppRecord, soldAmount: Double, exchangeRateProvider: ExchangeRateProvider): EsppInfo {
+    private fun withConvertedPrices(espp: EsppRecord, soldAmount: Double, taxableAmount: Double, exchangeRateProvider: ExchangeRateProvider): EsppInfo {
         val exchange = exchangeRateProvider.rateAt(espp.purchaseDate)
         val partialProfit = espp.purchaseFmv - espp.purchasePrice
 
@@ -50,7 +51,7 @@ object EsppReportPreparation {
             buyProfitValue = partialProfit * espp.quantity,
             buyCroneProfitValue = partialProfit * espp.quantity * exchange,
             soldAmount = soldAmount,
-            taxableBuyCroneProfitValue = partialProfit * soldAmount * exchange
+            taxableBuyCroneProfitValue = partialProfit * taxableAmount * exchange
         )
     }
 

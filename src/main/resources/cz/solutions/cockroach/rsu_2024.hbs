@@ -1,0 +1,17 @@
+Nepeněžní příjmy dle §6 ze zahraničí - akciový program pro zaměstnance (§6, odst.3)
+====================================================================================
+
+Program RS - bezplatné poskytnutí akcií
+----------------------------------------
+
+### Cenný papír: Cisco Systems
+Obchodník s cennými papíry: Charles Schwab & Co.
+
+
+
+| datum připsání  |      počet akcií      |  tržní cena (USD) | zisk (USD)| kurz D54 (Kč/USD) | zisk (Kč) | prodáno a zdaněno v 2024  | zdanitelný zisk v akt. období (Kč)
+|----------|:-------------:|------:|------:|------:|------:|------:|------:|
+{{#each rsuList}}
+|{{this.date}}|{{this.amount}}| {{this.onePriceDolarValue}}| {{this.vestDolarValue}}|{{this.exchange}}| {{this.vestCroneValue}}| {{this.soldAmount}}|{{this.taxableVestCroneValue}}|
+{{/each}}
+| celkem   |  **{{totalAmount}}**        |  | **{{rsuDolarValue}}** | |**{{rsuCroneValue}}** | |**{{taxableRsuCroneValue}}**|

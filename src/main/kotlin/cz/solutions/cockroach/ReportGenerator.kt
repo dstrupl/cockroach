@@ -29,7 +29,22 @@ object ReportGenerator {
                 parsedExport.saleRecords,
                 interval,
                 exchangeRateProvider
-            )
+            ),
+            rsuReport2024 = RsuReportPreparation.generateRsuReport(
+                parsedExport.rsuRecords,
+                parsedExport.saleRecords,
+                DateInterval.year(2024),
+                exchangeRateProvider,
+                {quantity, soldQuantity -> quantity-soldQuantity}
+            ),
+
+            esppReport2024 = EsppReportPreparation.generateEsppReport(
+                parsedExport.esppRecords,
+                parsedExport.saleRecords,
+                DateInterval.year(2024),
+                exchangeRateProvider,
+                {quantity, soldQuantity -> quantity-soldQuantity}
+            ),
         )
     }
 }

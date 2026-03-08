@@ -35,8 +35,8 @@ object CockroachMain {
         reportOneVariant(year, outputDir, fixedRateReport, "fixed")
         reportOneVariant(year, outputDir, dynamicRateReport, "dynamic")
 
-        recommendBetterAlternative(fixedRateReport, dynamicRateReport, true)
-        recommendBetterAlternative(fixedRateReport, dynamicRateReport, false)
+        recommendBetterAlternative(fixedRateReport, dynamicRateReport)
+
 
         println("######################################################")
         println("# Let's see the guide in ${File(outputDir, "<fixed/dynamic>_guide_$year.html").absolutePath}")
@@ -49,7 +49,12 @@ object CockroachMain {
         File(outputDir, "${dollarConversionSchema}_espp_$year.md").writeText(data.getEspp(), StandardCharsets.UTF_8)
         File(outputDir, "${dollarConversionSchema}_sales_$year.md").writeText(data.getSales(), StandardCharsets.UTF_8)
         File(outputDir, "${dollarConversionSchema}_guide_$year.html").writeText(data.getGuide(), StandardCharsets.UTF_8)
+
+        File(outputDir, "${dollarConversionSchema}_rsu_2024.md").writeText(data.getRsu2024(), StandardCharsets.UTF_8)
+        File(outputDir, "${dollarConversionSchema}_espp_2024.md").writeText(data.getEspp2024(), StandardCharsets.UTF_8)
     }
+
+
 
     private fun parseExportFile(schwabExportFile: File): ParsedExport {
         return if (schwabExportFile.extension == "json") {
@@ -91,9 +96,9 @@ object CockroachMain {
         return files.firstOrNull()
     }
 
-    private fun recommendBetterAlternative(fixedRateReport: Report, dynamicRateReport: Report, use2024Legislative: Boolean) {
-        val profitWhenUsedFixedRate = fixedRateReport.rsuAndEsppAndSalesProfitCroneValue(use2024Legislative)
-        val profitWhenUsedDynamicRate = dynamicRateReport.rsuAndEsppAndSalesProfitCroneValue(use2024Legislative)
+    private fun recommendBetterAlternative(fixedRateReport: Report, dynamicRateReport: Report) {
+        val profitWhenUsedFixedRate = fixedRateReport.rsuAndEsppAndSalesProfitCroneValue()
+        val profitWhenUsedDynamicRate = dynamicRateReport.rsuAndEsppAndSalesProfitCroneValue()
 
         val recommendation = if (profitWhenUsedFixedRate <= profitWhenUsedDynamicRate) {
             "Use fixed Dollar conversion rate, because ${FormatingHelper.formatDouble(profitWhenUsedFixedRate)}<=${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)} (diff=${FormatingHelper.formatDouble(profitWhenUsedDynamicRate - profitWhenUsedFixedRate)})"
@@ -102,14 +107,25 @@ object CockroachMain {
         }
 
         println("######################################################")
-        if (use2024Legislative) {
-            println("# Recommendation with 2024 legislative: ")
-        } else {
-            println("# Recommendation with old legislative: ")
-        }
+        println("# Recommendation For Current Year: ")
         println("# $recommendation")
         println("######################################################")
         println()
+
+        val profit2024WhenUsedFixedRate = fixedRateReport.rsuAndEsppProfitCroneValue2024()
+        val profit2024WhenUsedDynamicRate = dynamicRateReport.rsuAndEsppProfitCroneValue2024()
+
+        val recomendation2024 = if (profit2024WhenUsedFixedRate <= profit2024WhenUsedDynamicRate) {
+            "Use fixed Dollar conversion rate for 2024, because ${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)}<=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)} (diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate - profit2024WhenUsedFixedRate)})"
+        } else {
+            "Use dynamic Dollar conversion rate for 2024, because ${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}<${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)} (diff=${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate - profit2024WhenUsedDynamicRate)})"
+        }
+
+        println("######################################################")
+        println("# Recommendation For 2024: (If new legislative was used) ")
+        println("# $recomendation2024")
+        println("######################################################")
+
     }
 
     fun load(file: File): String {
