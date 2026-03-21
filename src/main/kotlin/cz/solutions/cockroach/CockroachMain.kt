@@ -100,30 +100,38 @@ object CockroachMain {
         val profitWhenUsedFixedRate = fixedRateReport.rsuAndEsppAndSalesProfitCroneValue()
         val profitWhenUsedDynamicRate = dynamicRateReport.rsuAndEsppAndSalesProfitCroneValue()
 
-        val recommendation = if (profitWhenUsedFixedRate <= profitWhenUsedDynamicRate) {
+        val profit2024WhenUsedFixedRate = fixedRateReport.rsuAndEsppProfitCroneValue2024()
+        val profit2024WhenUsedDynamicRate = dynamicRateReport.rsuAndEsppProfitCroneValue2024()
+
+        val recommendationOldLegislativeUsedIn2024 = if (profitWhenUsedFixedRate <= profitWhenUsedDynamicRate) {
             "Use fixed Dollar conversion rate, because ${FormatingHelper.formatDouble(profitWhenUsedFixedRate)}<=${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)} (diff=${FormatingHelper.formatDouble(profitWhenUsedDynamicRate - profitWhenUsedFixedRate)})"
         } else {
             "Use dynamic Dollar conversion rate, because ${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)}<${FormatingHelper.formatDouble(profitWhenUsedFixedRate)} (diff=${FormatingHelper.formatDouble(profitWhenUsedFixedRate - profitWhenUsedDynamicRate)})"
         }
 
         println("######################################################")
-        println("# Recommendation For Current Year: ")
-        println("# $recommendation")
+        println("# Recommendation (If old legislative was used for 2024): ")
+        println("# $recommendationOldLegislativeUsedIn2024")
         println("######################################################")
         println()
 
-        val profit2024WhenUsedFixedRate = fixedRateReport.rsuAndEsppProfitCroneValue2024()
-        val profit2024WhenUsedDynamicRate = dynamicRateReport.rsuAndEsppProfitCroneValue2024()
 
-        val recomendation2024 = if (profit2024WhenUsedFixedRate <= profit2024WhenUsedDynamicRate) {
-            "Use fixed Dollar conversion rate for 2024, because ${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)}<=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)} (diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate - profit2024WhenUsedFixedRate)})"
+
+        val recomendationNewLegislativeUsed2024 = if (profit2024WhenUsedFixedRate+profitWhenUsedFixedRate <= profit2024WhenUsedDynamicRate+profitWhenUsedDynamicRate) {
+            "Use fixed Dollar conversion rate  because " +
+                    "${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)}+${FormatingHelper.formatDouble(profitWhenUsedFixedRate)}<=" +
+                    "${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}+${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)} " +
+                    "(diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate+profitWhenUsedDynamicRate - profit2024WhenUsedFixedRate-profit2024WhenUsedDynamicRate)})"
         } else {
-            "Use dynamic Dollar conversion rate for 2024, because ${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}<${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)} (diff=${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate - profit2024WhenUsedDynamicRate)})"
+            "Use dynamic Dollar conversion rate, because " +
+                    "${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}+${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)}" +
+                    "<${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)} +${FormatingHelper.formatDouble(profitWhenUsedFixedRate)} " +
+                    "(diff=${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate +profitWhenUsedFixedRate  - profit2024WhenUsedDynamicRate-profitWhenUsedDynamicRate)})"
         }
 
         println("######################################################")
-        println("# Recommendation For 2024: (If new legislative was used) ")
-        println("# $recomendation2024")
+        println("# Recommendation (If new legislative was used in 2024) ")
+        println("# $recomendationNewLegislativeUsed2024")
         println("######################################################")
 
     }
