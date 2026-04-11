@@ -69,12 +69,15 @@ object CockroachMain {
         val esppRecords = EsppPdfParser.parseDirectory(File(eTradeDir, "espp"))
         val dividentXlsFile = locateSingleFile(File(eTradeDir, "dividends"), "xlsx")
         val dividendXlsxResult = dividentXlsFile?.let {  DividendXlsxParser.parse(it)}
-        val eTradeFile = locateSingleFile(File(eTradeDir, "sales"), "csv")
+        val eTradeXlsFile = locateSingleFile(File(eTradeDir, "sales"), "xlsx")
+        val eTradeCsvFile = locateSingleFile(File(eTradeDir, "sales"), "csv")
 
         return ParsedExport(
             rsuRecords = rsuRecords,
             esppRecords = esppRecords,
-            saleRecords = eTradeFile?.let { ETradeGainLossParser.parse(load(it)).saleRecords} ?: emptyList(),
+            saleRecords = eTradeXlsFile?.let { ETradeGainLossXlsParser.parse(it)}
+                ?:eTradeCsvFile?.let { ETradeGainLossParser.parse(load(it)).saleRecords}
+                ?: emptyList(),
             dividendRecords = dividendXlsxResult?.dividendRecords?: emptyList(),
             taxRecords = dividendXlsxResult?.taxRecords?:emptyList(),
             taxReversalRecords = emptyList(),
