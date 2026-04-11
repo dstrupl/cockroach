@@ -76,7 +76,7 @@ object CockroachMain {
             rsuRecords = rsuRecords,
             esppRecords = esppRecords,
             saleRecords = eTradeXlsFile?.let { ETradeGainLossXlsParser.parse(it)}
-                ?:eTradeCsvFile?.let { ETradeGainLossParser.parse(load(it)).saleRecords}
+                ?:eTradeCsvFile?.let { ETradeGainLossParser.parse(load(it))}
                 ?: emptyList(),
             dividendRecords = dividendXlsxResult?.dividendRecords?: emptyList(),
             taxRecords = dividendXlsxResult?.taxRecords?:emptyList(),

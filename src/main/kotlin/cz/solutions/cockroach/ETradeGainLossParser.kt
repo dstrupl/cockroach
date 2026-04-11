@@ -10,7 +10,7 @@ object ETradeGainLossParser {
 
     private val DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/yyyy")
 
-    fun parse(data: String): ParsedExport {
+    fun parse(data: String): List<SaleRecord> {
         val format = CSVFormat.Builder.create()
             .setDelimiter(';')
             .build()
@@ -20,18 +20,7 @@ object ETradeGainLossParser {
 
         val dataRows = records.filter { it.get(0) == "Sell" }
 
-        val saleRecords = dataRows.map { parseSaleRecord(it) }
-        val rsuRecords = deriveRsuRecords(dataRows)
-
-        return ParsedExport(
-            rsuRecords = rsuRecords,
-            esppRecords = emptyList(),
-            dividendRecords = emptyList(),
-            taxRecords = emptyList(),
-            taxReversalRecords = emptyList(),
-            saleRecords = saleRecords,
-            journalRecords = emptyList()
-        )
+        return  dataRows.map { parseSaleRecord(it) }
     }
 
     private fun parseSaleRecord(row: CSVRecord): SaleRecord {
@@ -54,23 +43,7 @@ object ETradeGainLossParser {
         )
     }
 
-    private fun deriveRsuRecords(dataRows: List<CSVRecord>): List<RsuRecord> {
-        return dataRows
-            .groupBy { parseDate(it.get(41)) to it.get(39) }
-            .map { (key, rows) ->
-                val (vestDate, grantNumber) = key
-                val totalQuantity = rows.sumOf { it.get(3).toInt() }
-                val vestFmv = parseCurrency(rows.first().get(11))
 
-                RsuRecord(
-                    date = vestDate,
-                    quantity = totalQuantity,
-                    vestFmv = vestFmv,
-                    vestDate = vestDate,
-                    grantId = grantNumber
-                )
-            }
-    }
 
     private fun parseDate(value: String): LocalDate {
         return LocalDate.parse(value.trim(), DATE_FORMATTER)
