@@ -14,7 +14,7 @@ object SalesReportPreparation {
 
         var sellDollarValue = 0.0
         var sellCroneValue = 0.0
-        var profitDolarValue = 0.0
+        var profitCroneValue = 0.0
         var recentProfitCroneValue = 0.0
         var recentSellCroneValue = 0.0
         var recentBuyCroneValue = 0.0
@@ -25,15 +25,17 @@ object SalesReportPreparation {
 
             val partialSellDolarValue = sale.quantity * sale.salePrice
             val partialSellCroneValue = partialSellDolarValue * exchange
-            val buyPriceDolarValue = sale.quantity * sale.purchaseFmv
 
-            val partialProfitValue = partialSellDolarValue - buyPriceDolarValue
-            val partialRecentProfitValue = if (sale.isTaxable()) partialProfitValue else 0.0
-            val partialRecentProfitCroneValue = partialRecentProfitValue * exchange
+            val buyPriceDolarValue = sale.quantity * sale.purchaseFmv
+            val buyPriceCroneValue = buyPriceDolarValue * exchange //todo
+
+            val partialProfitCroneValue = partialSellCroneValue - buyPriceCroneValue
+            val partialRecentProfitCroneValue = if (sale.isTaxable()) partialProfitCroneValue else 0.0
+
 
             sellDollarValue += partialSellDolarValue
             sellCroneValue += partialSellCroneValue
-            profitDolarValue += partialProfitValue
+            profitCroneValue += partialProfitCroneValue
             recentProfitCroneValue += partialRecentProfitCroneValue
 
             if (sale.isTaxable()) {
@@ -43,16 +45,22 @@ object SalesReportPreparation {
             totalAmount += sale.quantity
 
             PrintableSale(
-                date = DATE_FORMATTER.print(sale.date),
-                purchaseDate = DATE_FORMATTER.print(sale.purchaseDate),
                 amount = FormatingHelper.formatDouble(sale.quantity),
-                exchange = FormatingHelper.formatExchangeRate(exchange),
+
+                purchaseDate = DATE_FORMATTER.print(sale.purchaseDate),
                 onePurchaseDollar = FormatingHelper.formatDouble(sale.purchaseFmv),
+                purchaseDollar = FormatingHelper.formatDouble(buyPriceDolarValue),
+                purchaseExchange = FormatingHelper.formatExchangeRate(exchange), //todo
+                purchaseCrone = FormatingHelper.formatDouble(buyPriceCroneValue),
+
+                date = DATE_FORMATTER.print(sale.date),
                 oneSellDollar = FormatingHelper.formatDouble(sale.salePrice),
-                oneProfitDollar = FormatingHelper.formatDouble(sale.salePrice - sale.purchaseFmv),
                 sellDolar = FormatingHelper.formatDouble(partialSellDolarValue),
-                sellProfitDollar = FormatingHelper.formatDouble(partialProfitValue),
+                sellExchange = FormatingHelper.formatExchangeRate(exchange),
                 sellCrone = FormatingHelper.formatDouble(partialSellCroneValue),
+
+
+                sellProfitCrone = FormatingHelper.formatDouble(partialRecentProfitCroneValue),
                 sellRecentProfitCrone = FormatingHelper.formatDouble(partialRecentProfitCroneValue)
             )
         }
@@ -67,7 +75,7 @@ object SalesReportPreparation {
             printableSalesList = printableSalesList,
             sellCroneValue = sellCroneValue,
             sellDollarValue = sellDollarValue,
-            profitDolarValue = profitDolarValue,
+            profitCroneValue = profitCroneValue,
             recentProfitCroneValue = recentProfitCroneValue,
             totalAmount = totalAmount,
             profitForTax = profitForTax,

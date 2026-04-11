@@ -1,15 +1,26 @@
 package cz.solutions.cockroach
 
 data class PrintableSale(
-    val date: String,
-    val purchaseDate: String,
     val amount: String,
-    val exchange: String,
+
+
+    val purchaseDate: String,
     val onePurchaseDollar: String,
+    val purchaseDollar: String,
+    val purchaseExchange: String,
+    val purchaseCrone: String,
+
+
+    val date: String,
     val oneSellDollar: String,
-    val oneProfitDollar: String,
     val sellDolar: String,
-    val sellProfitDollar: String,
+    val sellExchange: String,
     val sellCrone: String,
+
+    val sellProfitCrone: String,
     val sellRecentProfitCrone: String
+
+
+
+
 )
