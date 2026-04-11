@@ -32,7 +32,7 @@ export, then creates a summary of your sales and purchases for the tax year.
 2.  Select Year **2025**, Benefit type **All**, Capital Gain Status **All**, Covered Status **All**.
     ![](media/gains_losses_0.jpg)
 
-3.  Click **Download** → **Download Collapsed** to export the data as CSV.
+3.  Click **Download** → **Download Expanded** to export the data as CSV.
  
 4.  Save the csf into directory called 'sales'
 
@@ -135,7 +135,7 @@ java -jar target/cockroach-0.2-SNAPSHOT.jar /tmp/219114411.json 2025 /tmp/taxes
 
 With E-Trade data:
 
-java -jar target/cockroach-0.2-SNAPSHOT.jar /tmp/219114411.json 2025 /tmp/taxes /tmp/e-trade-gain-and-loss-2025.csv
+java -jar target/cockroach-0.2-SNAPSHOT.jar /tmp/219114411.json 2025 /tmp/taxes /tmp/e-trade-dir
 
 # Converting to PDF
 
