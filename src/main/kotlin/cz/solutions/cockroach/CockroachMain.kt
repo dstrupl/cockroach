@@ -47,7 +47,7 @@ object CockroachMain {
         File(outputDir, "${dollarConversionSchema}_dividend_$year.md").writeText(data.getDividend(), StandardCharsets.UTF_8)
         File(outputDir, "${dollarConversionSchema}_rsu_$year.md").writeText(data.getRsu(), StandardCharsets.UTF_8)
         File(outputDir, "${dollarConversionSchema}_espp_$year.md").writeText(data.getEspp(), StandardCharsets.UTF_8)
-        File(outputDir, "${dollarConversionSchema}_sales_$year.md").writeText(data.getSales(), StandardCharsets.UTF_8)
+        File(outputDir, "${dollarConversionSchema}_sales_$year.pdf").writeBytes(data.getSalesPdf())
         File(outputDir, "${dollarConversionSchema}_guide_$year.html").writeText(data.getGuide(), StandardCharsets.UTF_8)
 
         File(outputDir, "${dollarConversionSchema}_rsu_2024.md").writeText(data.getRsu2024(), StandardCharsets.UTF_8)

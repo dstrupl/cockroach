@@ -23,7 +23,6 @@ class Report(
     private val esppTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("espp.hbs")
     private val espp2024Template = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("espp_2024.hbs")
 
-    private val salesTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("sales.hbs")
     private val guideTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("guide.html.hbs")
 
     fun getRsu(): String {
@@ -46,8 +45,8 @@ class Report(
         return render(espp2024Template, esppReport2024.asMap())
     }
 
-    fun getSales(): String {
-        return render(salesTemplate, salesReport.asMap())
+    fun getSalesPdf(): ByteArray {
+        return SalesReportPdfGenerator.generate(salesReport)
     }
 
     fun getGuide(): String {

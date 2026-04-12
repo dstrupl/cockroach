@@ -9,6 +9,7 @@ data class PrintableSale(
     val purchaseDollar: String,
     val purchaseExchange: String,
     val purchaseCrone: String,
+    val recentPurchaseCrone: String,
 
 
     val date: String,
@@ -16,6 +17,7 @@ data class PrintableSale(
     val sellDolar: String,
     val sellExchange: String,
     val sellCrone: String,
+    val recentSellCrone: String,
 
     val sellProfitCrone: String,
     val sellRecentProfitCrone: String
