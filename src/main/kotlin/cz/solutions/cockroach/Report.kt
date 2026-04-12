@@ -19,7 +19,6 @@ class Report(
     private val rsuTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("rsu.hbs")
     private val rsuTemplate2024 = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("rsu_2024.hbs")
 
-    private val dividendTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("dividend.hbs")
     private val esppTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("espp.hbs")
     private val espp2024Template = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("espp_2024.hbs")
 
@@ -33,8 +32,8 @@ class Report(
         return render(rsuTemplate2024, rsuReport2024.asMap())
     }
 
-    fun getDividend(): String {
-        return render(dividendTemplate, dividendReport.asMap())
+    fun getDividendPdf(): ByteArray {
+        return DividendReportPdfGenerator.generate(dividendReport)
     }
 
     fun getEspp(): String {

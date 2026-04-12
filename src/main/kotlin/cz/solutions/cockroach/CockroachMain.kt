@@ -44,7 +44,7 @@ object CockroachMain {
     }
 
     private fun reportOneVariant(year: Int, outputDir: File, data: Report, dollarConversionSchema: String) {
-        File(outputDir, "${dollarConversionSchema}_dividend_$year.md").writeText(data.getDividend(), StandardCharsets.UTF_8)
+        File(outputDir, "${dollarConversionSchema}_dividend_$year.pdf").writeBytes(data.getDividendPdf())
         File(outputDir, "${dollarConversionSchema}_rsu_$year.md").writeText(data.getRsu(), StandardCharsets.UTF_8)
         File(outputDir, "${dollarConversionSchema}_espp_$year.md").writeText(data.getEspp(), StandardCharsets.UTF_8)
         File(outputDir, "${dollarConversionSchema}_sales_$year.pdf").writeBytes(data.getSalesPdf())
