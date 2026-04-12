@@ -15,15 +15,9 @@ class ETradeGainLossParserTest {
         }
 
         assertThat(actual).isNotNull
-        assertThat(actual!!.saleRecords).hasSize(3)
-        assertThat(actual.rsuRecords).hasSize(3)
-        assertThat(actual.esppRecords).isEmpty()
-        assertThat(actual.dividendRecords).isEmpty()
-        assertThat(actual.taxRecords).isEmpty()
-        assertThat(actual.taxReversalRecords).isEmpty()
-        assertThat(actual.journalRecords).isEmpty()
+        assertThat(actual).hasSize(3)
 
-        assertThat(actual.saleRecords[0]).isEqualTo(
+        assertThat(actual?.get(0)).isEqualTo(
             SaleRecord(
                 LocalDate(2025, 3, 16),
                 "RS",
@@ -36,7 +30,7 @@ class ETradeGainLossParserTest {
             )
         )
 
-        assertThat(actual.saleRecords[1]).isEqualTo(
+        assertThat(actual?.get(1)).isEqualTo(
             SaleRecord(
                 LocalDate(2025, 3, 16),
                 "RS",
@@ -49,7 +43,7 @@ class ETradeGainLossParserTest {
             )
         )
 
-        assertThat(actual.saleRecords[2]).isEqualTo(
+        assertThat(actual?.get(2)).isEqualTo(
             SaleRecord(
                 LocalDate(2025, 6, 12),
                 "RS",
@@ -62,29 +56,7 @@ class ETradeGainLossParserTest {
             )
         )
 
-        assertThat(actual.rsuRecords).containsExactlyInAnyOrder(
-            RsuRecord(
-                LocalDate(2025, 3, 15),
-                10,
-                50.00,
-                LocalDate(2025, 3, 15),
-                "9990001"
-            ),
-            RsuRecord(
-                LocalDate(2025, 3, 15),
-                25,
-                60.00,
-                LocalDate(2025, 3, 15),
-                "9990002"
-            ),
-            RsuRecord(
-                LocalDate(2025, 6, 10),
-                65,
-                70.00,
-                LocalDate(2025, 6, 10),
-                "9990001"
-            )
-        )
+        
     }
 
     @Test

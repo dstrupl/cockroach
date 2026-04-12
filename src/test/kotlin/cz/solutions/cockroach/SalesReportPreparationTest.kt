@@ -33,7 +33,13 @@ class SalesReportPreparationTest {
                 )
             ),
             DateInterval.year(2021),
-            YearConstantExchangeRateProvider(mapOf(2021 to 10.0))
+            YearConstantExchangeRateProvider(mapOf(
+                2017 to 10.0,
+                2018 to 10.0,
+                2019 to 10.0,
+                2020 to 10.0,
+                2021 to 10.0
+            ))
         )
         assertThat(salesReport.sellCroneValue, `is`(170000.0000))
         assertThat(salesReport.profitForTax, `is`(2000.0))
@@ -65,7 +71,10 @@ class SalesReportPreparationTest {
                 )
             ),
             DateInterval.year(2021),
-            YearConstantExchangeRateProvider(mapOf(2021 to 10.0))
+            YearConstantExchangeRateProvider(mapOf(
+                2021 to 10.0,
+                2020 to 10.0
+            ))
         )
         assertThat(salesReport.sellCroneValue, `is`(26000.0000))
         assertThat(salesReport.recentProfitCroneValue, `is`(1600.0000))
