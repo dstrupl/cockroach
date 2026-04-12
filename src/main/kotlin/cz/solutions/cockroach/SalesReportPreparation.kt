@@ -23,13 +23,14 @@ object SalesReportPreparation {
         var totalAmount = 0.0
 
         val printableSalesList = filteredSaleRecords.map { sale ->
-            val exchange = exchangeRateProvider.rateAt(sale.date)
+            val sellExchange = exchangeRateProvider.rateAt(sale.date)
+            val buyExchange = exchangeRateProvider.rateAt(sale.purchaseDate)
 
             val partialSellDolarValue = sale.quantity * sale.salePrice
-            val partialSellCroneValue = partialSellDolarValue * exchange
+            val partialSellCroneValue = partialSellDolarValue * sellExchange
 
             val buyPriceDolarValue = sale.quantity * sale.purchaseFmv
-            val buyPriceCroneValue = buyPriceDolarValue * exchange //todo
+            val buyPriceCroneValue = buyPriceDolarValue * buyExchange
 
             val partialProfitCroneValue = partialSellCroneValue - buyPriceCroneValue
             val partialRecentProfitCroneValue = if (sale.isTaxable()) partialProfitCroneValue else 0.0
@@ -59,14 +60,14 @@ object SalesReportPreparation {
                 purchaseDate = DATE_FORMATTER.print(sale.purchaseDate),
                 onePurchaseDollar = FormatingHelper.formatDouble(sale.purchaseFmv),
                 purchaseDollar = FormatingHelper.formatDouble(buyPriceDolarValue),
-                purchaseExchange = FormatingHelper.formatExchangeRate(exchange), //todo
+                purchaseExchange = FormatingHelper.formatExchangeRate(buyExchange),
                 purchaseCrone = FormatingHelper.formatDouble(buyPriceCroneValue),
                 recentPurchaseCrone =  FormatingHelper.formatDouble(partialRecentBuyCroneValue),
 
                 date = DATE_FORMATTER.print(sale.date),
                 oneSellDollar = FormatingHelper.formatDouble(sale.salePrice),
                 sellDolar = FormatingHelper.formatDouble(partialSellDolarValue),
-                sellExchange = FormatingHelper.formatExchangeRate(exchange),
+                sellExchange = FormatingHelper.formatExchangeRate(sellExchange),
                 sellCrone = FormatingHelper.formatDouble(partialSellCroneValue),
                 recentSellCrone = FormatingHelper.formatDouble(partialRecentSellCroneValue),
 
