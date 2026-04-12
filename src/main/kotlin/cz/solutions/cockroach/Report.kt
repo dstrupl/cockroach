@@ -16,37 +16,19 @@ class Report(
     private val rsuReport2024: RsuReport,
 
 ) {
-    private val rsuTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("rsu.hbs")
-    private val rsuTemplate2024 = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("rsu_2024.hbs")
-
-    private val esppTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("espp.hbs")
-    private val espp2024Template = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("espp_2024.hbs")
-
     private val guideTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("guide.html.hbs")
 
-    fun getRsu(): String {
-        return render(rsuTemplate, rsuReport.asMap())
-    }
+    fun getRsuPdf(): ByteArray = RsuReportPdfGenerator.generate(rsuReport)
 
-    fun getRsu2024(): String {
-        return render(rsuTemplate2024, rsuReport2024.asMap())
-    }
+    fun getRsu2024Pdf(): ByteArray = RsuReportPdfGenerator.generate(rsuReport2024, taxableMode = true, broker = "Charles Schwab & Co.")
 
-    fun getDividendPdf(): ByteArray {
-        return DividendReportPdfGenerator.generate(dividendReport)
-    }
+    fun getDividendPdf(): ByteArray = DividendReportPdfGenerator.generate(dividendReport)
 
-    fun getEspp(): String {
-        return render(esppTemplate, esppReport.asMap())
-    }
+    fun getEsppPdf(): ByteArray = EsppReportPdfGenerator.generate(esppReport)
 
-    fun getEspp2024(): String {
-        return render(espp2024Template, esppReport2024.asMap())
-    }
+    fun getEspp2024Pdf(): ByteArray = EsppReportPdfGenerator.generate(esppReport2024, taxableMode = true, broker = "Charles Schwab & Co.")
 
-    fun getSalesPdf(): ByteArray {
-        return SalesReportPdfGenerator.generate(salesReport)
-    }
+    fun getSalesPdf(): ByteArray = SalesReportPdfGenerator.generate(salesReport)
 
     fun getGuide(): String {
         val rsuAndEsppVars = mapOf(

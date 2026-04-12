@@ -45,13 +45,13 @@ object CockroachMain {
 
     private fun reportOneVariant(year: Int, outputDir: File, data: Report, dollarConversionSchema: String) {
         File(outputDir, "${dollarConversionSchema}_dividend_$year.pdf").writeBytes(data.getDividendPdf())
-        File(outputDir, "${dollarConversionSchema}_rsu_$year.md").writeText(data.getRsu(), StandardCharsets.UTF_8)
-        File(outputDir, "${dollarConversionSchema}_espp_$year.md").writeText(data.getEspp(), StandardCharsets.UTF_8)
+        File(outputDir, "${dollarConversionSchema}_rsu_$year.pdf").writeBytes(data.getRsuPdf())
+        File(outputDir, "${dollarConversionSchema}_espp_$year.pdf").writeBytes(data.getEsppPdf())
         File(outputDir, "${dollarConversionSchema}_sales_$year.pdf").writeBytes(data.getSalesPdf())
         File(outputDir, "${dollarConversionSchema}_guide_$year.html").writeText(data.getGuide(), StandardCharsets.UTF_8)
 
-        File(outputDir, "${dollarConversionSchema}_rsu_2024.md").writeText(data.getRsu2024(), StandardCharsets.UTF_8)
-        File(outputDir, "${dollarConversionSchema}_espp_2024.md").writeText(data.getEspp2024(), StandardCharsets.UTF_8)
+        File(outputDir, "${dollarConversionSchema}_rsu_2024.pdf").writeBytes(data.getRsu2024Pdf())
+        File(outputDir, "${dollarConversionSchema}_espp_2024.pdf").writeBytes(data.getEspp2024Pdf())
     }
 
 
