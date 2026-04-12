@@ -15,17 +15,17 @@ object SalesReportPdfGenerator {
 
             PdfColumn("Datum", 68f),
             PdfColumn("Cena ($)", 50f),
-            PdfColumn("Náklady ($)", 68f),
+            PdfColumn("Výdaje ($)", 68f),
             PdfColumn("Kč/USD", 60f),
-            PdfColumn("Náklady (Kč)", 68f),
-            PdfColumn("Náklady (Kč)*", 70f),
+            PdfColumn("Výdaje (Kč)", 68f),
+            PdfColumn("Výdaje (Kč)*", 70f),
 
             PdfColumn("Datum", 68f),
             PdfColumn("Cena ($)", 50f),
-            PdfColumn("Příjem ($)", 72f),
+            PdfColumn("Příjmy ($)", 72f),
             PdfColumn("Kč/USD", 60f),
-            PdfColumn("Příjem (Kč)", 72f),
-            PdfColumn("Příjem (Kč)*", 72f),
+            PdfColumn("Příjmy (Kč)", 72f),
+            PdfColumn("Příjmy (Kč)*", 72f),
 
             PdfColumn("Zisk (Kč)", 60f),
             PdfColumn("Zisk (Kč)*", 68f)
@@ -54,22 +54,23 @@ object SalesReportPdfGenerator {
             )
         }
 
+        val fmt = FormatingHelper::formatDouble
         val summaryRow = listOf(
-            FormatingHelper.formatDouble(salesReport.totalAmount), // # akcií
-            "", // Nákup: Datum
-            "", // Nákup: Cena ($)
-            FormatingHelper.formatDouble(salesReport.buyDollarValue), // Nákup: Náklady ($)
-            "", // Nákup: Kč/USD
-            FormatingHelper.formatDouble(salesReport.buyCroneValue), // Nákup: Náklady (Kč)
-            FormatingHelper.formatDouble(salesReport.recentBuyCroneValue), // Nákup: Náklady (Kč)*
-            "", // Prodej: Datum
-           "", // Prodej: Cena ($)
-            FormatingHelper.formatDouble(salesReport.sellDollarValue), // Prodej: Příjem ($)
-            "", // Prodej: Kč/USD
-            FormatingHelper.formatDouble(salesReport.sellCroneValue), // Prodej: Příjem (Kč)
-            FormatingHelper.formatDouble(salesReport.recentSellCroneValue), // Prodej: Příjem (Kč)*
-            FormatingHelper.formatDouble(salesReport.profitCroneValue), // Zisk (Kč)
-            FormatingHelper.formatDouble(salesReport.recentProfitCroneValue) // Zisk (Kč)*
+            SummaryCell.regular(fmt(salesReport.totalAmount)),          // # akcií
+            SummaryCell.empty(),                                        // Nákup: Datum
+            SummaryCell.empty(),                                        // Nákup: Cena ($)
+            SummaryCell.regular(fmt(salesReport.buyDollarValue)),       // Nákup: Náklady ($)
+            SummaryCell.empty(),                                        // Nákup: Kč/USD
+            SummaryCell.regular(fmt(salesReport.buyCroneValue)),        // Nákup: Náklady (Kč)
+            SummaryCell.bold(fmt(salesReport.recentBuyCroneValue)),     // Nákup: Náklady (Kč)*
+            SummaryCell.empty(),                                        // Prodej: Datum
+            SummaryCell.empty(),                                        // Prodej: Cena ($)
+            SummaryCell.regular(fmt(salesReport.sellDollarValue)),      // Prodej: Příjem ($)
+            SummaryCell.empty(),                                        // Prodej: Kč/USD
+            SummaryCell.regular(fmt(salesReport.sellCroneValue)),       // Prodej: Příjem (Kč)
+            SummaryCell.bold(fmt(salesReport.recentSellCroneValue)),    // Prodej: Příjem (Kč)*
+            SummaryCell.regular(fmt(salesReport.profitCroneValue)),     // Zisk (Kč)
+            SummaryCell.bold(fmt(salesReport.recentProfitCroneValue))   // Zisk (Kč)*
         )
 
         val footerLines = mutableListOf(

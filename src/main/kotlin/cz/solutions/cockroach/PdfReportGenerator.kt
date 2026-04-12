@@ -18,6 +18,15 @@ data class PdfColumn(val name: String, val width: Float)
  */
 data class ColumnGroupHeader(val label: String, val colspan: Int)
 
+/** A single cell in the summary row. Use [bold] to highlight tax-relevant values. */
+data class SummaryCell(val text: String, val bold: Boolean = false) {
+    companion object {
+        fun regular(text: String) = SummaryCell(text, false)
+        fun bold(text: String) = SummaryCell(text, true)
+        fun empty() = SummaryCell("", false)
+    }
+}
+
 /**
  * Full definition of a tabular PDF report.
  *
@@ -36,7 +45,7 @@ data class PdfReportDefinition(
     val columnGroupHeaders: List<ColumnGroupHeader>? = null,
     val columns: List<PdfColumn>,
     val rows: List<List<String>>,
-    val summaryRow: List<String>? = null,
+    val summaryRow: List<SummaryCell>? = null,
     val footerLines: List<String> = emptyList(),
     val landscape: Boolean = true
 )
@@ -61,7 +70,6 @@ object PdfReportGenerator {
             val usableWidth = pageRect.width - 2 * MARGIN
             val totalWeight = definition.columns.sumOf { it.width.toDouble() }.toFloat()
             val columnWidths = definition.columns.map { it.width / totalWeight * usableWidth }
-            val headerHeight = if (definition.columnGroupHeaders != null) ROW_HEIGHT * 2 else ROW_HEIGHT
             val groupSeparators = computeGroupSeparators(definition.columnGroupHeaders, columnWidths)
 
             var cs: PDPageContentStream? = null
@@ -103,7 +111,7 @@ object PdfReportGenerator {
 
             var stream: PDPageContentStream
             for (row in definition.rows) { stream = ensurePage(); drawTableRow(stream, regularFont, columnWidths, row, yPos); yPos -= ROW_HEIGHT }
-            if (definition.summaryRow != null) { stream = ensurePage(); drawTableRow(stream, boldFont, columnWidths, definition.summaryRow, yPos); yPos -= ROW_HEIGHT }
+            if (definition.summaryRow != null) { stream = ensurePage(); drawSummaryRow(stream, regularFont, boldFont, columnWidths, definition.summaryRow, yPos); yPos -= ROW_HEIGHT }
 
             // Finalize last page separators
             finalizePage()
@@ -164,6 +172,16 @@ object PdfReportGenerator {
     private fun drawTableRow(cs: PDPageContentStream, font: PDFont, columnWidths: List<Float>, data: List<String>, yPos: Float) {
         var xPos = MARGIN
         for ((i, width) in columnWidths.withIndex()) { drawText(cs, font, TABLE_FONT_SIZE, xPos + 2f, yPos, if (i < data.size) data[i] else ""); xPos += width }
+    }
+
+    private fun drawSummaryRow(cs: PDPageContentStream, regularFont: PDFont, boldFont: PDFont, columnWidths: List<Float>, data: List<SummaryCell>, yPos: Float) {
+        var xPos = MARGIN
+        for ((i, width) in columnWidths.withIndex()) {
+            val cell = if (i < data.size) data[i] else SummaryCell.empty()
+            val font = if (cell.bold) boldFont else regularFont
+            drawText(cs, font, TABLE_FONT_SIZE, xPos + 2f, yPos, cell.text)
+            xPos += width
+        }
     }
 
     /** Returns X positions of vertical separators at all group boundaries (including outer edges). */
