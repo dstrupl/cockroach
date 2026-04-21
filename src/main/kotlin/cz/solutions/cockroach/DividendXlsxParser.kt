@@ -19,7 +19,7 @@ object DividendXlsxParser {
         return file.inputStream().use { parse(it) }
     }
 
-    private val IGNORED_DESCRIPTIONS = listOf("TREASURY LIQUIDITY FUND", "WIRE OUT")
+    private val IGNORED_DESCRIPTIONS = listOf("TREASURY LIQUIDITY FUND", "WIRE OUT", "DIVIDEND REINVESTMENT")
 
     fun parse(inputStream: InputStream): DividendXlsxResult {
         val dividends = mutableListOf<DividendRecord>()
