@@ -75,7 +75,8 @@ object RevolutParser {
                         val gross = amount / (1.0 - whtRate)
                         val wht = gross - amount
                         val ticker = record.get("Ticker").trim()
-                        dividends.add(DividendRecord(date, gross, currency, symbol = ticker, broker = BROKER_NAME))
+                        // Revolut Stocks supports US-listed shares only, so the ISIN prefix is always "US".
+                        dividends.add(DividendRecord(date, gross, currency, symbol = ticker, broker = BROKER_NAME, country = "US"))
                         if (wht > 0.0) {
                             taxes.add(TaxRecord(date, -wht, currency))
                         }

@@ -66,7 +66,8 @@ class JsonExportParser {
                     it.date,
                     it.amount,
                     symbol = it.symbol,
-                    broker = BROKER
+                    broker = BROKER,
+                    country = "US"
                 )
             },
             export.transactions.filterIsInstance<Transaction.TaxWithholdingTransaction>().map {

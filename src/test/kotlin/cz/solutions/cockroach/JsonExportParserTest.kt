@@ -45,7 +45,8 @@ class JsonExportParserTest {
                         LocalDate(2023,10,25),
                         84.38,
                         symbol = "CSCO",
-                        broker = "Charles Schwab & Co."
+                        broker = "Charles Schwab & Co.",
+                        country = "US"
                     )
                 ),
                 listOf(

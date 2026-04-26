@@ -85,7 +85,10 @@ object EtoroXlsxParser {
                 LOGGER.warning("eToro: skipping non-positive dividend row $rowNum in $fileName (net=$net wht=$wht)")
                 continue
             }
-            dividends.add(DividendRecord(date, gross, Currency.USD, symbol = instrument, broker = BROKER_NAME))
+            // The eToro dividends sheet does not expose ISIN; default to "US" since virtually all
+            // eToro dividend payers are NYSE/Nasdaq listings. Non-US tickers (e.g. VOD.L) would be
+            // misclassified as US-source — track separately if this becomes material.
+            dividends.add(DividendRecord(date, gross, Currency.USD, symbol = instrument, broker = BROKER_NAME, country = "US"))
             if (wht > 0.0) {
                 taxes.add(TaxRecord(date, -wht, Currency.USD))
             }

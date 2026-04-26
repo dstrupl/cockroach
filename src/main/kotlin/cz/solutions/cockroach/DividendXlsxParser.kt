@@ -48,7 +48,7 @@ object DividendXlsxParser {
                 if (description.contains("WITHHOLDING", ignoreCase = true)) {
                     taxes.add(TaxRecord(date, value))
                 } else {
-                    dividends.add(DividendRecord(date, value, symbol = symbol, broker = BROKER_NAME))
+                    dividends.add(DividendRecord(date, value, symbol = symbol, broker = BROKER_NAME, country = "US"))
                 }
             }
         }

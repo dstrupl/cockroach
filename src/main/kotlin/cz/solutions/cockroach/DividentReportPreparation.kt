@@ -19,30 +19,45 @@ object DividentReportPreparation {
         val taxesInInterval = taxRecordList.filter { interval.contains(it.date) }
         val reversalsInInterval = taxReversalRecordList.filter { interval.contains(it.date) }
 
-        val dividendsByCurrency = dividendsInInterval.groupBy { it.currency }
+        // Czech-source vs. foreign split is driven by the issuer's country (ISIN prefix), not the
+        // payment currency. Czech-source dividends are subject to final withholding (§ 36 ZDP) and
+        // reported separately; foreign dividends go to Příloha č. 3.
+        val czDividends = dividendsInInterval.filter { it.country == "CZ" }
+        val foreignDividends = dividendsInInterval.filter { it.country != "CZ" }
+
+        // Sanity check: a CZ-source dividend paid in a non-CZK currency would land in a per-currency
+        // foreign section but is conceptually Czech-source. Czech issuers virtually always pay in CZK
+        // — flag the unusual case rather than guess how to convert.
+        foreignDividends.firstOrNull { it.currency == Currency.CZK }?.let {
+            error("Foreign-source dividend (country=${it.country}) paid in CZK is not supported by the current report layout " +
+                    "(broker=${it.broker}, symbol=${it.symbol}, date=${DATE_FORMATTER.print(it.date)}). " +
+                    "If this is genuine, extend DividentReportPreparation to handle a CZK foreign-currency section.")
+        }
+
+        val foreignDividendsByCurrency = foreignDividends.groupBy { it.currency }
         val taxesByCurrency = taxesInInterval.groupBy { it.currency }
         val reversalsByCurrency = reversalsInInterval.groupBy { it.currency }
 
-        val nonCzkCurrencies = (dividendsByCurrency.keys + taxesByCurrency.keys + reversalsByCurrency.keys)
+        // Foreign per-currency sections cover every non-CZK currency that has any activity. CZK taxes
+        // and reversals are routed to the Czech-source section below alongside CZ-country dividends.
+        val nonCzkCurrencies = (foreignDividendsByCurrency.keys + taxesByCurrency.keys + reversalsByCurrency.keys)
             .filter { it != Currency.CZK }
             .sortedBy { it.name }
 
         val sections = nonCzkCurrencies.map { currency ->
             buildCurrencySection(
                 currency,
-                dividendsByCurrency[currency].orEmpty(),
+                foreignDividendsByCurrency[currency].orEmpty(),
                 taxesByCurrency[currency].orEmpty(),
                 reversalsByCurrency[currency].orEmpty(),
                 exchangeRateProvider
             )
         }
 
-        val czkSection = if (Currency.CZK in dividendsByCurrency.keys || Currency.CZK in taxesByCurrency.keys || Currency.CZK in reversalsByCurrency.keys) {
-            buildCzkSection(
-                dividendsByCurrency[Currency.CZK].orEmpty(),
-                taxesByCurrency[Currency.CZK].orEmpty(),
-                reversalsByCurrency[Currency.CZK].orEmpty()
-            )
+        val czkTaxes = taxesByCurrency[Currency.CZK].orEmpty()
+        val czkReversals = reversalsByCurrency[Currency.CZK].orEmpty()
+        val czkSection = if (czDividends.isNotEmpty() || czkTaxes.isNotEmpty() || czkReversals.isNotEmpty()) {
+            buildCzkSection(czDividends, czkTaxes, czkReversals)
         } else null
 
         return DividendReport(sections, czkSection)

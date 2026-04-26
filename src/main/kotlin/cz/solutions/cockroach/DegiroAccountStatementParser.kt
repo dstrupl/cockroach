@@ -30,6 +30,7 @@ object DegiroAccountStatementParser {
 
     private const val COL_VALUE_DATE = 2
     private const val COL_PRODUCT = 3
+    private const val COL_ISIN = 4
     private const val COL_DESCRIPTION = 5
     private const val COL_CURRENCY = 7
     private const val COL_AMOUNT = 8
@@ -60,7 +61,7 @@ object DegiroAccountStatementParser {
             when (description.trim()) {
                 DESC_DIVIDEND -> {
                     val record = parseRecord(row) ?: continue
-                    dividends.add(DividendRecord(record.date, record.amount, record.currency, symbol = record.product, broker = BROKER_NAME))
+                    dividends.add(DividendRecord(record.date, record.amount, record.currency, symbol = record.product, broker = BROKER_NAME, country = record.country))
                 }
                 DESC_TAX -> {
                     val record = parseRecord(row) ?: continue
@@ -82,13 +83,14 @@ object DegiroAccountStatementParser {
         return DegiroParseResult(dividends, taxes)
     }
 
-    private data class ParsedRow(val date: LocalDate, val amount: Double, val currency: Currency, val product: String)
+    private data class ParsedRow(val date: LocalDate, val amount: Double, val currency: Currency, val product: String, val country: String)
 
     private fun parseRecord(row: Row): ParsedRow? {
         val dateStr = stringCell(row, COL_VALUE_DATE) ?: return null
         val currencyStr = stringCell(row, COL_CURRENCY) ?: return null
         val amountStr = stringCell(row, COL_AMOUNT) ?: return null
         val product = stringCell(row, COL_PRODUCT)?.trim().orEmpty()
+        val isin = stringCell(row, COL_ISIN)?.trim().orEmpty()
 
         val date = LocalDate.parse(dateStr.trim(), DATE_FORMATTER)
         val currency = try {
@@ -98,7 +100,10 @@ object DegiroAccountStatementParser {
             return null
         }
         val amount = parseAmount(amountStr) ?: return null
-        return ParsedRow(date, amount, currency, product)
+        // First two letters of an ISIN are the ISO 3166-1 alpha-2 country code of the issuer.
+        // Fall back to "" rather than guessing — downstream code treats unknown country as foreign.
+        val country = if (isin.length >= 2) isin.substring(0, 2).uppercase() else ""
+        return ParsedRow(date, amount, currency, product, country)
     }
 
     private fun parseAmount(input: String): Double? {

@@ -60,7 +60,7 @@ class DividentReportPreparationTest {
         // A dividend without a tax row almost always means a parser bug or a missed tax row in the
         // broker statement. Force the user to investigate rather than silently under-reporting.
         val dividends = listOf(
-            DividendRecord(LocalDate(2025, 6, 15), 500.0, symbol = "ACME", broker = "Schwab")
+            DividendRecord(LocalDate(2025, 6, 15), 500.0, symbol = "ACME", broker = "Schwab", country = "US")
         )
 
         assertThatThrownBy {

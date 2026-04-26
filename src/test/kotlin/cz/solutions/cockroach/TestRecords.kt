@@ -14,12 +14,14 @@ fun dividendRecord(
     currency: Currency = Currency.USD,
     symbol: String = "TEST",
     broker: String = "TestBroker",
+    country: String = "US",
 ): DividendRecord = DividendRecord(
     date = date,
     amount = amount,
     currency = currency,
     symbol = symbol,
     broker = broker,
+    country = country,
 )
 
 fun interestRecord(

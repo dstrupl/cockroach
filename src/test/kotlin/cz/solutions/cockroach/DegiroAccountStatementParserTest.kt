@@ -40,7 +40,7 @@ class DegiroAccountStatementParserTest {
         val result = DegiroAccountStatementParser.parse(file)
 
         assertThat(result.dividendRecords).containsExactly(
-            DividendRecord(LocalDate(2024, 3, 15), 12.34, Currency.USD, symbol = "APPLE INC", broker = "Degiro")
+            DividendRecord(LocalDate(2024, 3, 15), 12.34, Currency.USD, symbol = "APPLE INC", broker = "Degiro", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
             TaxRecord(LocalDate(2024, 3, 15), -1.85, Currency.USD)
@@ -58,7 +58,7 @@ class DegiroAccountStatementParserTest {
         val result = DegiroAccountStatementParser.parse(file)
 
         assertThat(result.dividendRecords).containsExactly(
-            DividendRecord(LocalDate(2024, 3, 15), 10.00, Currency.USD, symbol = "APPLE INC", broker = "Degiro")
+            DividendRecord(LocalDate(2024, 3, 15), 10.00, Currency.USD, symbol = "APPLE INC", broker = "Degiro", country = "US")
         )
     }
 
@@ -74,8 +74,8 @@ class DegiroAccountStatementParserTest {
         val result = DegiroAccountStatementParser.parse(file)
 
         assertThat(result.dividendRecords).containsExactly(
-            DividendRecord(LocalDate(2024, 4, 1), 5.00, Currency.EUR, symbol = "ASML HOLDING", broker = "Degiro"),
-            DividendRecord(LocalDate(2024, 4, 2), 1234.56, Currency.CZK, symbol = "CEZ AS", broker = "Degiro")
+            DividendRecord(LocalDate(2024, 4, 1), 5.00, Currency.EUR, symbol = "ASML HOLDING", broker = "Degiro", country = "NL"),
+            DividendRecord(LocalDate(2024, 4, 2), 1234.56, Currency.CZK, symbol = "CEZ AS", broker = "Degiro", country = "CZ")
         )
     }
 
