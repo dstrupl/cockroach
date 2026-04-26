@@ -1,6 +1,7 @@
 package cz.solutions.cockroach
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.data.Offset
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.Test
@@ -52,6 +53,28 @@ class DividentReportPreparationTest {
         val usd = report.sections.single { it.currency == Currency.USD }
         assertThat(usd.printableDividendList).hasSize(1)
         assertThat(usd.totalTax).isCloseTo(-150.0, Offset.offset(0.01))
+    }
+
+    @Test
+    fun dividendWithoutMatchingTaxRecordFailsWithDescriptiveMessage() {
+        // A dividend without a tax row almost always means a parser bug or a missed tax row in the
+        // broker statement. Force the user to investigate rather than silently under-reporting.
+        val dividends = listOf(
+            DividendRecord(LocalDate(2025, 6, 15), 500.0, symbol = "ACME", broker = "Schwab")
+        )
+
+        assertThatThrownBy {
+            DividentReportPreparation.generateDividendReport(
+                dividends, emptyList(), emptyList(), year2025, fixedRate
+            )
+        }
+            .isInstanceOf(IllegalStateException::class.java)
+            .hasMessageContaining("No matching tax record")
+            .hasMessageContaining("15.06.2025")
+            .hasMessageContaining("broker=Schwab")
+            .hasMessageContaining("symbol=ACME")
+            .hasMessageContaining("USD")
+            .hasMessageContaining("amount=0.0 on the same date")
     }
 
     @Test

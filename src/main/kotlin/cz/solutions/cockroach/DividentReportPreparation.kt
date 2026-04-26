@@ -67,26 +67,25 @@ object DividentReportPreparation {
             val exchange = exchangeRateProvider.rateAt(dividendRecord.date, currency)
             val taxCandidates = taxesByDate[dividendRecord.date]
             val taxRecord = taxCandidates?.minByOrNull { abs(abs(it.amount) - abs(dividendRecord.amount) * 0.15) } //if there were more taxes on the same day, we take the one closest to 15% of dividend amount, because that's the most likely correct one
-            if (taxRecord != null) taxCandidates.remove(taxRecord)
-            if (taxRecord != null) {
-                totalBrutto += dividendRecord.amount
-                totalTax += taxRecord.amount
-                totalBruttoCrown += dividendRecord.amount * exchange
-                totalTaxCrown += taxRecord.amount * exchange
+                ?: error(missingTaxMessage(dividendRecord, currency))
+            taxCandidates.remove(taxRecord)
+            totalBrutto += dividendRecord.amount
+            totalTax += taxRecord.amount
+            totalBruttoCrown += dividendRecord.amount * exchange
+            totalTaxCrown += taxRecord.amount * exchange
 
-                printable.add(
-                    PrintableDividend(
-                        dividendRecord.symbol,
-                        dividendRecord.broker,
-                        DATE_FORMATTER.print(dividendRecord.date),
-                        FormatingHelper.formatDouble(dividendRecord.amount),
-                        FormatingHelper.formatExchangeRate(exchange),
-                        FormatingHelper.formatDouble(taxRecord.amount),
-                        FormatingHelper.formatDouble(exchange * dividendRecord.amount),
-                        FormatingHelper.formatDouble(exchange * taxRecord.amount)
-                    )
+            printable.add(
+                PrintableDividend(
+                    dividendRecord.symbol,
+                    dividendRecord.broker,
+                    DATE_FORMATTER.print(dividendRecord.date),
+                    FormatingHelper.formatDouble(dividendRecord.amount),
+                    FormatingHelper.formatExchangeRate(exchange),
+                    FormatingHelper.formatDouble(taxRecord.amount),
+                    FormatingHelper.formatDouble(exchange * dividendRecord.amount),
+                    FormatingHelper.formatDouble(exchange * taxRecord.amount)
                 )
-            }
+            )
         }
 
         val totalTaxReversal = reversalRecords.sumOf { it.amount }
@@ -109,23 +108,31 @@ object DividentReportPreparation {
         for (dividendRecord in sortedDividends) {
             val taxCandidates = taxesByDate[dividendRecord.date]
             val taxRecord = taxCandidates?.minByOrNull { abs(abs(it.amount) - abs(dividendRecord.amount) * 0.15) }
-            if (taxRecord != null) taxCandidates.remove(taxRecord)
-            if (taxRecord != null) {
-                totalBruttoCrown += dividendRecord.amount
-                totalTaxCrown += taxRecord.amount
-                printable.add(
-                    PrintableCzkDividend(
-                        dividendRecord.symbol,
-                        dividendRecord.broker,
-                        DATE_FORMATTER.print(dividendRecord.date),
-                        FormatingHelper.formatDouble(dividendRecord.amount),
-                        FormatingHelper.formatDouble(taxRecord.amount)
-                    )
+                ?: error(missingTaxMessage(dividendRecord, Currency.CZK))
+            taxCandidates.remove(taxRecord)
+            totalBruttoCrown += dividendRecord.amount
+            totalTaxCrown += taxRecord.amount
+            printable.add(
+                PrintableCzkDividend(
+                    dividendRecord.symbol,
+                    dividendRecord.broker,
+                    DATE_FORMATTER.print(dividendRecord.date),
+                    FormatingHelper.formatDouble(dividendRecord.amount),
+                    FormatingHelper.formatDouble(taxRecord.amount)
                 )
-            }
+            )
         }
 
         val totalTaxReversalCrown = reversalRecords.sumOf { it.amount }
         return CzkDividendSection(printable, totalBruttoCrown, totalTaxCrown, totalTaxReversalCrown)
+    }
+
+    private fun missingTaxMessage(dividend: DividendRecord, currency: Currency): String {
+        val symbol = dividend.symbol
+        val broker = dividend.broker
+        return "No matching tax record found for dividend on ${DATE_FORMATTER.print(dividend.date)} " +
+                "(broker=$broker, symbol=$symbol, amount=${FormatingHelper.formatDouble(dividend.amount)} ${currency.name}). " +
+                "If withholding tax is genuinely 0%, add an explicit TaxRecord with amount=0.0 on the same date in the parser; " +
+                "otherwise verify that the broker statement contains the corresponding tax row and that its date matches the dividend date."
     }
 }

@@ -6,6 +6,6 @@ data class DividendRecord(
     val date: LocalDate,
     val amount: Double,
     val currency: Currency = Currency.USD,
-    val symbol: String = "",
-    val broker: String = "",
+    val symbol: String,
+    val broker: String,
 )
