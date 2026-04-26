@@ -17,6 +17,8 @@ fun main(args: Array<String>) {
             revolutStocksFiles = config.revolut.stocks.map { File(it) },
             revolutSavingsFiles = config.revolut.savings.map { File(it) },
             revolutWhtRate = config.revolut.whtRate,
+            etoroFiles = config.etoro.map { File(it) },
+            vubFiles = config.vub.map { File(it) },
         )
         return
     }
@@ -51,7 +53,9 @@ object CockroachMain {
         degiroFiles: List<File> = emptyList(),
         revolutStocksFiles: List<File> = emptyList(),
         revolutSavingsFiles: List<File> = emptyList(),
-        revolutWhtRate: Double = RevolutParser.DEFAULT_WHT_RATE
+        revolutWhtRate: Double = RevolutParser.DEFAULT_WHT_RATE,
+        etoroFiles: List<File> = emptyList(),
+        vubFiles: List<File> = emptyList()
     ) {
         val schwabExport = schwabExportFile?.let { parseExportFile(it) } ?: ParsedExport.empty()
         val eTradeExport = if (eTradeDir != null || eTradeBenefitHistoryFile != null) {
@@ -62,9 +66,12 @@ object CockroachMain {
             .fold(ParsedExport.empty()) { acc, e -> acc + e }
         val revolutSavingsExport = revolutSavingsFiles.map { parseRevolutSavingsFile(it) }
             .fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val parsedExport = schwabExport + eTradeExport + degiroExport + revolutStocksExport + revolutSavingsExport
+        val etoroExport = etoroFiles.map { parseEtoroFile(it) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
+        val vubExport = vubFiles.map { parseVubFile(it, year) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
+        val parsedExport = schwabExport + eTradeExport + degiroExport +
+            revolutStocksExport + revolutSavingsExport + etoroExport + vubExport
         require(parsedExport != ParsedExport.empty()) {
-            "No input sources provided. Specify at least one of: schwab, etrade, degiro, revolut."
+            "No input sources provided. Specify at least one of: schwab, etrade, degiro, revolut, etoro, vub."
         }
         val dailyRateProvider = TabularExchangeRateProvider.fromSource(
             HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir()),
@@ -143,6 +150,33 @@ object CockroachMain {
             saleRecords = emptyList(),
             journalRecords = emptyList(),
             interestRecords = result.interestRecords
+        )
+    }
+
+    private fun parseEtoroFile(file: File): ParsedExport {
+        val result = EtoroXlsxParser.parse(file)
+        return ParsedExport(
+            rsuRecords = emptyList(),
+            esppRecords = emptyList(),
+            dividendRecords = result.dividendRecords,
+            taxRecords = result.taxRecords,
+            taxReversalRecords = emptyList(),
+            saleRecords = emptyList(),
+            journalRecords = emptyList()
+        )
+    }
+
+    private fun parseVubFile(file: File, year: Int): ParsedExport {
+        val interestRecords = VubInterestPdfParser.parse(file, year)
+        return ParsedExport(
+            rsuRecords = emptyList(),
+            esppRecords = emptyList(),
+            dividendRecords = emptyList(),
+            taxRecords = emptyList(),
+            taxReversalRecords = emptyList(),
+            saleRecords = emptyList(),
+            journalRecords = emptyList(),
+            interestRecords = interestRecords
         )
     }
 

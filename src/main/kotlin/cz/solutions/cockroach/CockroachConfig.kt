@@ -13,7 +13,9 @@ data class CockroachConfig(
     val etrade: String? = null,
     val etradeBenefitHistory: String? = null,
     val degiro: List<String> = emptyList(),
-    val revolut: RevolutConfig = RevolutConfig()
+    val revolut: RevolutConfig = RevolutConfig(),
+    val etoro: List<String> = emptyList(),
+    val vub: List<String> = emptyList()
 ) {
     companion object {
         fun load(file: File): CockroachConfig {
