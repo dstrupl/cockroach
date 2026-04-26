@@ -46,9 +46,9 @@ object DividendXlsxParser {
                 val symbol = description.replace(DESCRIPTION_TAIL, "").trim()
 
                 if (description.contains("WITHHOLDING", ignoreCase = true)) {
-                    taxes.add(TaxRecord(date, value))
+                    taxes.add(TaxRecord(date, value, Currency.USD))
                 } else {
-                    dividends.add(DividendRecord(date, value, symbol = symbol, broker = BROKER_NAME, country = "US"))
+                    dividends.add(DividendRecord(date, value, Currency.USD, symbol = symbol, broker = BROKER_NAME, country = "US"))
                 }
             }
         }

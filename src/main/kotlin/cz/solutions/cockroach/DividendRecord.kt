@@ -5,7 +5,7 @@ import org.joda.time.LocalDate
 data class DividendRecord(
     val date: LocalDate,
     val amount: Double,
-    val currency: Currency = Currency.USD,
+    val currency: Currency,
     val symbol: String,
     val broker: String,
     /** ISO 3166-1 alpha-2 country of issuer, derived from the first two letters of the ISIN.

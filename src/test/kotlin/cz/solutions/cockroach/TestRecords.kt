@@ -41,3 +41,77 @@ fun interestRecord(
     tax = tax,
     country = country,
 )
+
+fun taxRecord(
+    date: LocalDate,
+    amount: Double,
+    currency: Currency = Currency.USD,
+): TaxRecord = TaxRecord(date = date, amount = amount, currency = currency)
+
+fun taxReversalRecord(
+    date: LocalDate,
+    amount: Double,
+    currency: Currency = Currency.USD,
+): TaxReversalRecord = TaxReversalRecord(date = date, amount = amount, currency = currency)
+
+fun saleRecord(
+    date: LocalDate,
+    type: String,
+    quantity: Double,
+    salePrice: Double,
+    purchasePrice: Double,
+    purchaseFmv: Double,
+    purchaseDate: LocalDate,
+    grantId: String?,
+    symbol: String = "TEST",
+    broker: String = "TestBroker",
+): SaleRecord = SaleRecord(
+    date = date,
+    type = type,
+    quantity = quantity,
+    salePrice = salePrice,
+    purchasePrice = purchasePrice,
+    purchaseFmv = purchaseFmv,
+    purchaseDate = purchaseDate,
+    grantId = grantId,
+    symbol = symbol,
+    broker = broker,
+)
+
+fun rsuRecord(
+    date: LocalDate,
+    quantity: Int,
+    vestFmv: Double,
+    vestDate: LocalDate,
+    grantId: String,
+    symbol: String = "TEST",
+    broker: String = "TestBroker",
+): RsuRecord = RsuRecord(
+    date = date,
+    quantity = quantity,
+    vestFmv = vestFmv,
+    vestDate = vestDate,
+    grantId = grantId,
+    symbol = symbol,
+    broker = broker,
+)
+
+fun esppRecord(
+    date: LocalDate,
+    quantity: Double,
+    purchasePrice: Double,
+    subscriptionFmv: Double,
+    purchaseFmv: Double,
+    purchaseDate: LocalDate,
+    symbol: String = "TEST",
+    broker: String = "TestBroker",
+): EsppRecord = EsppRecord(
+    date = date,
+    quantity = quantity,
+    purchasePrice = purchasePrice,
+    subscriptionFmv = subscriptionFmv,
+    purchaseFmv = purchaseFmv,
+    purchaseDate = purchaseDate,
+    symbol = symbol,
+    broker = broker,
+)

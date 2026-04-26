@@ -129,7 +129,7 @@ object RevolutParser {
                         description.startsWith("Interest PAID") -> {
                             if (value > 0.0) {
                                 val product = ISIN_PATTERN.find(description)?.value ?: description
-                                interestRecords.add(InterestRecord(date, value, currency, product = product, broker = BROKER_NAME, country = SAVINGS_COUNTRY))
+                                interestRecords.add(InterestRecord(date, value, currency, product = product, broker = BROKER_NAME, tax = 0.0, country = SAVINGS_COUNTRY))
                             }
                         }
                         description.startsWith("Service Fee Charged") -> {

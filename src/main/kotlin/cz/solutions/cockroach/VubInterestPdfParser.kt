@@ -79,7 +79,7 @@ object VubInterestPdfParser {
             if (amount <= 0.0) {
                 skipped++; continue
             }
-            records.add(InterestRecord(date, amount, Currency.CZK, product = product, broker = BROKER_NAME, country = COUNTRY))
+            records.add(InterestRecord(date, amount, Currency.CZK, product = product, broker = BROKER_NAME, tax = 0.0, country = COUNTRY))
         }
         LOGGER.info("VÚB: parsed ${records.size} interest record(s) from $fileName (skipped=$skipped)")
         return records

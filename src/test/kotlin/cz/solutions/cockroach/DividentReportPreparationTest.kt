@@ -21,8 +21,8 @@ class DividentReportPreparationTest {
             dividendRecord(LocalDate(2025, 10, 22), 59.04)     // E-Trade
         )
         val taxes = listOf(
-            TaxRecord(LocalDate(2025, 10, 22), -428.04),  // Schwab (30% of 1426.80)
-            TaxRecord(LocalDate(2025, 10, 22), -8.86)     // E-Trade (15% of 59.04)
+            taxRecord(LocalDate(2025, 10, 22), -428.04),  // Schwab (30% of 1426.80)
+            taxRecord(LocalDate(2025, 10, 22), -8.86)     // E-Trade (15% of 59.04)
         )
 
         val report = DividentReportPreparation.generateDividendReport(
@@ -44,7 +44,7 @@ class DividentReportPreparationTest {
     @Test
     fun singleDividendWithSingleTaxOnSameDate() {
         val dividends = listOf(dividendRecord(LocalDate(2025, 1, 22), 1000.0))
-        val taxes = listOf(TaxRecord(LocalDate(2025, 1, 22), -150.0))
+        val taxes = listOf(taxRecord(LocalDate(2025, 1, 22), -150.0))
 
         val report = DividentReportPreparation.generateDividendReport(
             dividends, taxes, emptyList(), year2025, fixedRate
@@ -60,7 +60,7 @@ class DividentReportPreparationTest {
         // A dividend without a tax row almost always means a parser bug or a missed tax row in the
         // broker statement. Force the user to investigate rather than silently under-reporting.
         val dividends = listOf(
-            DividendRecord(LocalDate(2025, 6, 15), 500.0, symbol = "ACME", broker = "Schwab", country = "US")
+            DividendRecord(LocalDate(2025, 6, 15), 500.0, Currency.USD, symbol = "ACME", broker = "Schwab", country = "US")
         )
 
         assertThatThrownBy {
@@ -84,8 +84,8 @@ class DividentReportPreparationTest {
             dividendRecord(LocalDate(2025, 4, 23), 1200.0)
         )
         val taxes = listOf(
-            TaxRecord(LocalDate(2025, 1, 22), -150.0),
-            TaxRecord(LocalDate(2025, 4, 23), -180.0)
+            taxRecord(LocalDate(2025, 1, 22), -150.0),
+            taxRecord(LocalDate(2025, 4, 23), -180.0)
         )
 
         val report = DividentReportPreparation.generateDividendReport(

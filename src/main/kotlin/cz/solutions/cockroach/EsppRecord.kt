@@ -9,6 +9,6 @@ data class EsppRecord(
     val subscriptionFmv: Double,
     val purchaseFmv: Double,
     val purchaseDate: LocalDate,
-    val symbol: String = "",
-    val broker: String = "",
+    val symbol: String,
+    val broker: String,
 )

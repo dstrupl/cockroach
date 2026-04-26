@@ -44,6 +44,7 @@ class JsonExportParserTest {
                     DividendRecord(
                         LocalDate(2023,10,25),
                         84.38,
+                        Currency.USD,
                         symbol = "CSCO",
                         broker = "Charles Schwab & Co.",
                         country = "US"
@@ -52,13 +53,15 @@ class JsonExportParserTest {
                 listOf(
                     TaxRecord(
                         LocalDate(2023,10,25),
-                        -12.66
+                        -12.66,
+                        Currency.USD
                 )
                 ),
                 listOf(
                     TaxReversalRecord(
                         LocalDate(2023,2,7),
-                        1.88
+                        1.88,
+                        Currency.USD
                 )
                 ),
                 listOf(

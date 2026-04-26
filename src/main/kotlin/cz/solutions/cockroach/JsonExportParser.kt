@@ -65,6 +65,7 @@ class JsonExportParser {
                 DividendRecord(
                     it.date,
                     it.amount,
+                    Currency.USD,
                     symbol = it.symbol,
                     broker = BROKER,
                     country = "US"
@@ -73,13 +74,15 @@ class JsonExportParser {
             export.transactions.filterIsInstance<Transaction.TaxWithholdingTransaction>().map {
                 TaxRecord(
                     it.date,
-                    it.amount
+                    it.amount,
+                    Currency.USD
                 )
             },
             export.transactions.filterIsInstance<Transaction.TaxReversalTransaction>().map {
                 TaxReversalRecord(
                     it.date,
-                    it.amount
+                    it.amount,
+                    Currency.USD
                 )
             },
 

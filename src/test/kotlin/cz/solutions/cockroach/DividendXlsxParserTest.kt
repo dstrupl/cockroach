@@ -20,10 +20,10 @@ class DividendXlsxParserTest {
         val result = DividendXlsxParser.parse(file)
 
         assertThat(result.dividendRecords).containsExactly(
-            DividendRecord(LocalDate(2025, 10, 22), 58.22, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.", country = "US")
+            DividendRecord(LocalDate(2025, 10, 22), 58.22, Currency.USD, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2025, 10, 22), -8.73)
+            TaxRecord(LocalDate(2025, 10, 22), -8.73, Currency.USD)
         )
     }
 
@@ -50,10 +50,10 @@ class DividendXlsxParserTest {
         val result = DividendXlsxParser.parse(file)
 
         assertThat(result.dividendRecords).containsExactly(
-            DividendRecord(LocalDate(2025, 10, 22), 58.22, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.", country = "US")
+            DividendRecord(LocalDate(2025, 10, 22), 58.22, Currency.USD, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2025, 10, 22), -8.73)
+            TaxRecord(LocalDate(2025, 10, 22), -8.73, Currency.USD)
         )
     }
 
