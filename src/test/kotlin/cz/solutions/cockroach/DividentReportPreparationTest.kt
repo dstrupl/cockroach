@@ -17,8 +17,8 @@ class DividentReportPreparationTest {
         // E-Trade: small dividend with 15% withholding
         // Both on the same date - simulates the real bug
         val dividends = listOf(
-            DividendRecord(LocalDate(2025, 10, 22), 1426.80),  // Schwab
-            DividendRecord(LocalDate(2025, 10, 22), 59.04)     // E-Trade
+            dividendRecord(LocalDate(2025, 10, 22), 1426.80),  // Schwab
+            dividendRecord(LocalDate(2025, 10, 22), 59.04)     // E-Trade
         )
         val taxes = listOf(
             TaxRecord(LocalDate(2025, 10, 22), -428.04),  // Schwab (30% of 1426.80)
@@ -43,7 +43,7 @@ class DividentReportPreparationTest {
 
     @Test
     fun singleDividendWithSingleTaxOnSameDate() {
-        val dividends = listOf(DividendRecord(LocalDate(2025, 1, 22), 1000.0))
+        val dividends = listOf(dividendRecord(LocalDate(2025, 1, 22), 1000.0))
         val taxes = listOf(TaxRecord(LocalDate(2025, 1, 22), -150.0))
 
         val report = DividentReportPreparation.generateDividendReport(
@@ -80,8 +80,8 @@ class DividentReportPreparationTest {
     @Test
     fun dividendsOnDifferentDatesMatchCorrectTax() {
         val dividends = listOf(
-            DividendRecord(LocalDate(2025, 1, 22), 1000.0),
-            DividendRecord(LocalDate(2025, 4, 23), 1200.0)
+            dividendRecord(LocalDate(2025, 1, 22), 1000.0),
+            dividendRecord(LocalDate(2025, 4, 23), 1200.0)
         )
         val taxes = listOf(
             TaxRecord(LocalDate(2025, 1, 22), -150.0),

@@ -18,9 +18,9 @@ class InterestReportPreparationTest {
     @Test
     fun aggregatesInterestPerCurrencyAndAppliesExchangeRate() {
         val records = listOf(
-            InterestRecord(LocalDate(2025, 3, 15), 10.0, Currency.USD, country = "IE"),
-            InterestRecord(LocalDate(2025, 6, 20), 5.0, Currency.USD, country = "IE"),
-            InterestRecord(LocalDate(2025, 9, 10), 4.0, Currency.EUR, country = "IE"),
+            interestRecord(LocalDate(2025, 3, 15), 10.0, Currency.USD, country = "IE"),
+            interestRecord(LocalDate(2025, 6, 20), 5.0, Currency.USD, country = "IE"),
+            interestRecord(LocalDate(2025, 9, 10), 4.0, Currency.EUR, country = "IE"),
         )
 
         val report = InterestReportPreparation.generateInterestReport(
@@ -52,10 +52,10 @@ class InterestReportPreparationTest {
     @Test
     fun filtersRecordsOutsideOfInterval() {
         val records = listOf(
-            InterestRecord(LocalDate(2024, 12, 31), 100.0, Currency.USD),
-            InterestRecord(LocalDate(2025, 1, 1), 1.0, Currency.USD),
-            InterestRecord(LocalDate(2025, 12, 31), 2.0, Currency.USD),
-            InterestRecord(LocalDate(2026, 1, 1), 100.0, Currency.USD),
+            interestRecord(LocalDate(2024, 12, 31), 100.0, Currency.USD),
+            interestRecord(LocalDate(2025, 1, 1), 1.0, Currency.USD),
+            interestRecord(LocalDate(2025, 12, 31), 2.0, Currency.USD),
+            interestRecord(LocalDate(2026, 1, 1), 100.0, Currency.USD),
         )
 
         val report = InterestReportPreparation.generateInterestReport(
@@ -70,8 +70,8 @@ class InterestReportPreparationTest {
     @Test
     fun keepsCzkInterestInDedicatedSection() {
         val records = listOf(
-            InterestRecord(LocalDate(2025, 5, 5), 1234.50, Currency.CZK),
-            InterestRecord(LocalDate(2025, 7, 7), 100.0, Currency.USD, country = "IE"),
+            interestRecord(LocalDate(2025, 5, 5), 1234.50, Currency.CZK, country = "CZ"),
+            interestRecord(LocalDate(2025, 7, 7), 100.0, Currency.USD, country = "IE"),
         )
 
         val report = InterestReportPreparation.generateInterestReport(
@@ -90,8 +90,8 @@ class InterestReportPreparationTest {
     fun groupsForeignCzkInterestUnderItsSourceCountry() {
         // VÚB pays CZK from a Slovak source – it must NOT land in the domestic CZ bucket.
         val records = listOf(
-            InterestRecord(LocalDate(2025, 5, 5), 1000.0, Currency.CZK, country = "SK", broker = "VÚB"),
-            InterestRecord(LocalDate(2025, 7, 7), 100.0, Currency.USD, country = "IE", broker = "Revolut"),
+            interestRecord(LocalDate(2025, 5, 5), 1000.0, Currency.CZK, country = "SK", broker = "VÚB"),
+            interestRecord(LocalDate(2025, 7, 7), 100.0, Currency.USD, country = "IE", broker = "Revolut"),
         )
 
         val report = InterestReportPreparation.generateInterestReport(

@@ -70,7 +70,7 @@ class ETradeGainLossParserTest {
         val schwab = ParsedExport(
             rsuRecords = listOf(RsuRecord(LocalDate(2023, 12, 10), 2, 48.38, LocalDate(2023, 12, 10), "1461994")),
             esppRecords = emptyList(),
-            dividendRecords = listOf(DividendRecord(LocalDate(2023, 10, 25), 84.38)),
+            dividendRecords = listOf(dividendRecord(LocalDate(2023, 10, 25), 84.38)),
             taxRecords = emptyList(),
             taxReversalRecords = emptyList(),
             saleRecords = listOf(SaleRecord(LocalDate(2023, 9, 27), "RS", 30.0, 47.62, 43.91, 43.91, LocalDate(2022, 11, 10), "1538646")),
