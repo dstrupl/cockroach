@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
             year = config.year,
             outputDir = File(config.outputDir),
             eTradeDir = config.etrade?.let { File(it) },
-            degiroFiles = config.degiro.map { File(it) }
+            eTradeBenefitHistoryFile = config.etradeBenefitHistory?.let { File(it) },
             degiroFiles = config.degiro.map { File(it) },
             revolutStocksFiles = config.revolut.stocks.map { File(it) },
             revolutSavingsFiles = config.revolut.savings.map { File(it) },
@@ -47,10 +47,16 @@ object CockroachMain {
         year: Int,
         outputDir: File,
         eTradeDir: File? = null,
-        degiroFiles: List<File> = emptyList()
+        eTradeBenefitHistoryFile: File? = null,
+        degiroFiles: List<File> = emptyList(),
+        revolutStocksFiles: List<File> = emptyList(),
+        revolutSavingsFiles: List<File> = emptyList(),
+        revolutWhtRate: Double = RevolutParser.DEFAULT_WHT_RATE
     ) {
         val schwabExport = schwabExportFile?.let { parseExportFile(it) } ?: ParsedExport.empty()
-        val eTradeExport = eTradeDir?.let { parseETradeDir(it) } ?: ParsedExport.empty()
+        val eTradeExport = if (eTradeDir != null || eTradeBenefitHistoryFile != null) {
+            parseETradeDir(eTradeDir, eTradeBenefitHistoryFile)
+        } else ParsedExport.empty()
         val degiroExport = degiroFiles.map { parseDegiroFile(it) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
         val revolutStocksExport = revolutStocksFiles.map { parseRevolutStocksFile(it, revolutWhtRate) }
             .fold(ParsedExport.empty()) { acc, e -> acc + e }
