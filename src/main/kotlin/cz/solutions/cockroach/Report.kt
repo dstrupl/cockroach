@@ -56,7 +56,11 @@ class Report(
             "dividendPayedTaxCroneValue" to FormatingHelper.formatRounded(-dividendReport.totalNonCzkTaxCrown)
         )
         val interestVars = mapOf(
-            "interestCroneValue" to FormatingHelper.formatRounded(interestReport.totalBruttoCrown)
+            "interestCroneValue" to FormatingHelper.formatRounded(interestReport.totalBruttoCrown),
+            "interestForeignCroneValue" to FormatingHelper.formatRounded(interestReport.foreignCountryTotals.sumOf { it.totalBruttoCrown }),
+            "interestForeignTaxCroneValue" to FormatingHelper.formatRounded(interestReport.foreignCountryTotals.sumOf { it.totalTaxCrown }),
+            "interestCountryTotals" to interestReport.foreignCountryTotals,
+            "interestAllCountryTotals" to interestReport.countryTotals,
         )
 
         val variables = rsuAndEsppVars + salesVars + dividentVars + interestVars

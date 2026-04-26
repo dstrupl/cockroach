@@ -3,6 +3,7 @@ package cz.solutions.cockroach
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.joda.time.LocalDate
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -10,6 +11,14 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class EtoroXlsxParserTest {
+
+    private val DEFAULT_HEADERS = listOf(
+        "Date of Payment",         // A
+        "Instrument Name",         // B
+        "Net Dividend Received",   // C
+        "x", "x", "x", "x", "x",   // D..H (unused by the parser)
+        "Withholding Tax Amount",  // I
+    )
 
     @Test
     fun parsesDividendAndWithholdingTaxFromSyntheticWorkbook(@TempDir tempDir: File) {
@@ -76,65 +85,54 @@ class EtoroXlsxParserTest {
     @Test
     fun headerMismatchFailsFast(@TempDir tempDir: File) {
         val file = File(tempDir, "etoro.xlsx")
-        // Write a workbook whose column A header is wrong; parser must reject it.
         writeEtoroLikeXlsx(file, rows = emptyList(), headers = listOf(
             "Wrong", "Instrument Name", "Net Dividend Received",
-            "x", "x", "x", "x", "x", "Withholding Tax Amount"
+            "x", "x", "x", "x", "x", "Withholding Tax Amount",
         ))
 
-        val ex = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException::class.java) {
+        val ex = assertThrows(IllegalArgumentException::class.java) {
             EtoroXlsxParser.parse(file)
         }
         assertThat(ex.message).contains("unexpected header in column A")
     }
 
-    // ---- synthetic XLSX builder ----------------------------------------------------
+    // --- synthetic XLSX helpers --------------------------------------------------
 
     private data class EtoroRow(val date: String, val instrument: String, val net: Double, val wht: Double)
 
-    private val DEFAULT_HEADERS = listOf(
-        "Date of Payment",
-        "Instrument Name",
-        "Net Dividend Received",
-        "x", "x", "x", "x", "x",
-        "Withholding Tax Amount",
-    )
-
-    private fun writeEtoroLikeXlsx(file: File, rows: List<EtoroRow>, headers: List<String> = DEFAULT_HEADERS) {
-        // Build sharedStrings: headers first, then per-row instruments (deduplicated).
-        val instruments = rows.map { it.instrument }.distinct()
-        val strings = headers + instruments
-        val instrumentIndex = instruments.withIndex().associate { (i, v) -> v to headers.size + i }
+    private fun writeEtoroLikeXlsx(
+        file: File,
+        rows: List<EtoroRow>,
+        headers: List<String> = DEFAULT_HEADERS,
+    ) {
+        val pool = LinkedHashMap<String, Int>()
+        fun intern(s: String): Int = pool.getOrPut(s) { pool.size }
+        headers.forEach { intern(it) }
+        rows.forEach { intern(it.date); intern(it.instrument) }
 
         val sharedStringsXml = buildString {
             append("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>""")
-            append("""<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${strings.size}" uniqueCount="${strings.size}">""")
-            strings.forEach { append("<si><t>").append(escapeXml(it)).append("</t></si>") }
+            append("""<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${pool.size}" uniqueCount="${pool.size}">""")
+            pool.keys.forEach { append("<si><t>").append(escapeXml(it)).append("</t></si>") }
             append("</sst>")
         }
 
         val sheetXml = buildString {
             append("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>""")
             append("""<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>""")
-            // header row uses shared-string indexes 0..headers.size-1; eToro emits attributes as
-            // r="..." s="0" t="s" – we reproduce that exact ordering to lock down the regex fix.
+            // eToro emits cell attributes as r="..." s="0" t="s" (i.e. style before type),
+            // which previously broke the parser regex. We reproduce that exact ordering
+            // here so the test locks down the regression.
             append("""<row r="1">""")
-            headers.forEachIndexed { i, _ ->
-                val ref = "${('A' + i)}1"
-                append("""<c r="$ref" s="0" t="s"><v>$i</v></c>""")
+            headers.forEachIndexed { i, h ->
+                append("""<c r="${col(i)}1" s="0" t="s"><v>${pool[h]}</v></c>""")
             }
             append("</row>")
             rows.forEachIndexed { idx, row ->
                 val rNum = idx + 2
                 append("""<row r="$rNum">""")
-                append("""<c r="A$rNum" s="0" t="s"><v>${headers.size + headers.size /* placeholder */}</v></c>""".replace("<v>${headers.size + headers.size}</v>", "<v>${stringIndexFor(row.date, strings)}</v>"))
-                // simpler: rewrite cleanly below
-                setLength(length - "</row>".length - "<c r=\"A$rNum\" s=\"0\" t=\"s\"><v>${stringIndexFor(row.date, strings)}</v></c>".length - "<row r=\"$rNum\">".length)
-                append("""<row r="$rNum">""")
-                // Date is also a shared string in eToro statements
-                val dateIdx = ensureString(row.date, strings, sharedStringsAddenda)
-                append("""<c r="A$rNum" s="0" t="s"><v>$dateIdx</v></c>""")
-                append("""<c r="B$rNum" s="0" t="s"><v>${instrumentIndex[row.instrument]}</v></c>""")
+                append("""<c r="A$rNum" s="0" t="s"><v>${pool[row.date]}</v></c>""")
+                append("""<c r="B$rNum" s="0" t="s"><v>${pool[row.instrument]}</v></c>""")
                 append("""<c r="C$rNum" s="7"><v>${row.net}</v></c>""")
                 append("""<c r="I$rNum" s="7"><v>${row.wht}</v></c>""")
                 append("</row>")
@@ -142,40 +140,25 @@ class EtoroXlsxParserTest {
             append("</sheetData></worksheet>")
         }
 
-        // Recompose the final shared strings including any dates appended on the fly.
-        val finalStrings = strings + sharedStringsAddenda
-        val finalSharedStringsXml = buildString {
-            append("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>""")
-            append("""<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${finalStrings.size}" uniqueCount="${finalStrings.size}">""")
-            finalStrings.forEach { append("<si><t>").append(escapeXml(it)).append("</t></si>") }
-            append("</sst>")
-        }
-
         ZipOutputStream(file.outputStream()).use { zip ->
             zip.putNextEntry(ZipEntry("xl/sharedStrings.xml"))
-            zip.write(finalSharedStringsXml.toByteArray(Charsets.UTF_8))
+            zip.write(sharedStringsXml.toByteArray(Charsets.UTF_8))
             zip.closeEntry()
             zip.putNextEntry(ZipEntry("xl/worksheets/sheet4.xml"))
             zip.write(sheetXml.toByteArray(Charsets.UTF_8))
             zip.closeEntry()
         }
-        sharedStringsAddenda.clear()
     }
 
-    private val sharedStringsAddenda = mutableListOf<String>()
-
-    private fun stringIndexFor(value: String, strings: List<String>): Int {
-        val i = strings.indexOf(value)
-        return if (i >= 0) i else strings.size + sharedStringsAddenda.indexOf(value).also { if (it < 0) sharedStringsAddenda.add(value) }
-    }
-
-    private fun ensureString(value: String, strings: List<String>, addenda: MutableList<String>): Int {
-        val i = strings.indexOf(value)
-        if (i >= 0) return i
-        val j = addenda.indexOf(value)
-        if (j >= 0) return strings.size + j
-        addenda.add(value)
-        return strings.size + addenda.size - 1
+    private fun col(index: Int): String {
+        var n = index + 1
+        val sb = StringBuilder()
+        while (n > 0) {
+            val r = (n - 1) % 26
+            sb.append(('A' + r))
+            n = (n - 1) / 26
+        }
+        return sb.reverse().toString()
     }
 
     private fun escapeXml(s: String) = s

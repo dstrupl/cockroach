@@ -27,6 +27,7 @@ object VubInterestPdfParser {
 
     private val LOGGER = Logger.getLogger(VubInterestPdfParser::class.java.name)
     private const val BROKER_NAME = "VÚB"
+    private const val COUNTRY = "SK"
     private val LABELS = listOf("Credit interest", "Úroky pripísané")
     private val DATE_TOKEN = Regex("""\b(\d{2})/(\d{2})\b""")
     private val IG_REFERENCE = Regex("""^\d{4}IG\d+$""")
@@ -78,7 +79,7 @@ object VubInterestPdfParser {
             if (amount <= 0.0) {
                 skipped++; continue
             }
-            records.add(InterestRecord(date, amount, Currency.CZK, product = product, broker = BROKER_NAME))
+            records.add(InterestRecord(date, amount, Currency.CZK, product = product, broker = BROKER_NAME, country = COUNTRY))
         }
         LOGGER.info("VÚB: parsed ${records.size} interest record(s) from $fileName (skipped=$skipped)")
         return records

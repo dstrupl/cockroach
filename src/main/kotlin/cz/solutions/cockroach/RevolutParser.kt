@@ -31,10 +31,22 @@ object RevolutParser {
 
     private const val BROKER_NAME = "Revolut"
 
+    /**
+     * Country of origin for Revolut Savings interest. Flexible Account interest is paid by Irish-domiciled
+     * UCITS money-market funds (ISINs `IE000H9J0QX4`, `IE000AZVL3K0`, ...), so the source country reported
+     * on Příloha č. 3 is Ireland regardless of the cash currency (USD/EUR Class shares).
+     */
+    private const val SAVINGS_COUNTRY = "IE"
+
     private val SAVINGS_DATE_FORMATTER = DateTimeFormat.forPattern("MMM d, yyyy, h:mm:ss a").withLocale(Locale.US)
 
     // ISIN: 2-letter country code + 9 alphanumeric chars + 1 check digit (12 chars total).
     private val ISIN_PATTERN = Regex("\\b([A-Z]{2}[A-Z0-9]{9}[0-9])\\b")
+
+    // Safety net for parseSavings: any unhandled description containing one of these tokens
+    // would indicate Revolut started withholding tax on Flexible Accounts (e.g. fund domicile change
+    // or regulatory shift). Fail loudly so we never silently under-report §8 income.
+    private val SAVINGS_TAX_PATTERN = Regex("(?i)\\b(WHT|withholding|tax\\s+(?:withheld|deducted|paid|charged))\\b")
 
     fun parseStocks(file: File, whtRate: Double = DEFAULT_WHT_RATE): RevolutStocksParseResult {
         return file.reader(StandardCharsets.UTF_8).use { parseStocks(it, whtRate) }
@@ -116,7 +128,7 @@ object RevolutParser {
                         description.startsWith("Interest PAID") -> {
                             if (value > 0.0) {
                                 val product = ISIN_PATTERN.find(description)?.value ?: description
-                                interestRecords.add(InterestRecord(date, value, currency, product = product, broker = BROKER_NAME))
+                                interestRecords.add(InterestRecord(date, value, currency, product = product, broker = BROKER_NAME, country = SAVINGS_COUNTRY))
                             }
                         }
                         description.startsWith("Service Fee Charged") -> {
@@ -124,7 +136,16 @@ object RevolutParser {
                             feeCount++
                             feeCurrency = currency
                         }
-                        else -> { /* Interest Reinvested, BUY, SELL: ignored */ }
+                        description.startsWith("Interest Reinvested") -> { /* purely informational; cash already counted via Interest PAID */ }
+                        description.startsWith("BUY") || description.startsWith("SELL") -> { /* fund-unit movements */ }
+                        else -> {
+                            check(!SAVINGS_TAX_PATTERN.containsMatchIn(description)) {
+                                "Revolut Savings: encountered tax-related row '$description' at $date. " +
+                                        "Parser assumes Flexible Account interest is gross (Irish UCITS, no WHT). " +
+                                        "Investigate the statement manually before re-running."
+                            }
+                            LOGGER.warning("Revolut Savings: unrecognised row '$description' at $date; ignored.")
+                        }
                     }
                 }
             }
