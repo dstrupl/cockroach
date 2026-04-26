@@ -288,10 +288,3 @@ java -jar target/cockroach-0.3-SNAPSHOT.jar input/schwab-export.json 2025 ./outp
 With YAML config (Schwab and/or E-Trade and/or Degiro and/or Revolut and/or eToro and/or VÚB):
 
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/config.yaml
-
-# Converting to PDF
-
--   pandoc sales_2021.md -V geometry:landscape
-    \--pdf-engine=/Library/TeX/texbin/pdflatex -o sales.pdf
-
--   IDEA: Tools -\> Markdown Converter
