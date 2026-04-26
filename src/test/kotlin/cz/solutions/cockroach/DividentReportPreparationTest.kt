@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class DividentReportPreparationTest {
 
-    private val fixedRate = ExchangeRateProvider { 25.0 }
+    private val fixedRate = ExchangeRateProvider { _, _ -> 25.0 }
     private val year2025 = DateInterval.year(2025)
 
     @Test
@@ -28,14 +28,16 @@ class DividentReportPreparationTest {
             dividends, taxes, emptyList(), year2025, fixedRate
         )
 
+        val usd = report.sections.single { it.currency == Currency.USD }
+
         // Both dividends should be matched
-        assertThat(report.printableDividendList).hasSize(2)
+        assertThat(usd.printableDividendList).hasSize(2)
 
         // The total tax should include BOTH tax records, not -8.86 twice
-        assertThat(report.totalTaxDollar).isCloseTo(-436.90, Offset.offset(0.01))
+        assertThat(usd.totalTax).isCloseTo(-436.90, Offset.offset(0.01))
 
         // Each tax should be used exactly once
-        assertThat(report.totalTaxCrown).isCloseTo(-436.90 * 25.0, Offset.offset(0.1))
+        assertThat(usd.totalTaxCrown).isCloseTo(-436.90 * 25.0, Offset.offset(0.1))
     }
 
     @Test
@@ -47,8 +49,9 @@ class DividentReportPreparationTest {
             dividends, taxes, emptyList(), year2025, fixedRate
         )
 
-        assertThat(report.printableDividendList).hasSize(1)
-        assertThat(report.totalTaxDollar).isCloseTo(-150.0, Offset.offset(0.01))
+        val usd = report.sections.single { it.currency == Currency.USD }
+        assertThat(usd.printableDividendList).hasSize(1)
+        assertThat(usd.totalTax).isCloseTo(-150.0, Offset.offset(0.01))
     }
 
     @Test
@@ -66,7 +69,8 @@ class DividentReportPreparationTest {
             dividends, taxes, emptyList(), year2025, fixedRate
         )
 
-        assertThat(report.printableDividendList).hasSize(2)
-        assertThat(report.totalTaxDollar).isCloseTo(-330.0, Offset.offset(0.01))
+        val usd = report.sections.single { it.currency == Currency.USD }
+        assertThat(usd.printableDividendList).hasSize(2)
+        assertThat(usd.totalTax).isCloseTo(-330.0, Offset.offset(0.01))
     }
 }
