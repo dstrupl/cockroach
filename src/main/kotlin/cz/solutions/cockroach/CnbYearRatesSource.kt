@@ -4,7 +4,6 @@ import org.joda.time.LocalDate
 import java.io.File
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
 /**
@@ -41,10 +40,14 @@ class ClasspathCnbYearRatesSource : CnbYearRatesSource {
 }
 
 /**
- * Downloads CNB year.txt from cnb.cz on first use and caches each year on
- * disk under [cacheDir]. Past years are cached forever (CNB never amends
- * fixings retroactively); the current year is refreshed when the cached
- * copy is older than [currentYearMaxAgeMs].
+ * Downloads CNB year.txt from cnb.cz on first use and caches completed
+ * past years on disk under [cacheDir]. CNB never amends fixings
+ * retroactively, but the last fixing of a year (and any late corrections)
+ * may take a few business days to be published. A year N is therefore
+ * only treated as complete – and eligible for permanent caching – once
+ * [today] is at least [safeDaysAfterYearEnd] days into year N+1. The
+ * current year (and any future year) is always downloaded fresh and
+ * never written to disk, since its fixing series is still growing.
  *
  * When the downloaded content contains more than one header line (e.g. the
  * 2022 HRK transition), it is split into multiple chunks so downstream
@@ -53,33 +56,43 @@ class ClasspathCnbYearRatesSource : CnbYearRatesSource {
 class HttpCnbYearRatesSource(
     private val cacheDir: File,
     private val baseUrl: String = DEFAULT_BASE_URL,
-    private val currentYearMaxAgeMs: Long = TimeUnit.HOURS.toMillis(24),
+    private val safeDaysAfterYearEnd: Int = 7,
     private val today: () -> LocalDate = { LocalDate.now() }
 ) : CnbYearRatesSource {
 
     override fun loadYear(year: Int): List<String> {
-        val raw = loadRawWithCache(year)
+        val raw = loadRaw(year)
         return splitByHeader(raw)
     }
 
-    private fun loadRawWithCache(year: Int): String {
+    private fun loadRaw(year: Int): String {
+        if (!isYearComplete(year)) {
+            return downloadFresh(year)
+        }
         if (!cacheDir.exists()) {
             require(cacheDir.mkdirs() || cacheDir.exists()) {
                 "could not create cache directory ${cacheDir.absolutePath}"
             }
         }
         val cacheFile = File(cacheDir, "rates_$year.txt")
-        val currentYear = today().year
-        val stale = !cacheFile.exists() ||
-                (year >= currentYear &&
-                        System.currentTimeMillis() - cacheFile.lastModified() > currentYearMaxAgeMs)
-        if (stale) {
-            download(year, cacheFile)
+        if (!cacheFile.exists()) {
+            downloadToFile(year, cacheFile)
         }
         return cacheFile.readText(StandardCharsets.UTF_8)
     }
 
-    private fun download(year: Int, target: File) {
+    private fun isYearComplete(year: Int): Boolean {
+        val safeAfter = LocalDate(year + 1, 1, 1).plusDays(safeDaysAfterYearEnd)
+        return !today().isBefore(safeAfter)
+    }
+
+    private fun downloadFresh(year: Int): String {
+        val url = URI("$baseUrl?year=$year").toURL()
+        LOGGER.info("downloading CNB rates for $year from $url (incomplete year, not cached)")
+        return url.openStream().use { it.reader(StandardCharsets.UTF_8).readText() }
+    }
+
+    private fun downloadToFile(year: Int, target: File) {
         val url = URI("$baseUrl?year=$year").toURL()
         LOGGER.info("downloading CNB rates for $year from $url")
         val tmp = File(target.parentFile, "${target.name}.tmp")
