@@ -21,7 +21,8 @@ object DividentReportPreparation {
 
         val taxRecords = taxRecordList
             .filter { interval.contains(it.date) }
-            .groupBy { it.date }
+            .groupBy({ it.date }) { it }
+            .mapValues { it.value.toMutableList() }
 
         val taxReversalRecords = taxReversalRecordList
             .filter { interval.contains(it.date) }
@@ -36,7 +37,9 @@ object DividentReportPreparation {
 
         for (dividendRecord in dividendRecords) {
             val exchange = exchangeRateProvider.rateAt(dividendRecord.date)
-            val taxRecord = taxRecords[dividendRecord.date]?.minBy { abs( abs(it.amount) - abs(dividendRecord.amount)*0.15 )} //if there were more taxes on the same day, we take the one closest to 15% of dividend amount, because that's the most likely correct one
+            val taxCandidates = taxRecords[dividendRecord.date]
+            val taxRecord = taxCandidates?.minByOrNull { abs( abs(it.amount) - abs(dividendRecord.amount)*0.15 )} //if there were more taxes on the same day, we take the one closest to 15% of dividend amount, because that's the most likely correct one
+            if (taxRecord != null) taxCandidates.remove(taxRecord)
 
             if (taxRecord != null) {
                 totalBruttoDollar += dividendRecord.amount
