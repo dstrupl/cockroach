@@ -21,7 +21,10 @@ object ETradeBenefitHistoryParser {
     private val PURCHASE_DATE_FORMATTER = DateTimeFormat.forPattern("dd-MMM-yyyy").withLocale(Locale.ENGLISH)
     private val VEST_DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/yyyy")
 
+    private const val BROKER_NAME = "Morgan Stanley & Co."
+
     private const val COL_RECORD_TYPE = "Record Type"
+    private const val COL_SYMBOL = "Symbol"
 
     private const val COL_PURCHASE_DATE = "Purchase Date"
     private const val COL_PURCHASE_PRICE = "Purchase Price"
@@ -36,6 +39,7 @@ object ETradeBenefitHistoryParser {
     private const val COL_TAXABLE_GAIN = "Taxable Gain"
 
     private const val REC_PURCHASE = "Purchase"
+    private const val REC_GRANT = "Grant"
     private const val REC_VEST_SCHEDULE = "Vest Schedule"
     private const val REC_TAX_WITHHOLDING = "Tax Withholding"
 
@@ -70,7 +74,9 @@ object ETradeBenefitHistoryParser {
                 purchasePrice = num(row, cols, COL_PURCHASE_PRICE),
                 subscriptionFmv = num(row, cols, COL_GRANT_DATE_FMV),
                 purchaseFmv = num(row, cols, COL_PURCHASE_DATE_FMV),
-                purchaseDate = date
+                purchaseDate = date,
+                symbol = str(row, cols, COL_SYMBOL)!!,
+                broker = BROKER_NAME
             )
         }
         return out
@@ -81,11 +87,18 @@ object ETradeBenefitHistoryParser {
         // identified by (Grant Number, Vest Period) appearing immediately below.
         data class Pending(val grantId: String, val period: String, val vestDate: LocalDate, val vestedQty: Int)
 
+        val symbolByGrant = mutableMapOf<String, String>()
         val out = mutableListOf<RsuRecord>()
         var pending: Pending? = null
         for (i in (sheet.firstRowNum + 1)..sheet.lastRowNum) {
             val row = sheet.getRow(i) ?: continue
             when (str(row, cols, COL_RECORD_TYPE)) {
+                REC_GRANT -> {
+                    pending = null
+                    val grantId = str(row, cols, COL_GRANT_NUMBER) ?: continue
+                    val symbol = str(row, cols, COL_SYMBOL) ?: continue
+                    symbolByGrant[grantId] = symbol
+                }
                 REC_VEST_SCHEDULE -> {
                     pending = null
                     val vested = optNum(row, cols, COL_VESTED_QTY)?.toInt() ?: 0
@@ -107,7 +120,9 @@ object ETradeBenefitHistoryParser {
                         quantity = p.vestedQty,
                         vestFmv = taxableGain / p.vestedQty,
                         vestDate = p.vestDate,
-                        grantId = p.grantId
+                        grantId = p.grantId,
+                        symbol = symbolByGrant[p.grantId]!!,
+                        broker = BROKER_NAME
                     )
                     pending = null
                 }

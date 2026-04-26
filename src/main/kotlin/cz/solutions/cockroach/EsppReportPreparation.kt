@@ -42,6 +42,8 @@ object EsppReportPreparation {
         val partialProfit = espp.purchaseFmv - espp.purchasePrice
 
         return EsppInfo(
+            symbol = espp.symbol,
+            broker = espp.broker,
             date = espp.purchaseDate,
             amount = espp.quantity,
             exchange = exchange,
@@ -56,6 +58,8 @@ object EsppReportPreparation {
     }
 
     private data class EsppInfo(
+        val symbol: String,
+        val broker: String,
         val date: LocalDate,
         val amount: Double,
         val exchange: Double,
@@ -69,6 +73,8 @@ object EsppReportPreparation {
     ) {
         fun toPrintable(): PrintableEspp {
             return PrintableEspp(
+                symbol = symbol,
+                broker = broker,
                 date = DATE_FORMATTER.print(date),
                 amount = amount,
                 exchange = FormatingHelper.formatExchangeRate(exchange),

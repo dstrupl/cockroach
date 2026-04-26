@@ -26,7 +26,9 @@ class ETradeGainLossParserTest {
                 50.00,
                 50.00,
                 LocalDate(2025, 3, 15),
-                "9990001"
+                "9990001",
+                symbol = "ACME",
+                broker = "Morgan Stanley & Co."
             )
         )
 
@@ -39,7 +41,9 @@ class ETradeGainLossParserTest {
                 60.00,
                 60.00,
                 LocalDate(2025, 3, 15),
-                "9990002"
+                "9990002",
+                symbol = "ACME",
+                broker = "Morgan Stanley & Co."
             )
         )
 
@@ -52,7 +56,9 @@ class ETradeGainLossParserTest {
                 70.00,
                 70.00,
                 LocalDate(2025, 6, 10),
-                "9990001"
+                "9990001",
+                symbol = "ACME",
+                broker = "Morgan Stanley & Co."
             )
         )
 

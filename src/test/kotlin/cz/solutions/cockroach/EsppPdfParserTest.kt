@@ -42,7 +42,9 @@ class EsppPdfParserTest {
                 purchasePrice = 40.392,
                 subscriptionFmv = 47.52,
                 purchaseFmv = 77.03,
-                purchaseDate = LocalDate(2025, 12, 31)
+                purchaseDate = LocalDate(2025, 12, 31),
+                symbol = "CSCO",
+                broker = "Charles Schwab & Co."
             )
         )
     }
@@ -77,7 +79,9 @@ class EsppPdfParserTest {
                 purchasePrice = 46.75,
                 subscriptionFmv = 55.0,
                 purchaseFmv = 65.5,
-                purchaseDate = LocalDate(2025, 6, 30)
+                purchaseDate = LocalDate(2025, 6, 30),
+                symbol = "ACME",
+                broker = "Charles Schwab & Co."
             )
         )
     }
@@ -95,7 +99,9 @@ class EsppPdfParserTest {
                 purchasePrice = 40.392,
                 subscriptionFmv = 47.52,
                 purchaseFmv = 77.03,
-                purchaseDate = LocalDate(2025, 12, 31)
+                purchaseDate = LocalDate(2025, 12, 31),
+                symbol = "CSCO",
+                broker = "Charles Schwab & Co."
             )
         )
     }

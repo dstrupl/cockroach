@@ -1,6 +1,8 @@
 package cz.solutions.cockroach
 
 data class PrintableEspp(
+    val symbol: String,
+    val broker: String,
     val date: String,
     val amount: Double,
     val exchange: String,

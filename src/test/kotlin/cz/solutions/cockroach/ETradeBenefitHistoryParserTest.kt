@@ -27,6 +27,8 @@ class ETradeBenefitHistoryParserTest {
         assertThat(purchase2025Q1.purchasePrice).isEqualTo(42.143, within(EPS))
         assertThat(purchase2025Q1.subscriptionFmv).isEqualTo(49.58, within(EPS))
         assertThat(purchase2025Q1.purchaseFmv).isEqualTo(50.92, within(EPS))
+        assertThat(purchase2025Q1.symbol).isNotBlank()
+        assertThat(purchase2025Q1.broker).isEqualTo("Morgan Stanley & Co.")
 
         val purchase2025Q3 = result.esppRecords.single { it.purchaseDate == LocalDate(2025, 9, 15) }
         assertThat(purchase2025Q3.purchaseFmv).isEqualTo(86.76, within(EPS))
@@ -46,6 +48,10 @@ class ETradeBenefitHistoryParserTest {
 
         val grant82769 = result.rsuRecords.filter { it.grantId == "3-82769" }
         assertThat(grant82769).hasSize(4)
+        assertThat(grant82769).allSatisfy { record ->
+            assertThat(record.symbol).isNotBlank()
+            assertThat(record.broker).isEqualTo("Morgan Stanley & Co.")
+        }
         assertThat(grant82769.first { it.vestDate == LocalDate(2025, 6, 20) })
             .satisfies({ assertThat(it.quantity).isEqualTo(66) },
                        { assertThat(it.vestFmv).isEqualTo(52.870, within(EPS)) })

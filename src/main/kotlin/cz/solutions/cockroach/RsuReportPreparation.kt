@@ -44,6 +44,8 @@ object RsuReportPreparation {
         val taxableVestCroneValue = taxableAmount * rsu.vestFmv * exchange
 
         return RsuInfo(
+            symbol = rsu.symbol,
+            broker = rsu.broker,
             date = rsu.vestDate,
             amount = rsu.quantity,
             exchange = exchange,
@@ -56,6 +58,8 @@ object RsuReportPreparation {
     }
 
     private data class RsuInfo(
+        val symbol: String,
+        val broker: String,
         val date: LocalDate,
         val amount: Int,
         val exchange: Double,
@@ -67,6 +71,8 @@ object RsuReportPreparation {
     ) {
         fun toPrintable(): PrintableRsu {
             return PrintableRsu(
+                symbol = symbol,
+                broker = broker,
                 date = DATE_FORMATTER.print(date),
                 amount = amount,
                 exchange = FormatingHelper.formatExchangeRate(exchange),

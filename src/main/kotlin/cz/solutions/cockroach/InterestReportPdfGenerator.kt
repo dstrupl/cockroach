@@ -30,14 +30,17 @@ object InterestReportPdfGenerator {
     private fun generateCurrencySectionPdf(section: CurrencyInterestSection): ByteArray {
         val cur = section.currency.name
         val columns = listOf(
-            PdfColumn("Datum", 1f), PdfColumn("Brutto ($cur)", 1f),
-            PdfColumn("Kurz (Kč/$cur)", 1f), PdfColumn("Brutto (Kč)", 1f)
+            PdfColumn("Produkt", 2f), PdfColumn("Obchodník", 1.5f),
+            PdfColumn("Datum", 0.9f), PdfColumn("Brutto ($cur)", 0.9f),
+            PdfColumn("Kurz (Kč/$cur)", 1f), PdfColumn("Brutto (Kč)", 0.9f)
         )
         val rows = section.printableInterestList.map { i ->
-            listOf(i.date, i.brutto, i.exchange, i.bruttoCrown)
+            listOf(i.product, i.broker, i.date, i.brutto, i.exchange, i.bruttoCrown)
         }
         val fmt = FormatingHelper::formatDouble
         val summaryRow = listOf(
+            SummaryCell.empty(),                                // Produkt
+            SummaryCell.empty(),                                // Obchodník
             SummaryCell.bold("Celkem"),
             SummaryCell.bold(fmt(section.totalBrutto)),
             SummaryCell.empty(),
@@ -53,11 +56,14 @@ object InterestReportPdfGenerator {
 
     private fun generateCzkSectionPdf(section: CzkInterestSection): ByteArray {
         val columns = listOf(
+            PdfColumn("Produkt", 2f), PdfColumn("Obchodník", 1.5f),
             PdfColumn("Datum", 1f), PdfColumn("Brutto (Kč)", 1f)
         )
-        val rows = section.printableInterestList.map { i -> listOf(i.date, i.brutto) }
+        val rows = section.printableInterestList.map { i -> listOf(i.product, i.broker, i.date, i.brutto) }
         val fmt = FormatingHelper::formatDouble
         val summaryRow = listOf(
+            SummaryCell.empty(),                                // Produkt
+            SummaryCell.empty(),                                // Obchodník
             SummaryCell.bold("Celkem"),
             SummaryCell.bold(fmt(section.totalBruttoCrown))
         )

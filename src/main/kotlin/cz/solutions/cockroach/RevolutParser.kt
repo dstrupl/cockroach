@@ -29,7 +29,12 @@ object RevolutParser {
     private const val STOCKS_TYPE_DIVIDEND = "DIVIDEND"
     private const val STOCKS_TYPE_DIVIDEND_TAX_CORRECTION = "DIVIDEND TAX (CORRECTION)"
 
+    private const val BROKER_NAME = "Revolut"
+
     private val SAVINGS_DATE_FORMATTER = DateTimeFormat.forPattern("MMM d, yyyy, h:mm:ss a").withLocale(Locale.US)
+
+    // ISIN: 2-letter country code + 9 alphanumeric chars + 1 check digit (12 chars total).
+    private val ISIN_PATTERN = Regex("\\b([A-Z]{2}[A-Z0-9]{9}[0-9])\\b")
 
     fun parseStocks(file: File, whtRate: Double = DEFAULT_WHT_RATE): RevolutStocksParseResult {
         return file.reader(StandardCharsets.UTF_8).use { parseStocks(it, whtRate) }
@@ -57,7 +62,8 @@ object RevolutParser {
                         }
                         val gross = amount / (1.0 - whtRate)
                         val wht = gross - amount
-                        dividends.add(DividendRecord(date, gross, currency))
+                        val ticker = record.get("Ticker").trim()
+                        dividends.add(DividendRecord(date, gross, currency, symbol = ticker, broker = BROKER_NAME))
                         if (wht > 0.0) {
                             taxes.add(TaxRecord(date, -wht, currency))
                         }
@@ -103,19 +109,23 @@ object RevolutParser {
             for (record in parser) {
                 val description = record.get("Description").trim()
                 val rawValue = record.get(valueColumn).trim()
-                if (rawValue.isEmpty()) continue
-                val value = rawValue.replace(",", "").toDoubleOrNull() ?: continue
-                val date = parseSavingsDate(record.get("Date"))
-                when {
-                    description.startsWith("Interest PAID") -> {
-                        if (value > 0.0) interestRecords.add(InterestRecord(date, value, currency))
+                if (!rawValue.isEmpty()){
+                    val value = rawValue.replace(",", "").toDoubleOrNull() ?: continue
+                    val date = parseSavingsDate(record.get("Date"))
+                    when {
+                        description.startsWith("Interest PAID") -> {
+                            if (value > 0.0) {
+                                val product = ISIN_PATTERN.find(description)?.value ?: description
+                                interestRecords.add(InterestRecord(date, value, currency, product = product, broker = BROKER_NAME))
+                            }
+                        }
+                        description.startsWith("Service Fee Charged") -> {
+                            feeTotal += value
+                            feeCount++
+                            feeCurrency = currency
+                        }
+                        else -> { /* Interest Reinvested, BUY, SELL: ignored */ }
                     }
-                    description.startsWith("Service Fee Charged") -> {
-                        feeTotal += value
-                        feeCount++
-                        feeCurrency = currency
-                    }
-                    else -> { /* Interest Reinvested, BUY, SELL: ignored */ }
                 }
             }
         }

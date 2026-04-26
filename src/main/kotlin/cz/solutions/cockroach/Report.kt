@@ -21,7 +21,7 @@ class Report(
 
     fun getRsuPdf(): ByteArray = RsuReportPdfGenerator.generate(rsuReport)
 
-    fun getRsu2024Pdf(): ByteArray = RsuReportPdfGenerator.generate(rsuReport2024, taxableMode = true, broker = "Charles Schwab & Co.")
+    fun getRsu2024Pdf(): ByteArray = RsuReportPdfGenerator.generate(rsuReport2024, taxableMode = true)
 
     fun getDividendPdf(): ByteArray = DividendReportPdfGenerator.generate(dividendReport)
 
@@ -29,7 +29,7 @@ class Report(
 
     fun getEsppPdf(): ByteArray = EsppReportPdfGenerator.generate(esppReport)
 
-    fun getEspp2024Pdf(): ByteArray = EsppReportPdfGenerator.generate(esppReport2024, taxableMode = true, broker = "Charles Schwab & Co.")
+    fun getEspp2024Pdf(): ByteArray = EsppReportPdfGenerator.generate(esppReport2024, taxableMode = true)
 
     fun getSalesPdf(): ByteArray = SalesReportPdfGenerator.generate(salesReport)
 

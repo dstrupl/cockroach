@@ -4,6 +4,11 @@ import java.io.File
 
 object EsppPdfParser {
 
+    private const val BROKER_NAME = "Charles Schwab & Co."
+
+    // After "Company Name (Symbol)" the symbol appears in parentheses, possibly on the next line.
+    private val SYMBOL_PATTERN = Regex("""Company Name \(Symbol\)[\s\S]*?\(([A-Z][A-Z0-9.]*)\)""")
+
     /**
      * Parses a single ESPP Purchase Confirmation PDF and returns an EsppRecord.
      */
@@ -26,6 +31,7 @@ object EsppPdfParser {
         val purchasePricePerShare = extractPurchasePricePerShare(text)
         val grantDateMarketValue = PdfParserUtils.extractDollarAmount(text, "Grant Date Market Value")
         val purchaseValuePerShare = PdfParserUtils.extractDollarAmount(text, "Purchase Value per Share")
+        val symbol = SYMBOL_PATTERN.find(text)?.groupValues?.get(1).orEmpty()
 
         return EsppRecord(
             date = purchaseDate,
@@ -33,7 +39,9 @@ object EsppPdfParser {
             purchasePrice = purchasePricePerShare,
             subscriptionFmv = grantDateMarketValue,
             purchaseFmv = purchaseValuePerShare,
-            purchaseDate = purchaseDate
+            purchaseDate = purchaseDate,
+            symbol = symbol,
+            broker = BROKER_NAME
         )
     }
 

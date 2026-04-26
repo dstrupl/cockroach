@@ -29,9 +29,12 @@ object DegiroAccountStatementParser {
     private const val DESC_ADR_FEE = "ADR/GDR Pass-Through poplatek"
 
     private const val COL_VALUE_DATE = 2
+    private const val COL_PRODUCT = 3
     private const val COL_DESCRIPTION = 5
     private const val COL_CURRENCY = 7
     private const val COL_AMOUNT = 8
+
+    private const val BROKER_NAME = "Degiro"
 
     fun parse(file: File): DegiroParseResult {
         return file.inputStream().use { parse(it) }
@@ -57,7 +60,7 @@ object DegiroAccountStatementParser {
             when (description.trim()) {
                 DESC_DIVIDEND -> {
                     val record = parseRecord(row) ?: continue
-                    dividends.add(DividendRecord(record.date, record.amount, record.currency))
+                    dividends.add(DividendRecord(record.date, record.amount, record.currency, symbol = record.product, broker = BROKER_NAME))
                 }
                 DESC_TAX -> {
                     val record = parseRecord(row) ?: continue
@@ -79,12 +82,13 @@ object DegiroAccountStatementParser {
         return DegiroParseResult(dividends, taxes)
     }
 
-    private data class ParsedRow(val date: LocalDate, val amount: Double, val currency: Currency)
+    private data class ParsedRow(val date: LocalDate, val amount: Double, val currency: Currency, val product: String)
 
     private fun parseRecord(row: Row): ParsedRow? {
         val dateStr = stringCell(row, COL_VALUE_DATE) ?: return null
         val currencyStr = stringCell(row, COL_CURRENCY) ?: return null
         val amountStr = stringCell(row, COL_AMOUNT) ?: return null
+        val product = stringCell(row, COL_PRODUCT)?.trim().orEmpty()
 
         val date = LocalDate.parse(dateStr.trim(), DATE_FORMATTER)
         val currency = try {
@@ -94,7 +98,7 @@ object DegiroAccountStatementParser {
             return null
         }
         val amount = parseAmount(amountStr) ?: return null
-        return ParsedRow(date, amount, currency)
+        return ParsedRow(date, amount, currency, product)
     }
 
     private fun parseAmount(input: String): Double? {

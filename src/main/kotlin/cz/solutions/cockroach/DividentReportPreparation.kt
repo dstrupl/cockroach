@@ -76,6 +76,8 @@ object DividentReportPreparation {
 
                 printable.add(
                     PrintableDividend(
+                        dividendRecord.symbol,
+                        dividendRecord.broker,
                         DATE_FORMATTER.print(dividendRecord.date),
                         FormatingHelper.formatDouble(dividendRecord.amount),
                         FormatingHelper.formatExchangeRate(exchange),
@@ -113,6 +115,8 @@ object DividentReportPreparation {
                 totalTaxCrown += taxRecord.amount
                 printable.add(
                     PrintableCzkDividend(
+                        dividendRecord.symbol,
+                        dividendRecord.broker,
                         DATE_FORMATTER.print(dividendRecord.date),
                         FormatingHelper.formatDouble(dividendRecord.amount),
                         FormatingHelper.formatDouble(taxRecord.amount)

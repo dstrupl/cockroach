@@ -36,7 +36,9 @@ class RsuPdfParserTest {
                 quantity = 53,
                 vestFmv = 79.51,
                 vestDate = LocalDate(2025, 12, 10),
-                grantId = "1623675"
+                grantId = "1623675",
+                symbol = "CSCO",
+                broker = "Charles Schwab & Co."
             )
         )
     }
@@ -66,7 +68,9 @@ class RsuPdfParserTest {
                 quantity = 18,
                 vestFmv = 67.34,
                 vestDate = LocalDate(2025, 9, 10),
-                grantId = "1679633"
+                grantId = "1679633",
+                symbol = "CSCO",
+                broker = "Charles Schwab & Co."
             )
         )
     }
@@ -83,7 +87,9 @@ class RsuPdfParserTest {
                 quantity = 53,
                 vestFmv = 79.51,
                 vestDate = LocalDate(2025, 12, 10),
-                grantId = "1623675"
+                grantId = "1623675",
+                symbol = "CSCO",
+                broker = "Charles Schwab & Co."
             )
         )
     }
@@ -107,7 +113,9 @@ class RsuPdfParserTest {
                     quantity = 53,
                     vestFmv = 79.51,
                     vestDate = LocalDate(2025, 12, 10),
-                    grantId = "1623675"
+                    grantId = "1623675",
+                    symbol = "CSCO",
+                    broker = "Charles Schwab & Co."
                 )
             )
         }

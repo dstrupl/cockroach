@@ -1,6 +1,8 @@
 package cz.solutions.cockroach
 
 data class PrintableInterest(
+    val product: String,
+    val broker: String,
     val date: String,
     val brutto: String,
     val exchange: String,
@@ -8,6 +10,8 @@ data class PrintableInterest(
 )
 
 data class PrintableCzkInterest(
+    val product: String,
+    val broker: String,
     val date: String,
     val brutto: String
 )

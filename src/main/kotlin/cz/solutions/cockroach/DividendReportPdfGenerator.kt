@@ -30,14 +30,17 @@ object DividendReportPdfGenerator {
     private fun generateCurrencySectionPdf(section: CurrencyDividendSection): ByteArray {
         val cur = section.currency.name
         val columns = listOf(
-            PdfColumn("Datum", 1f), PdfColumn("Brutto ($cur)", 1f), PdfColumn("Sražená daň ($cur)", 1f),
-            PdfColumn("Kurz (Kč/$cur)", 1f), PdfColumn("Brutto (Kč)", 1f), PdfColumn("Sražená daň (Kč)", 1f)
+            PdfColumn("Cenný papír", 1.8f), PdfColumn("Obchodník", 1.5f),
+            PdfColumn("Datum", 0.9f), PdfColumn("Brutto ($cur)", 0.9f), PdfColumn("Sražená daň ($cur)", 1.1f),
+            PdfColumn("Kurz (Kč/$cur)", 1f), PdfColumn("Brutto (Kč)", 0.9f), PdfColumn("Sražená daň (Kč)", 1.1f)
         )
         val rows = section.printableDividendList.map { d ->
-            listOf(d.date, d.brutto, d.tax, d.exchange, d.bruttoCrown, d.taxCrown)
+            listOf(d.symbol, d.broker, d.date, d.brutto, d.tax, d.exchange, d.bruttoCrown, d.taxCrown)
         }
         val fmt = FormatingHelper::formatDouble
         val summaryRow = listOf(
+            SummaryCell.empty(),                                // Cenný papír
+            SummaryCell.empty(),                                // Obchodník
             SummaryCell.bold("Celkem"),
             SummaryCell.bold(fmt(section.totalBrutto)),
             SummaryCell.bold(fmt(section.totalTax)),
@@ -59,11 +62,14 @@ object DividendReportPdfGenerator {
 
     private fun generateCzkSectionPdf(section: CzkDividendSection): ByteArray {
         val columns = listOf(
-            PdfColumn("Datum", 1f), PdfColumn("Brutto (Kč)", 1f), PdfColumn("Sražená daň (Kč)", 1f)
+            PdfColumn("Cenný papír", 1.8f), PdfColumn("Obchodník", 1.5f),
+            PdfColumn("Datum", 1f), PdfColumn("Brutto (Kč)", 1f), PdfColumn("Sražená daň (Kč)", 1.1f)
         )
-        val rows = section.printableDividendList.map { d -> listOf(d.date, d.brutto, d.tax) }
+        val rows = section.printableDividendList.map { d -> listOf(d.symbol, d.broker, d.date, d.brutto, d.tax) }
         val fmt = FormatingHelper::formatDouble
         val summaryRow = listOf(
+            SummaryCell.empty(),                                // Cenný papír
+            SummaryCell.empty(),                                // Obchodník
             SummaryCell.bold("Celkem"),
             SummaryCell.bold(fmt(section.totalBruttoCrown)),
             SummaryCell.bold(fmt(section.totalTaxCrown))

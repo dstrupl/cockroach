@@ -55,6 +55,8 @@ object SalesReportPreparation {
             totalAmount += sale.quantity
 
             PrintableSale(
+                symbol = sale.symbol,
+                broker = sale.broker,
                 amount = FormatingHelper.formatDouble(sale.quantity),
 
                 purchaseDate = DATE_FORMATTER.print(sale.purchaseDate),

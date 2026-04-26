@@ -1,6 +1,8 @@
 package cz.solutions.cockroach
 
 data class PrintableRsu(
+    val symbol: String,
+    val broker: String,
     val date: String,
     val amount: Int,
     val exchange: String,

@@ -7,5 +7,7 @@ data class RsuRecord(
     val quantity: Int,
     val vestFmv: Double,
     val vestDate: LocalDate,
-    val grantId: String
+    val grantId: String,
+    val symbol: String = "",
+    val broker: String = "",
 )

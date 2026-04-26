@@ -45,6 +45,8 @@ object InterestReportPreparation {
 
             printable.add(
                 PrintableInterest(
+                    interestRecord.product,
+                    interestRecord.broker,
                     DATE_FORMATTER.print(interestRecord.date),
                     FormatingHelper.formatDouble(interestRecord.amount),
                     FormatingHelper.formatExchangeRate(exchange),
@@ -65,6 +67,8 @@ object InterestReportPreparation {
             totalBruttoCrown += interestRecord.amount
             printable.add(
                 PrintableCzkInterest(
+                    interestRecord.product,
+                    interestRecord.broker,
                     DATE_FORMATTER.print(interestRecord.date),
                     FormatingHelper.formatDouble(interestRecord.amount)
                 )

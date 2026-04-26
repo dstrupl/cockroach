@@ -4,6 +4,11 @@ import java.io.File
 
 object RsuPdfParser {
 
+    private const val BROKER_NAME = "Charles Schwab & Co."
+
+    // After "Company Name (Symbol)" the symbol appears in parentheses, possibly on the next line.
+    private val SYMBOL_PATTERN = Regex("""Company Name \(Symbol\)[\s\S]*?\(([A-Z][A-Z0-9.]*)\)""")
+
     /**
      * Parses a single RSU Release Confirmation PDF and returns an RsuRecord.
      */
@@ -25,13 +30,16 @@ object RsuPdfParser {
         val sharesReleased = PdfParserUtils.extractInt(text, "Shares Released")
         val marketValuePerShare = PdfParserUtils.extractDollarAmount(text, "Market Value Per Share")
         val awardNumber = PdfParserUtils.extractString(text, "Award Number")
+        val symbol = SYMBOL_PATTERN.find(text)?.groupValues?.get(1).orEmpty()
 
         return RsuRecord(
             date = releaseDate,
             quantity = sharesReleased,
             vestFmv = marketValuePerShare,
             vestDate = releaseDate,
-            grantId = awardNumber
+            grantId = awardNumber,
+            symbol = symbol,
+            broker = BROKER_NAME
         )
     }
 }

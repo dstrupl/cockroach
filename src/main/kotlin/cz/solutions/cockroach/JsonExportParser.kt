@@ -16,6 +16,8 @@ import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import java.util.*
 
+private const val BROKER = "Charles Schwab & Co."
+
 class JsonExportParser {
 
 
@@ -41,7 +43,9 @@ class JsonExportParser {
                     it.quantity,
                     it.transactionDetails[0].details.vestFairMarketValue,
                     it.transactionDetails[0].details.vestDate,
-                    it.transactionDetails[0].details.awardId
+                    it.transactionDetails[0].details.awardId,
+                    symbol = it.symbol,
+                    broker = BROKER
                 )
             },
             export.transactions.filterIsInstance<Transaction.EsppDepositTransaction>().map {
@@ -52,13 +56,17 @@ class JsonExportParser {
                     it.transactionDetails[0].details.purchasePrice,
                     it.transactionDetails[0].details.subscriptionFairMarketValue,
                     it.transactionDetails[0].details.purchaseFairMarketValue,
-                    it.transactionDetails[0].details.purchaseDate
+                    it.transactionDetails[0].details.purchaseDate,
+                    symbol = it.symbol,
+                    broker = BROKER
                 )
             },
             export.transactions.filterIsInstance<Transaction.DividendTransaction>().map {
                 DividendRecord(
                     it.date,
-                    it.amount
+                    it.amount,
+                    symbol = it.symbol,
+                    broker = BROKER
                 )
             },
             export.transactions.filterIsInstance<Transaction.TaxWithholdingTransaction>().map {
@@ -84,7 +92,9 @@ class JsonExportParser {
                        transactionDetail.details.purchasePrice(),
                        transactionDetail.details.purchaseFmv(),
                        transactionDetail.details.purchaseDate(),
-                       transactionDetail.details.grantId()
+                       transactionDetail.details.grantId(),
+                       symbol = it.symbol,
+                       broker = BROKER
                    )
                }
 
@@ -143,7 +153,8 @@ sealed class Transaction {
         @Contextual
         override val date: LocalDate,
         @Contextual
-        val amount: Double
+        val amount: Double,
+        val symbol: String,
     ) : Transaction()
 
     @Serializable
@@ -152,6 +163,7 @@ sealed class Transaction {
         override val date: LocalDate,
         @Contextual
         val amount: Double,
+        val symbol: String,
         val transactionDetails: List<SalesTransactionDetails>
     ) : Transaction()
 
@@ -162,6 +174,7 @@ sealed class Transaction {
         override val date: LocalDate,
 
         val quantity: Int,
+        val symbol: String,
         val transactionDetails: List<EsppTransactionDetails>
 
     ) : Transaction()
@@ -172,6 +185,7 @@ sealed class Transaction {
         override val date: LocalDate,
 
         val quantity: Int,
+        val symbol: String,
         val transactionDetails: List<RsuTransactionDetails>
     ) : Transaction()
 
