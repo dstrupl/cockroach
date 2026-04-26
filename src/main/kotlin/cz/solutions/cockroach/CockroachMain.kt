@@ -3,8 +3,18 @@ package cz.solutions.cockroach
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.logging.Logger
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
+    try {
+        runCockroach(args)
+    } catch (e: IllegalArgumentException) {
+        System.err.println("Error: ${e.message}")
+        exitProcess(1)
+    }
+}
+
+private fun runCockroach(args: Array<String>) {
     if (args.size == 1 && (args[0].endsWith(".yaml") || args[0].endsWith(".yml"))) {
         val config = CockroachConfig.load(File(args[0]))
         CockroachMain.report(
@@ -23,22 +33,41 @@ fun main(args: Array<String>) {
         return
     }
     if (args.size < 3) {
-        System.err.println("Usage: cockroach <schwab-json-export> <year> <output-dir> [etrade-dir]")
-        System.err.println("       cockroach <config.yaml>")
-        System.err.println()
-        System.err.println("  schwab-json-export  Path to the Schwab JSON export file")
-        System.err.println("  year                Tax year (e.g. 2025)")
-        System.err.println("  output-dir          Directory for generated reports")
-        System.err.println("  etrade-dir          Optional E-Trade data directory with subdirs:")
-        System.err.println("                        rsu/        - RSU release confirmation PDFs")
-        System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
-        System.err.println("                        dividends/  - single dividends XLSX file")
-        System.err.println("                        sales/      - single Gain & Loss CSV file")
-        System.err.println("  config.yaml         YAML config file with year, outputDir, schwab, etrade, etradeBenefitHistory, degiro")
-        System.exit(1)
+        printUsage()
+        exitProcess(1)
     }
     val eTradeDir = if (args.size > 3) File(args[3]) else null
     CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]), eTradeDir)
+}
+
+private fun printUsage() {
+    System.err.println("Usage: cockroach <config.yaml>                                              (recommended)")
+    System.err.println("       cockroach <schwab-json-export> <year> <output-dir> [etrade-dir]     (Schwab/E-Trade only)")
+    System.err.println()
+    System.err.println("Positional CLI form (limited):")
+    System.err.println("  schwab-json-export  Path to the Schwab JSON export file")
+    System.err.println("  year                Tax year (e.g. 2025)")
+    System.err.println("  output-dir          Directory for generated reports")
+    System.err.println("  etrade-dir          Optional E-Trade data directory with subdirs:")
+    System.err.println("                        rsu/        - RSU release confirmation PDFs")
+    System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
+    System.err.println("                        dividends/  - single dividends XLSX file")
+    System.err.println("                        sales/      - single Gain & Loss CSV/XLSX file")
+    System.err.println()
+    System.err.println("YAML config form (recommended; supports every broker):")
+    System.err.println("  year:                  Tax year, e.g. 2025")
+    System.err.println("  outputDir:             Directory for generated reports")
+    System.err.println("  schwab:                Path to a Schwab JSON export (optional)")
+    System.err.println("  etrade:                Path to an E-Trade data directory (optional)")
+    System.err.println("  etradeBenefitHistory:  Path to an E-Trade benefit-history XLSX (optional)")
+    System.err.println("  degiro:                List of Degiro account-statement CSV paths (optional)")
+    System.err.println("  revolut.stocks:        List of Revolut stock statement paths (optional)")
+    System.err.println("  revolut.savings:       List of Revolut savings statement paths (optional)")
+    System.err.println("  revolut.whtRate:       Withholding-tax rate applied to Revolut dividends (optional)")
+    System.err.println("  etoro:                 List of eToro XLSX export paths (optional)")
+    System.err.println("  vub:                   List of VÚB interest-confirmation PDF paths (optional)")
+    System.err.println()
+    System.err.println("At least one broker source must be configured.")
 }
 
 object CockroachMain {
