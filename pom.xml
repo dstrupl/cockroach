@@ -13,16 +13,10 @@
         <java.short.version>17</java.short.version>
         <kotlin-serialization.version>1.7.1</kotlin-serialization.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>2.0.0</kotlin.version>
-        <kotlin.stdlib.version>1.8.22</kotlin.stdlib.version>
+        <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.stdlib.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-csv</artifactId>
