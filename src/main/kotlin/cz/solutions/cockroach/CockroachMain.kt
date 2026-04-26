@@ -99,8 +99,9 @@ object CockroachMain {
         File(outputDir, "${dollarConversionSchema}_sales_$year.pdf").writeBytes(data.getSalesPdf())
         File(outputDir, "${dollarConversionSchema}_guide_$year.html").writeText(data.getGuide(), StandardCharsets.UTF_8)
 
-        File(outputDir, "${dollarConversionSchema}_rsu_2024.pdf").writeBytes(data.getRsu2024Pdf())
-        File(outputDir, "${dollarConversionSchema}_espp_2024.pdf").writeBytes(data.getEspp2024Pdf())
+        val transitionYear = ReportGenerator.LEGISLATIVE_TRANSITION_YEAR
+        File(outputDir, "${dollarConversionSchema}_rsu_$transitionYear.pdf").writeBytes(data.getRsu2024Pdf())
+        File(outputDir, "${dollarConversionSchema}_espp_$transitionYear.pdf").writeBytes(data.getEspp2024Pdf())
     }
 
 
@@ -233,8 +234,9 @@ object CockroachMain {
             "Use dynamic Dollar conversion rate, because ${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)}<${FormatingHelper.formatDouble(profitWhenUsedFixedRate)} (diff=${FormatingHelper.formatDouble(profitWhenUsedFixedRate - profitWhenUsedDynamicRate)})"
         }
 
+        val transitionYear = ReportGenerator.LEGISLATIVE_TRANSITION_YEAR
         println("######################################################")
-        println("# Recommendation (If old legislative was used for 2024): ")
+        println("# Recommendation (If old legislative was used for $transitionYear): ")
         println("# $recommendationOldLegislativeUsedIn2024")
         println("######################################################")
         println()
@@ -254,7 +256,7 @@ object CockroachMain {
         }
 
         println("######################################################")
-        println("# Recommendation (If new legislative was used in 2024) ")
+        println("# Recommendation (If new legislative was used in $transitionYear) ")
         println("# $recomendationNewLegislativeUsed2024")
         println("######################################################")
 
