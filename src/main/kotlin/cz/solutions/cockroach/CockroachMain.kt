@@ -245,7 +245,7 @@ object CockroachMain {
             "Use fixed Dollar conversion rate  because " +
                     "${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)}+${FormatingHelper.formatDouble(profitWhenUsedFixedRate)}<=" +
                     "${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}+${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)} " +
-                    "(diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate+profitWhenUsedDynamicRate - profit2024WhenUsedFixedRate-profit2024WhenUsedDynamicRate)})"
+                    "(diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate+profitWhenUsedDynamicRate - profit2024WhenUsedFixedRate-profitWhenUsedFixedRate)})"
         } else {
             "Use dynamic Dollar conversion rate, because " +
                     "${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}+${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)}" +
