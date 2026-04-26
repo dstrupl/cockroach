@@ -56,7 +56,7 @@ class ClasspathCnbYearRatesSource : CnbYearRatesSource {
 class HttpCnbYearRatesSource(
     private val cacheDir: File,
     private val baseUrl: String = DEFAULT_BASE_URL,
-    private val safeDaysAfterYearEnd: Int = 7,
+    private val safeDaysAfterYearEnd: Int = 30,
     private val today: () -> LocalDate = { LocalDate.now() }
 ) : CnbYearRatesSource {
 
