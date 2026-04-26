@@ -44,7 +44,7 @@ private fun printUsage() {
     System.err.println("Usage: cockroach <config.yaml>                                              (recommended)")
     System.err.println("       cockroach <schwab-json-export> <year> <output-dir> [etrade-dir]     (Schwab/E-Trade only)")
     System.err.println()
-    System.err.println("Positional CLI form (limited):")
+    System.err.println("Positional CLI form (limited to E-Trade and Schwab):")
     System.err.println("  schwab-json-export  Path to the Schwab JSON export file")
     System.err.println("  year                Tax year (e.g. 2025)")
     System.err.println("  output-dir          Directory for generated reports")
@@ -54,7 +54,7 @@ private fun printUsage() {
     System.err.println("                        dividends/  - single dividends XLSX file")
     System.err.println("                        sales/      - single Gain & Loss CSV/XLSX file")
     System.err.println()
-    System.err.println("YAML config form (recommended; supports every broker):")
+    System.err.println("YAML config form (supports every broker):")
     System.err.println("  year:                  Tax year, e.g. 2025")
     System.err.println("  outputDir:             Directory for generated reports")
     System.err.println("  schwab:                Path to a Schwab JSON export (optional)")
@@ -71,7 +71,6 @@ private fun printUsage() {
 }
 
 object CockroachMain {
-    private val LOGGER = Logger.getLogger(CockroachMain::class.java.name)
 
     fun report(
         schwabExportFile: File?,
