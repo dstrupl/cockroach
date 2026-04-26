@@ -17,27 +17,37 @@ fun main(args: Array<String>) {
 private fun runCockroach(args: Array<String>) {
     if (args.size == 1 && (args[0].endsWith(".yaml") || args[0].endsWith(".yml"))) {
         val config = CockroachConfig.load(File(args[0]))
-        CockroachMain.report(
-            schwabExportFile = config.schwab?.let { File(it) },
-            year = config.year,
-            outputDir = File(config.outputDir),
-            eTradeDir = config.etrade?.let { File(it) },
-            eTradeBenefitHistoryFile = config.etradeBenefitHistory?.let { File(it) },
-            degiroFiles = config.degiro.map { File(it) },
-            revolutStocksFiles = config.revolut.stocks.map { File(it) },
-            revolutSavingsFiles = config.revolut.savings.map { File(it) },
-            revolutWhtRate = config.revolut.whtRate,
-            etoroFiles = config.etoro.map { File(it) },
-            vubFiles = config.vub.map { File(it) },
-        )
+        val sources = buildList {
+            config.schwab?.let { add(SchwabBrokerSource(File(it))) }
+            if (config.etrade != null || config.etradeBenefitHistory != null) {
+                add(ETradeBrokerSource(
+                    directory = config.etrade?.let { File(it) },
+                    benefitHistoryFile = config.etradeBenefitHistory?.let { File(it) },
+                ))
+            }
+            if (config.degiro.isNotEmpty()) add(DegiroBrokerSource(config.degiro.map { File(it) }))
+            if (config.revolut.stocks.isNotEmpty() || config.revolut.savings.isNotEmpty()) {
+                add(RevolutBrokerSource(
+                    stocksFiles = config.revolut.stocks.map { File(it) },
+                    savingsFiles = config.revolut.savings.map { File(it) },
+                    whtRate = config.revolut.whtRate,
+                ))
+            }
+            if (config.etoro.isNotEmpty()) add(EtoroBrokerSource(config.etoro.map { File(it) }))
+            if (config.vub.isNotEmpty()) add(VubBrokerSource(config.vub.map { File(it) }, year = config.year))
+        }
+        CockroachMain.report(config.year, File(config.outputDir), sources)
         return
     }
     if (args.size < 3) {
         printUsage()
         exitProcess(1)
     }
-    val eTradeDir = if (args.size > 3) File(args[3]) else null
-    CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]), eTradeDir)
+    val sources = buildList {
+        add(SchwabBrokerSource(File(args[0])))
+        if (args.size > 3) add(ETradeBrokerSource(directory = File(args[3])))
+    }
+    CockroachMain.report(args[1].toInt(), File(args[2]), sources)
 }
 
 private fun printUsage() {
@@ -72,35 +82,13 @@ private fun printUsage() {
 
 object CockroachMain {
 
-    fun report(
-        schwabExportFile: File?,
-        year: Int,
-        outputDir: File,
-        eTradeDir: File? = null,
-        eTradeBenefitHistoryFile: File? = null,
-        degiroFiles: List<File> = emptyList(),
-        revolutStocksFiles: List<File> = emptyList(),
-        revolutSavingsFiles: List<File> = emptyList(),
-        revolutWhtRate: Double = RevolutParser.DEFAULT_WHT_RATE,
-        etoroFiles: List<File> = emptyList(),
-        vubFiles: List<File> = emptyList()
-    ) {
-        val schwabExport = schwabExportFile?.let { parseExportFile(it) } ?: ParsedExport.empty()
-        val eTradeExport = if (eTradeDir != null || eTradeBenefitHistoryFile != null) {
-            parseETradeDir(eTradeDir, eTradeBenefitHistoryFile)
-        } else ParsedExport.empty()
-        val degiroExport = degiroFiles.map { parseDegiroFile(it) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val revolutStocksExport = revolutStocksFiles.map { parseRevolutStocksFile(it, revolutWhtRate) }
-            .fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val revolutSavingsExport = revolutSavingsFiles.map { parseRevolutSavingsFile(it) }
-            .fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val etoroExport = etoroFiles.map { parseEtoroFile(it) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val vubExport = vubFiles.map { parseVubFile(it, year) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val parsedExport = schwabExport + eTradeExport + degiroExport +
-            revolutStocksExport + revolutSavingsExport + etoroExport + vubExport
-        require(parsedExport != ParsedExport.empty()) {
+    fun report(year: Int, outputDir: File, sources: List<BrokerSource>) {
+        require(sources.isNotEmpty()) {
             "No input sources provided. Specify at least one of: schwab, etrade, degiro, revolut, etoro, vub."
         }
+        val parsedExport = sources
+            .map { it.parse() }
+            .fold(ParsedExport.empty()) { acc, e -> acc + e }
         val dailyRateProvider = TabularExchangeRateProvider.fromSource(
             HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir()),
             (year - 1)..year
@@ -133,121 +121,6 @@ object CockroachMain {
     }
 
 
-
-    private fun parseExportFile(schwabExportFile: File): ParsedExport {
-        return if (schwabExportFile.extension == "json") {
-            JsonExportParser().parse(load(schwabExportFile))
-        } else {
-            throw IllegalArgumentException("only .json files are supported")
-        }
-    }
-
-    private fun parseDegiroFile(file: File): ParsedExport {
-        val result = DegiroAccountStatementParser.parse(file)
-        return ParsedExport(
-            rsuRecords = emptyList(),
-            esppRecords = emptyList(),
-            dividendRecords = result.dividendRecords,
-            taxRecords = result.taxRecords,
-            taxReversalRecords = emptyList(),
-            saleRecords = emptyList(),
-            journalRecords = emptyList()
-        )
-    }
-
-    private fun parseRevolutStocksFile(file: File, whtRate: Double): ParsedExport {
-        val result = RevolutParser.parseStocks(file, whtRate)
-        return ParsedExport(
-            rsuRecords = emptyList(),
-            esppRecords = emptyList(),
-            dividendRecords = result.dividendRecords,
-            taxRecords = result.taxRecords,
-            taxReversalRecords = emptyList(),
-            saleRecords = emptyList(),
-            journalRecords = emptyList()
-        )
-    }
-
-    private fun parseRevolutSavingsFile(file: File): ParsedExport {
-        val result = RevolutParser.parseSavings(file)
-        return ParsedExport(
-            rsuRecords = emptyList(),
-            esppRecords = emptyList(),
-            dividendRecords = emptyList(),
-            taxRecords = emptyList(),
-            taxReversalRecords = emptyList(),
-            saleRecords = emptyList(),
-            journalRecords = emptyList(),
-            interestRecords = result.interestRecords
-        )
-    }
-
-    private fun parseEtoroFile(file: File): ParsedExport {
-        val result = EtoroXlsxParser.parse(file)
-        return ParsedExport(
-            rsuRecords = emptyList(),
-            esppRecords = emptyList(),
-            dividendRecords = result.dividendRecords,
-            taxRecords = result.taxRecords,
-            taxReversalRecords = emptyList(),
-            saleRecords = emptyList(),
-            journalRecords = emptyList()
-        )
-    }
-
-    private fun parseVubFile(file: File, year: Int): ParsedExport {
-        val interestRecords = VubInterestPdfParser.parse(file, year)
-        return ParsedExport(
-            rsuRecords = emptyList(),
-            esppRecords = emptyList(),
-            dividendRecords = emptyList(),
-            taxRecords = emptyList(),
-            taxReversalRecords = emptyList(),
-            saleRecords = emptyList(),
-            journalRecords = emptyList(),
-            interestRecords = interestRecords
-        )
-    }
-
-    private fun parseETradeDir(eTradeDir: File?, benefitHistoryFile: File? = null): ParsedExport {
-        val benefitHistory = benefitHistoryFile?.let { ETradeBenefitHistoryParser.parse(it) }
-        val rsuRecords = benefitHistory?.rsuRecords
-            ?: eTradeDir?.let { RsuPdfParser.parseDirectory(File(it, "rsu")) }
-            ?: emptyList()
-        val esppRecords = benefitHistory?.esppRecords
-            ?: eTradeDir?.let { EsppPdfParser.parseDirectory(File(it, "espp")) }
-            ?: emptyList()
-        val dividentXlsFile = eTradeDir?.let { locateSingleFile(File(it, "dividends"), "xlsx") }
-        val dividendXlsxResult = dividentXlsFile?.let {  DividendXlsxParser.parse(it)}
-        val eTradeXlsFile = eTradeDir?.let { locateSingleFile(File(it, "sales"), "xlsx") }
-        val eTradeCsvFile = eTradeDir?.let { locateSingleFile(File(it, "sales"), "csv") }
-
-        return ParsedExport(
-            rsuRecords = rsuRecords,
-            esppRecords = esppRecords,
-            saleRecords = eTradeXlsFile?.let { ETradeGainLossXlsParser.parse(it)}
-                ?:eTradeCsvFile?.let { ETradeGainLossParser.parse(load(it))}
-                ?: emptyList(),
-            dividendRecords = dividendXlsxResult?.dividendRecords?: emptyList(),
-            taxRecords = dividendXlsxResult?.taxRecords?:emptyList(),
-            taxReversalRecords = emptyList(),
-            journalRecords = emptyList()
-        )
-    }
-
-    private fun locateSingleFile(directory: File, extension: String): File? {
-        if (!directory.exists()){
-            return null
-        }
-        require(directory.isDirectory) { "${directory.absolutePath} is not a directory" }
-        val files = directory.listFiles { file -> !file.isHidden  && !file.name.startsWith("~")  && !file.name.startsWith(".") && file.extension.equals(extension, ignoreCase = true) }
-            ?.toList() ?: emptyList()
-        require(files.size <= 1) {
-            if (files.isEmpty()) "No .$extension file found in ${directory.absolutePath}"
-            else "Expected max one .$extension file in ${directory.absolutePath}, but found ${files.size}: ${files.map { it.name }}"
-        }
-        return files.firstOrNull()
-    }
 
     private fun recommendBetterAlternative(fixedRateReport: Report, dynamicRateReport: Report) {
         val profitWhenUsedFixedRate = fixedRateReport.rsuAndEsppAndSalesProfitCroneValue()
@@ -288,13 +161,5 @@ object CockroachMain {
         println("# $recomendationNewLegislativeUsed2024")
         println("######################################################")
 
-    }
-
-    fun load(file: File): String {
-        return try {
-            file.readText(StandardCharsets.UTF_8)
-        } catch (e: Exception) {
-            throw RuntimeException("Could not load file ${file.absolutePath}", e)
-        }
     }
 }
