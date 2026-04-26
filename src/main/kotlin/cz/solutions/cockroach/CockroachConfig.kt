@@ -2,6 +2,7 @@ package cz.solutions.cockroach
 
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import java.io.File
 
 @Serializable
@@ -18,3 +19,10 @@ data class CockroachConfig(
         }
     }
 }
+
+@Serializable
+data class RevolutConfig(
+    val whtRate: Double = RevolutParser.DEFAULT_WHT_RATE,
+    val stocks: List<String> = emptyList(),
+    val savings: List<String> = emptyList()
+)

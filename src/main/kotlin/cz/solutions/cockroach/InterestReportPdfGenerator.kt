@@ -1,0 +1,80 @@
+package cz.solutions.cockroach
+
+import org.apache.pdfbox.io.IOUtils
+import org.apache.pdfbox.io.RandomAccessReadBuffer
+import org.apache.pdfbox.multipdf.PDFMergerUtility
+import java.io.ByteArrayOutputStream
+
+object InterestReportPdfGenerator {
+
+    fun generate(report: InterestReport): ByteArray {
+        val pdfs = mutableListOf<ByteArray>()
+        for (section in report.sections) {
+            pdfs.add(generateCurrencySectionPdf(section))
+        }
+        report.czkSection?.let { pdfs.add(generateCzkSectionPdf(it)) }
+
+        if (pdfs.isEmpty()) {
+            return PdfReportGenerator.generate(PdfReportDefinition(
+                title = "Úroky (§8) – rozpis",
+                subtitles = listOf("Žádné úrokové příjmy v daném období."),
+                columns = listOf(PdfColumn("Datum", 1f)),
+                rows = emptyList(),
+                landscape = false
+            ))
+        }
+        if (pdfs.size == 1) return pdfs[0]
+        return mergePdfs(pdfs)
+    }
+
+    private fun generateCurrencySectionPdf(section: CurrencyInterestSection): ByteArray {
+        val cur = section.currency.name
+        val columns = listOf(
+            PdfColumn("Datum", 1f), PdfColumn("Brutto ($cur)", 1f),
+            PdfColumn("Kurz (Kč/$cur)", 1f), PdfColumn("Brutto (Kč)", 1f)
+        )
+        val rows = section.printableInterestList.map { i ->
+            listOf(i.date, i.brutto, i.exchange, i.bruttoCrown)
+        }
+        val fmt = FormatingHelper::formatDouble
+        val summaryRow = listOf(
+            SummaryCell.bold("Celkem"),
+            SummaryCell.bold(fmt(section.totalBrutto)),
+            SummaryCell.empty(),
+            SummaryCell.bold(fmt(section.totalBruttoCrown))
+        )
+        return PdfReportGenerator.generate(PdfReportDefinition(
+            title = "Úroky (§8) – rozpis – $cur",
+            subtitles = listOf("Měna zdroje: $cur"),
+            columns = columns, rows = rows, summaryRow = summaryRow,
+            landscape = false
+        ))
+    }
+
+    private fun generateCzkSectionPdf(section: CzkInterestSection): ByteArray {
+        val columns = listOf(
+            PdfColumn("Datum", 1f), PdfColumn("Brutto (Kč)", 1f)
+        )
+        val rows = section.printableInterestList.map { i -> listOf(i.date, i.brutto) }
+        val fmt = FormatingHelper::formatDouble
+        val summaryRow = listOf(
+            SummaryCell.bold("Celkem"),
+            SummaryCell.bold(fmt(section.totalBruttoCrown))
+        )
+        return PdfReportGenerator.generate(PdfReportDefinition(
+            title = "Úroky ze zdrojů v ČR – rozpis",
+            subtitles = listOf("Měna zdroje: CZK"),
+            columns = columns, rows = rows, summaryRow = summaryRow,
+            landscape = false
+        ))
+    }
+
+    private fun mergePdfs(pdfs: List<ByteArray>): ByteArray {
+        val merger = PDFMergerUtility()
+        val out = ByteArrayOutputStream()
+        merger.destinationStream = out
+        for (pdf in pdfs) merger.addSource(RandomAccessReadBuffer(pdf))
+        merger.mergeDocuments(IOUtils.createMemoryOnlyStreamCache())
+        return out.toByteArray()
+    }
+}

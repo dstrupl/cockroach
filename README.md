@@ -1,12 +1,14 @@
 # Cockroach will help you with your taxes
 
 This small utility is for people using [Charles Schwab brokerage](https://www.schwab.com/),
-[E-Trade](https://www.etrade.com/) and/or [Degiro](https://www.degiro.com/) services in the
+[E-Trade](https://www.etrade.com/), [Degiro](https://www.degiro.com/) and/or
+[Revolut](https://www.revolut.com/) services in the
 [Czech Republic](https://en.wikipedia.org/wiki/Czech_Republic).
 
 The program reads the Schwab JSON export of your stock transactions, optionally an E-Trade Gain and Loss
-XLSX/CSV export, and optionally a Degiro account statement (`.xls`), then creates a summary of your sales,
-purchases and dividends for the tax year.
+XLSX/CSV export, optionally a Degiro account statement (`.xls`), and optionally Revolut Stocks and
+Flexible Cash Funds CSV statements, then creates a summary of your sales, purchases and dividends for
+the tax year.
 
 All input files referenced in this README (and the YAML config) are assumed to live under the
 `input/` folder at the repository root (which is git-ignored). See the [Input layout](#input-layout)
@@ -99,6 +101,52 @@ Notes:
 - All currencies present in the file (USD, EUR, CZK, ...) are handled; the daily CNB rate
   for the value date is used for FX conversion.
 
+# Obtaining Revolut statements
+
+Revolut does not expose a public API for personal accounts, so the CSV exports from the app
+are the only data source. There are two relevant statements:
+
+## Revolut Stocks (dividends)
+
+1.  In the Revolut app, open **Stocks → ⋯ (More) → Statement**.
+
+2.  Choose **Excel (CSV)** format and the relevant date range (the tax year, with a few days
+    of overlap is safe).
+
+3.  Save the file into `input/revolut/` (e.g.
+    `input/revolut/trading-account-statement_2025-01-01_2025-12-31_en-us_<hash>.csv`).
+
+Notes:
+- Only `DIVIDEND` rows are processed; `BUY`, `SELL`, `CASH WITHDRAWAL` are ignored.
+- **Withholding tax is not reported on the statement.** Revolut deducts US WHT at source and
+  reports only the *net* amount that landed in your account. The parser therefore performs a
+  mathematical *gross-up*: `gross = net / (1 - whtRate)` (default `whtRate = 0.15`, the US/CZ
+  treaty rate when a W-8BEN is on file, which Revolut signs for you automatically). The
+  computed WHT is emitted as a tax credit so your CZ tax return matches what was actually
+  withheld. If your treaty rate differs, override `revolut.whtRate` in the YAML.
+- `DIVIDEND TAX (CORRECTION)` rows always come in cancelling pairs (a debit and an immediate
+  credit of the same magnitude); they are summed and ignored, with a log line confirming the
+  net is zero.
+
+## Revolut Flexible Cash Funds (interest)
+
+1.  In the Revolut app, open **Savings → Flexible Cash Funds → Statement**.
+
+2.  Choose **Excel (CSV)** format and the relevant date range. Export *one statement per
+    currency* (e.g. one for the USD fund and one for the EUR fund).
+
+3.  Save the files into `input/revolut/` (e.g.
+    `input/revolut/savings-statement_2025-01-01_2025-12-31_en-us_<hash>.csv`).
+
+Notes:
+- Only `Interest PAID` rows are taken as gross §8 *interest on non-equity securities*
+  income. `Interest Reinvested`, `BUY`, and `SELL` rows are ignored (no §10 capital-gain
+  calculation is performed).
+- `Service Fee Charged` rows are logged for transparency only — per Revolut's CZ tax
+  guidance these fees are *not* deductible from the §8 interest base.
+- Each statement is a single-currency file; the currency is auto-detected from the
+  `Value, <CCY>` column header.
+
 # Input layout
 
 All inputs (broker exports and the YAML config) live under `input/`. A typical layout is:
@@ -108,11 +156,15 @@ input/
 ├── config.yaml
 ├── schwab-export.json              # Schwab JSON export
 ├── Accounts_Degiro.xls             # Degiro account statement
-└── etrade/                         # E-Trade data directory
-    ├── rsu/         *.pdf          # RSU release confirmations
-    ├── espp/        *.pdf          # ESPP purchase confirmations
-    ├── dividends/   *.xlsx         # single dividends export
-    └── sales/       *.xlsx         # single Gain & Loss export
+├── BenefitHistory.xlsx             # E-Trade Benefit History export (RSU + ESPP, optional alternative to etrade/rsu + etrade/espp)
+├── etrade/                         # E-Trade data directory
+│   ├── rsu/         *.pdf          # RSU release confirmations (skipped when etradeBenefitHistory is configured)
+│   ├── espp/        *.pdf          # ESPP purchase confirmations (skipped when etradeBenefitHistory is configured)
+│   ├── dividends/   *.xlsx         # single dividends export
+│   └── sales/       *.xlsx         # single Gain & Loss export
+└── revolut/                        # Revolut CSV statements
+    ├── trading-account-statement_*.csv   # Stocks (dividends)
+    └── savings-statement_*.csv           # Flexible Cash Funds (one per currency)
 ```
 
 Each broker is optional; include only what applies to you.
@@ -132,14 +184,21 @@ schwab: ./input/schwab-export.json    # optional
 etrade: ./input/etrade                # optional, layout shown above
 etradeBenefitHistory: ./input/BenefitHistory.xlsx   # optional; alternative to etrade/rsu + etrade/espp
 degiro:                               # optional, list of Degiro .xls files
-  - ./input/Accounts_Degiro_2024.xls
+  - ./input/Accounts_Degiro_2025.xls
+revolut:                              # optional Revolut block
+  whtRate: 0.15                       # US/CZ treaty rate; override only if yours differs
+  stocks:                             # list of Revolut Stocks CSV statements
+    - ./input/revolut/trading-account-statement_2024-01-01_2024-12-31_en-us_xxxxxx.csv
+  savings:                            # list of Flexible Cash Funds CSV statements (one per currency)
+    - ./input/revolut/savings-statement_2024-01-01_2024-12-31_en-us_USD_xxxxxx.csv
+    - ./input/revolut/savings-statement_2024-01-01_2024-12-31_en-us_EUR_xxxxxx.csv
 ```
 
 ```
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/config.yaml
 ```
 
-At least one of `schwab`, `etrade`, `degiro` must be present.
+At least one of `schwab`, `etrade`, `degiro`, `revolut.stocks`, `revolut.savings` must be present.
 
 ## Positional arguments (legacy, Schwab + E-Trade only)
 
@@ -171,7 +230,7 @@ With E-Trade data:
 
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/schwab-export.json 2025 ./output input/etrade
 
-With YAML config (Schwab and/or E-Trade and/or Degiro):
+With YAML config (Schwab and/or E-Trade and/or Degiro and/or Revolut):
 
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/config.yaml
 

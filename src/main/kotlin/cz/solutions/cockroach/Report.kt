@@ -14,6 +14,7 @@ class Report(
     private val salesReport: SalesReport,
     private val esppReport2024: EsppReport,
     private val rsuReport2024: RsuReport,
+    private val interestReport: InterestReport,
 
 ) {
     private val guideTemplate = TemplateEngine(ReportGenerator::class.java, TemplateHelpers::class.java).load("guide.html.hbs")
@@ -23,6 +24,8 @@ class Report(
     fun getRsu2024Pdf(): ByteArray = RsuReportPdfGenerator.generate(rsuReport2024, taxableMode = true, broker = "Charles Schwab & Co.")
 
     fun getDividendPdf(): ByteArray = DividendReportPdfGenerator.generate(dividendReport)
+
+    fun getInterestPdf(): ByteArray = InterestReportPdfGenerator.generate(interestReport)
 
     fun getEsppPdf(): ByteArray = EsppReportPdfGenerator.generate(esppReport)
 
@@ -52,8 +55,11 @@ class Report(
             "dividendCroneValue" to FormatingHelper.formatRounded(dividendReport.totalNonCzkBruttoCrown),
             "dividendPayedTaxCroneValue" to FormatingHelper.formatRounded(-dividendReport.totalNonCzkTaxCrown)
         )
+        val interestVars = mapOf(
+            "interestCroneValue" to FormatingHelper.formatRounded(interestReport.totalBruttoCrown)
+        )
 
-        val variables = rsuAndEsppVars + salesVars + dividentVars
+        val variables = rsuAndEsppVars + salesVars + dividentVars + interestVars
 
         return render(guideTemplate, variables)
     }

@@ -13,6 +13,10 @@ fun main(args: Array<String>) {
             outputDir = File(config.outputDir),
             eTradeDir = config.etrade?.let { File(it) },
             degiroFiles = config.degiro.map { File(it) }
+            degiroFiles = config.degiro.map { File(it) },
+            revolutStocksFiles = config.revolut.stocks.map { File(it) },
+            revolutSavingsFiles = config.revolut.savings.map { File(it) },
+            revolutWhtRate = config.revolut.whtRate,
         )
         return
     }
@@ -28,7 +32,7 @@ fun main(args: Array<String>) {
         System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
         System.err.println("                        dividends/  - single dividends XLSX file")
         System.err.println("                        sales/      - single Gain & Loss CSV file")
-        System.err.println("  config.yaml         YAML config file with year, outputDir, schwab, etrade, degiro")
+        System.err.println("  config.yaml         YAML config file with year, outputDir, schwab, etrade, etradeBenefitHistory, degiro")
         System.exit(1)
     }
     val eTradeDir = if (args.size > 3) File(args[3]) else null
@@ -48,13 +52,17 @@ object CockroachMain {
         val schwabExport = schwabExportFile?.let { parseExportFile(it) } ?: ParsedExport.empty()
         val eTradeExport = eTradeDir?.let { parseETradeDir(it) } ?: ParsedExport.empty()
         val degiroExport = degiroFiles.map { parseDegiroFile(it) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
-        val parsedExport = schwabExport + eTradeExport + degiroExport
+        val revolutStocksExport = revolutStocksFiles.map { parseRevolutStocksFile(it, revolutWhtRate) }
+            .fold(ParsedExport.empty()) { acc, e -> acc + e }
+        val revolutSavingsExport = revolutSavingsFiles.map { parseRevolutSavingsFile(it) }
+            .fold(ParsedExport.empty()) { acc, e -> acc + e }
+        val parsedExport = schwabExport + eTradeExport + degiroExport + revolutStocksExport + revolutSavingsExport
         require(parsedExport != ParsedExport.empty()) {
-            "No input sources provided. Specify at least one of: schwab, etrade, degiro."
+            "No input sources provided. Specify at least one of: schwab, etrade, degiro, revolut."
         }
         val dailyRateProvider = TabularExchangeRateProvider.fromSource(
             HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir()),
-            year..year
+            (year - 1)..year
         )
         val fixedRateReport = ReportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded())
         val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, dailyRateProvider)
@@ -72,6 +80,7 @@ object CockroachMain {
 
     private fun reportOneVariant(year: Int, outputDir: File, data: Report, dollarConversionSchema: String) {
         File(outputDir, "${dollarConversionSchema}_dividend_$year.pdf").writeBytes(data.getDividendPdf())
+        File(outputDir, "${dollarConversionSchema}_interest_$year.pdf").writeBytes(data.getInterestPdf())
         File(outputDir, "${dollarConversionSchema}_rsu_$year.pdf").writeBytes(data.getRsuPdf())
         File(outputDir, "${dollarConversionSchema}_espp_$year.pdf").writeBytes(data.getEsppPdf())
         File(outputDir, "${dollarConversionSchema}_sales_$year.pdf").writeBytes(data.getSalesPdf())
@@ -104,13 +113,45 @@ object CockroachMain {
         )
     }
 
-    private fun parseETradeDir(eTradeDir: File): ParsedExport {
-        val rsuRecords = RsuPdfParser.parseDirectory(File(eTradeDir, "rsu"))
-        val esppRecords = EsppPdfParser.parseDirectory(File(eTradeDir, "espp"))
-        val dividentXlsFile = locateSingleFile(File(eTradeDir, "dividends"), "xlsx")
+    private fun parseRevolutStocksFile(file: File, whtRate: Double): ParsedExport {
+        val result = RevolutParser.parseStocks(file, whtRate)
+        return ParsedExport(
+            rsuRecords = emptyList(),
+            esppRecords = emptyList(),
+            dividendRecords = result.dividendRecords,
+            taxRecords = result.taxRecords,
+            taxReversalRecords = emptyList(),
+            saleRecords = emptyList(),
+            journalRecords = emptyList()
+        )
+    }
+
+    private fun parseRevolutSavingsFile(file: File): ParsedExport {
+        val result = RevolutParser.parseSavings(file)
+        return ParsedExport(
+            rsuRecords = emptyList(),
+            esppRecords = emptyList(),
+            dividendRecords = emptyList(),
+            taxRecords = emptyList(),
+            taxReversalRecords = emptyList(),
+            saleRecords = emptyList(),
+            journalRecords = emptyList(),
+            interestRecords = result.interestRecords
+        )
+    }
+
+    private fun parseETradeDir(eTradeDir: File?, benefitHistoryFile: File? = null): ParsedExport {
+        val benefitHistory = benefitHistoryFile?.let { ETradeBenefitHistoryParser.parse(it) }
+        val rsuRecords = benefitHistory?.rsuRecords
+            ?: eTradeDir?.let { RsuPdfParser.parseDirectory(File(it, "rsu")) }
+            ?: emptyList()
+        val esppRecords = benefitHistory?.esppRecords
+            ?: eTradeDir?.let { EsppPdfParser.parseDirectory(File(it, "espp")) }
+            ?: emptyList()
+        val dividentXlsFile = eTradeDir?.let { locateSingleFile(File(it, "dividends"), "xlsx") }
         val dividendXlsxResult = dividentXlsFile?.let {  DividendXlsxParser.parse(it)}
-        val eTradeXlsFile = locateSingleFile(File(eTradeDir, "sales"), "xlsx")
-        val eTradeCsvFile = locateSingleFile(File(eTradeDir, "sales"), "csv")
+        val eTradeXlsFile = eTradeDir?.let { locateSingleFile(File(it, "sales"), "xlsx") }
+        val eTradeCsvFile = eTradeDir?.let { locateSingleFile(File(it, "sales"), "csv") }
 
         return ParsedExport(
             rsuRecords = rsuRecords,

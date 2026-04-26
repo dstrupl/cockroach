@@ -19,6 +19,11 @@ object ReportGenerator {
                 interval,
                 exchangeRateProvider
             ),
+            interestReport = InterestReportPreparation.generateInterestReport(
+                parsedExport.interestRecords,
+                interval,
+                exchangeRateProvider
+            ),
             esppReport = EsppReportPreparation.generateEsppReport(
                 parsedExport.esppRecords,
                 parsedExport.saleRecords,
