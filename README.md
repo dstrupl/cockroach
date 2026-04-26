@@ -1,14 +1,16 @@
 # Cockroach will help you with your taxes
 
 This small utility is for people using [Charles Schwab brokerage](https://www.schwab.com/),
-[E-Trade](https://www.etrade.com/), [Degiro](https://www.degiro.com/) and/or
-[Revolut](https://www.revolut.com/) services in the
+[E-Trade](https://www.etrade.com/), [Degiro](https://www.degiro.com/),
+[Revolut](https://www.revolut.com/), [eToro](https://www.etoro.com/) and/or
+[VÚB](https://www.vub.sk/) services in the
 [Czech Republic](https://en.wikipedia.org/wiki/Czech_Republic).
 
 The program reads the Schwab JSON export of your stock transactions, optionally an E-Trade Gain and Loss
-XLSX/CSV export, optionally a Degiro account statement (`.xls`), and optionally Revolut Stocks and
-Flexible Cash Funds CSV statements, then creates a summary of your sales, purchases and dividends for
-the tax year.
+XLSX/CSV export, optionally a Degiro account statement (`.xls`), optionally Revolut Stocks and
+Flexible Cash Funds CSV statements, optionally an eToro account-statement XLSX, and optionally one or
+more VÚB CZK account-statement PDFs, then creates a summary of your sales, purchases, dividends and
+interest for the tax year.
 
 All input files referenced in this README (and the YAML config) are assumed to live under the
 `input/` folder at the repository root (which is git-ignored). See the [Input layout](#input-layout)
@@ -147,6 +149,51 @@ Notes:
 - Each statement is a single-currency file; the currency is auto-detected from the
   `Value, <CCY>` column header.
 
+# Obtaining eToro account statement
+
+1.  Log in to the [eToro web platform](https://www.etoro.com/) and open
+    **Portfolio → ⚙ (Settings) → Account → Account Statement**.
+
+2.  Set the date range to cover the relevant tax year (overlap of a few days at both ends is
+    safe; only rows whose payment date falls inside the requested year contribute to the
+    report).
+
+3.  Select dates for the whole last year and then export as **XLSX** (Excel) and save the file 
+    into `input/etoro/` (e.g.`input/etoro/etoro-account-statement-2025.xlsx`).
+
+Notes:
+- Only the **Dividends** sheet is read. The parser converts each row into a gross
+  `DividendRecord` (= net + WHT) and a matching negative `TaxRecord` (= -WHT).
+- Amounts on the eToro Dividends sheet are reported in **USD**; daily CNB USD/CZK rates
+  are used for FX conversion.
+- The dividends sheet does not expose ISIN, so every eToro dividend is currently
+  classified as **US-source**. Non-US tickers (e.g. `VOD.L`) would be misclassified — if
+  you trade those on eToro, treat the resulting Příloha č. 3 numbers with care.
+- Rows whose gross amount is non-positive are skipped with a warning on stdout.
+
+# Obtaining VÚB account statement
+
+[VÚB](https://www.vub.sk/) is used here only as a source of **CZK credit interest** on a
+regular bank account. The bank does not expose an export, so the official monthly /
+yearly account-statement PDFs are the only data source.
+
+1.  Log in to VÚB Internet Banking and download the account statements that cover the
+    relevant tax year for your **CZK** account.
+
+2.  Save the PDFs into `input/vub/` (e.g. `input/vub/SK1234567890123456789012_2025.pdf`).
+    The IBAN in the file name (or in the statement body) is used as the *Product*
+    identifier on the interest report.
+
+Notes:
+- Only **CZK** statements are accepted; the parser fails fast on non-CZK files
+  (`Currency: CZK` must appear in the statement header).
+- Only `Credit interest` (English) and `Úroky pripísané` (Slovak) postings whose
+  reference matches the `NNNNIGNNNN…` pattern are taken as gross §8 interest income.
+  Non-standard rows are skipped with a warning on stdout.
+- VÚB does not show withholding tax on the statement; the resulting `InterestRecord`s
+  carry `tax = 0`. The country is set to `SK`, so these payments correctly land on
+  Příloha č. 3 (foreign-source interest), not on the Czech "konečné zdanění" page.
+
 # Input layout
 
 All inputs (broker exports and the YAML config) live under `input/`. A typical layout is:
@@ -162,9 +209,13 @@ input/
 │   ├── espp/        *.pdf          # ESPP purchase confirmations (skipped when etradeBenefitHistory is configured)
 │   ├── dividends/   *.xlsx         # single dividends export
 │   └── sales/       *.xlsx         # single Gain & Loss export
-└── revolut/                        # Revolut CSV statements
-    ├── trading-account-statement_*.csv   # Stocks (dividends)
-    └── savings-statement_*.csv           # Flexible Cash Funds (one per currency)
+├── revolut/                        # Revolut CSV statements
+│   ├── trading-account-statement_*.csv   # Stocks (dividends)
+│   └── savings-statement_*.csv           # Flexible Cash Funds (one per currency)
+├── etoro/                          # eToro account-statement XLSX files
+│   └── etoro-account-statement-*.xlsx
+└── vub/                            # VÚB CZK account-statement PDFs
+    └── SK*_*.pdf
 ```
 
 Each broker is optional; include only what applies to you.
@@ -192,13 +243,17 @@ revolut:                              # optional Revolut block
   savings:                            # list of Flexible Cash Funds CSV statements (one per currency)
     - ./input/revolut/savings-statement_2024-01-01_2024-12-31_en-us_USD_xxxxxx.csv
     - ./input/revolut/savings-statement_2024-01-01_2024-12-31_en-us_EUR_xxxxxx.csv
+etoro:                                # optional, list of eToro account-statement .xlsx files
+  - ./input/etoro/etoro-account-statement-2025.xlsx
+vub:                                  # optional, list of VÚB CZK account-statement .pdf files
+  - ./input/vub/SK1234567890123456789012_2025.pdf
 ```
 
 ```
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/config.yaml
 ```
 
-At least one of `schwab`, `etrade`, `degiro`, `revolut.stocks`, `revolut.savings` must be present.
+At least one of `schwab`, `etrade`, `degiro`, `revolut.stocks`, `revolut.savings`, `etoro`, `vub` must be present.
 
 ## Positional arguments (legacy, Schwab + E-Trade only)
 
@@ -230,7 +285,7 @@ With E-Trade data:
 
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/schwab-export.json 2025 ./output input/etrade
 
-With YAML config (Schwab and/or E-Trade and/or Degiro and/or Revolut):
+With YAML config (Schwab and/or E-Trade and/or Degiro and/or Revolut and/or eToro and/or VÚB):
 
 java -jar target/cockroach-0.3-SNAPSHOT.jar input/config.yaml
 
