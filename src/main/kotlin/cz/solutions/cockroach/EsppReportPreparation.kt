@@ -38,7 +38,7 @@ object EsppReportPreparation {
     }
 
     private fun withConvertedPrices(espp: EsppRecord, soldAmount: Double, taxableAmount: Double, exchangeRateProvider: ExchangeRateProvider): EsppInfo {
-        val exchange = exchangeRateProvider.rateAt(espp.purchaseDate)
+        val exchange = exchangeRateProvider.rateAt(espp.purchaseDate, Currency.USD)
         val partialProfit = espp.purchaseFmv - espp.purchasePrice
 
         return EsppInfo(

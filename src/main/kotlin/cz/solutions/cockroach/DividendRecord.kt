@@ -4,5 +4,6 @@ import org.joda.time.LocalDate
 
 data class DividendRecord(
     val date: LocalDate,
-    val amount: Double
+    val amount: Double,
+    val currency: Currency = Currency.USD
 )

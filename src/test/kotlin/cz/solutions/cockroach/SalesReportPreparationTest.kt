@@ -33,7 +33,7 @@ class SalesReportPreparationTest {
                 )
             ),
             DateInterval.year(2021),
-            YearConstantExchangeRateProvider(mapOf(
+            YearConstantExchangeRateProvider.usdOnly(mapOf(
                 2017 to 10.0,
                 2018 to 10.0,
                 2019 to 10.0,
@@ -71,7 +71,7 @@ class SalesReportPreparationTest {
                 )
             ),
             DateInterval.year(2021),
-            YearConstantExchangeRateProvider(mapOf(
+            YearConstantExchangeRateProvider.usdOnly(mapOf(
                 2021 to 10.0,
                 2020 to 10.0
             ))

@@ -3,3 +3,5 @@
 /.idea/
 /.claude/
 comparison_workdir/
+/input/
+/output/

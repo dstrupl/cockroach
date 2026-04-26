@@ -5,8 +5,20 @@ import java.nio.charset.StandardCharsets
 import java.util.logging.Logger
 
 fun main(args: Array<String>) {
+    if (args.size == 1 && (args[0].endsWith(".yaml") || args[0].endsWith(".yml"))) {
+        val config = CockroachConfig.load(File(args[0]))
+        CockroachMain.report(
+            schwabExportFile = config.schwab?.let { File(it) },
+            year = config.year,
+            outputDir = File(config.outputDir),
+            eTradeDir = config.etrade?.let { File(it) },
+            degiroFiles = config.degiro.map { File(it) }
+        )
+        return
+    }
     if (args.size < 3) {
         System.err.println("Usage: cockroach <schwab-json-export> <year> <output-dir> [etrade-dir]")
+        System.err.println("       cockroach <config.yaml>")
         System.err.println()
         System.err.println("  schwab-json-export  Path to the Schwab JSON export file")
         System.err.println("  year                Tax year (e.g. 2025)")
@@ -16,6 +28,7 @@ fun main(args: Array<String>) {
         System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
         System.err.println("                        dividends/  - single dividends XLSX file")
         System.err.println("                        sales/      - single Gain & Loss CSV file")
+        System.err.println("  config.yaml         YAML config file with year, outputDir, schwab, etrade, degiro")
         System.exit(1)
     }
     val eTradeDir = if (args.size > 3) File(args[3]) else null
@@ -25,12 +38,26 @@ fun main(args: Array<String>) {
 object CockroachMain {
     private val LOGGER = Logger.getLogger(CockroachMain::class.java.name)
 
-    fun report(schwabExportFile: File, year: Int, outputDir: File, eTradeDir: File? = null) {
-        val schwabExport = parseExportFile(schwabExportFile)
+    fun report(
+        schwabExportFile: File?,
+        year: Int,
+        outputDir: File,
+        eTradeDir: File? = null,
+        degiroFiles: List<File> = emptyList()
+    ) {
+        val schwabExport = schwabExportFile?.let { parseExportFile(it) } ?: ParsedExport.empty()
         val eTradeExport = eTradeDir?.let { parseETradeDir(it) } ?: ParsedExport.empty()
-        val parsedExport = schwabExport + eTradeExport
+        val degiroExport = degiroFiles.map { parseDegiroFile(it) }.fold(ParsedExport.empty()) { acc, e -> acc + e }
+        val parsedExport = schwabExport + eTradeExport + degiroExport
+        require(parsedExport != ParsedExport.empty()) {
+            "No input sources provided. Specify at least one of: schwab, etrade, degiro."
+        }
+        val dailyRateProvider = TabularExchangeRateProvider.fromSource(
+            HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir()),
+            year..year
+        )
         val fixedRateReport = ReportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded())
-        val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, TabularExchangeRateProvider.hardcoded())
+        val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, dailyRateProvider)
 
         reportOneVariant(year, outputDir, fixedRateReport, "fixed")
         reportOneVariant(year, outputDir, dynamicRateReport, "dynamic")
@@ -62,6 +89,19 @@ object CockroachMain {
         } else {
             throw IllegalArgumentException("only .json files are supported")
         }
+    }
+
+    private fun parseDegiroFile(file: File): ParsedExport {
+        val result = DegiroAccountStatementParser.parse(file)
+        return ParsedExport(
+            rsuRecords = emptyList(),
+            esppRecords = emptyList(),
+            dividendRecords = result.dividendRecords,
+            taxRecords = result.taxRecords,
+            taxReversalRecords = emptyList(),
+            saleRecords = emptyList(),
+            journalRecords = emptyList()
+        )
     }
 
     private fun parseETradeDir(eTradeDir: File): ParsedExport {

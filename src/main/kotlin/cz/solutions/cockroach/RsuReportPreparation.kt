@@ -38,7 +38,7 @@ object RsuReportPreparation {
     }
 
     private fun withConvertedPrices(rsu: RsuRecord, soldAmount: Double, taxableAmount: Double,exchangeRateProvider: ExchangeRateProvider): RsuInfo {
-        val exchange = exchangeRateProvider.rateAt(rsu.vestDate)
+        val exchange = exchangeRateProvider.rateAt(rsu.vestDate, Currency.USD)
         val partialRsuDolarValue = rsu.quantity * rsu.vestFmv
         val partialRsuCroneValue = partialRsuDolarValue * exchange
         val taxableVestCroneValue = taxableAmount * rsu.vestFmv * exchange

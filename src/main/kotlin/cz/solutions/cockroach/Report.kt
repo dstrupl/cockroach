@@ -49,8 +49,8 @@ class Report(
             "taxableSellProfitCroneValue" to FormatingHelper.formatRounded(salesReport.profitForTax)
         )
         val dividentVars = mapOf(
-            "dividendCroneValue" to FormatingHelper.formatRounded(dividendReport.totalBruttoCrown),
-            "dividendPayedTaxCroneValue" to FormatingHelper.formatRounded(-dividendReport.totalTaxCrown)
+            "dividendCroneValue" to FormatingHelper.formatRounded(dividendReport.totalNonCzkBruttoCrown),
+            "dividendPayedTaxCroneValue" to FormatingHelper.formatRounded(-dividendReport.totalNonCzkTaxCrown)
         )
 
         val variables = rsuAndEsppVars + salesVars + dividentVars

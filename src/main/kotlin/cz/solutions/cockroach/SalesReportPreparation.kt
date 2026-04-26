@@ -23,8 +23,8 @@ object SalesReportPreparation {
         var totalAmount = 0.0
 
         val printableSalesList = filteredSaleRecords.map { sale ->
-            val sellExchange = exchangeRateProvider.rateAt(sale.date)
-            val buyExchange = exchangeRateProvider.rateAt(sale.purchaseDate)
+            val sellExchange = exchangeRateProvider.rateAt(sale.date, Currency.USD)
+            val buyExchange = exchangeRateProvider.rateAt(sale.purchaseDate, Currency.USD)
 
             val partialSellDolarValue = sale.quantity * sale.salePrice
             val partialSellCroneValue = partialSellDolarValue * sellExchange
