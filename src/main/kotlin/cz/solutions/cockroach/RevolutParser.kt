@@ -53,6 +53,23 @@ object RevolutParser {
     // or a new Revolut row type. Fail loudly rather than silently dropping cash interest.
     private val SAVINGS_INTEREST_PATTERN = Regex("(?i)^Interest\\b")
 
+    // Tickers carrying a non-US exchange suffix such as ".L" (LSE), ".DE" (Xetra), ".PA" (Paris).
+    // parseStocks hard-codes country = "US" and applies the single per-broker whtRate uniformly,
+    // so any non-US ticker is a fail-loud signal: the gross-up would be wrong and the dividend
+    // would land on the wrong line of Příloha č. 3.
+    private val NON_US_TICKER_SUFFIX = Regex("""\.([A-Z]{1,3})\b""")
+
+    /**
+     * Parses a Revolut Stocks CSV statement.
+     *
+     * `whtRate` is applied uniformly to **every** dividend row in the file: Revolut only reports
+     * net amounts and never the per-issuer tax actually withheld, so the gross-up
+     * `gross = net / (1 - whtRate)` assumes a single rate for the whole broker source. This is
+     * accurate today because Revolut Stocks lists US-domiciled shares only (15 % US/CZ treaty rate
+     * with W-8BEN), but if Revolut ever adds non-US listings — or if you receive an ADR whose
+     * issuer-country WHT differs — the per-row gross-up will be wrong. The parser therefore
+     * throws on any ticker carrying a non-US exchange suffix rather than silently mis-reporting.
+     */
     fun parseStocks(file: File, whtRate: Double = DEFAULT_WHT_RATE): RevolutStocksParseResult {
         return file.reader(StandardCharsets.UTF_8).use { parseStocks(it, whtRate) }
     }
@@ -80,7 +97,17 @@ object RevolutParser {
                         val gross = amount / (1.0 - whtRate)
                         val wht = gross - amount
                         val ticker = record.get("Ticker").trim()
-                        // Revolut Stocks supports US-listed shares only, so the ISIN prefix is always "US".
+                        // Revolut Stocks supports US-listed shares only, so the ISIN prefix is always "US"
+                        // and the per-broker whtRate is applied uniformly. Fail loudly on any non-US ticker:
+                        // both the gross-up and the country attribution would be wrong otherwise.
+                        val suffix = NON_US_TICKER_SUFFIX.find(ticker)?.groupValues?.get(1)
+                        check(suffix == null) {
+                            "Revolut Stocks: ticker '$ticker' at $date looks non-US (suffix .$suffix). " +
+                                    "parseStocks hard-codes country=US and grosses up at the single per-broker " +
+                                    "whtRate=${"%.4f".format(whtRate)}, which is wrong for non-US issuers. " +
+                                    "Split this row out and report it manually, or extend RevolutParser with " +
+                                    "per-issuer routing before re-running."
+                        }
                         dividends.add(DividendRecord(date, gross, currency, symbol = ticker, broker = BROKER_NAME, country = "US"))
                         if (wht > 0.0) {
                             taxes.add(TaxRecord(date, -wht, currency))

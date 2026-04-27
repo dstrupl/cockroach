@@ -126,6 +126,13 @@ Notes:
   treaty rate when a W-8BEN is on file, which Revolut signs for you automatically). The
   computed WHT is emitted as a tax credit so your CZ tax return matches what was actually
   withheld. If your treaty rate differs, override `revolut.whtRate` in the YAML.
+- **`whtRate` is per-broker, not per-issuer.** The configured rate is applied uniformly to
+  every dividend row in every Revolut Stocks CSV. This is correct today because Revolut Stocks
+  lists US-domiciled shares only — should Revolut add non-US listings, or should you receive an
+  ADR whose underlying issuer-country withholds at a different rate, the gross-up will not
+  match what the broker actually withheld. The parser therefore **fails loudly** on any ticker
+  carrying a non-US exchange suffix (e.g. `.L`, `.DE`, `.PA`); split such rows out of the CSV
+  and report them manually, or extend `RevolutParser` with per-issuer routing.
 - `DIVIDEND TAX (CORRECTION)` rows always come in cancelling pairs (a debit and an immediate
   credit of the same magnitude); they are summed and ignored, with a log line confirming the
   net is zero.

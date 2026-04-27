@@ -61,6 +61,20 @@ class RevolutParserTest {
     }
 
     @Test
+    fun stocksFailsLoudlyOnNonUsTickerSuffix() {
+        val csv = """
+            Date,Ticker,Type,Quantity,Price per share,Total Amount,Currency,FX Rate
+            2025-03-15T09:00:00.000000Z,VOD.L,DIVIDEND,,,USD 1.70,USD,0.0420
+        """.trimIndent()
+
+        assertThatIllegalStateException()
+            .isThrownBy { RevolutParser.parseStocks(StringReader(csv)) }
+            .withMessageContaining("VOD.L")
+            .withMessageContaining("looks non-US")
+            .withMessageContaining("per-broker")
+    }
+
+    @Test
     fun parsesSavingsInterestAndIgnoresFeesAndBuySell() {
         val csv = """
             Date,Description,"Value, USD","Value, CZK",FX Rate,Price per share,Quantity of shares
@@ -121,4 +135,5 @@ class RevolutParserTest {
         assertThat(result.interestRecords[0].date).isEqualTo(LocalDate(2025, 12, 31))
         assertThat(result.interestRecords[0].amount).isCloseTo(2.5, offset(0.0001))
     }
+
 }
