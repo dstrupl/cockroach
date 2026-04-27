@@ -65,7 +65,7 @@ object DegiroAccountStatementParser {
                 }
                 DESC_TAX -> {
                     val record = parseRecord(row) ?: continue
-                    taxes.add(TaxRecord(record.date, record.amount, record.currency))
+                    taxes.add(TaxRecord(record.date, record.amount, record.currency, symbol = record.product, broker = BROKER_NAME))
                 }
                 DESC_ADR_FEE -> {
                     val record = parseRecord(row) ?: continue

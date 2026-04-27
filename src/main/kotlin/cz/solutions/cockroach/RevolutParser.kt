@@ -110,7 +110,7 @@ object RevolutParser {
                         }
                         dividends.add(DividendRecord(date, gross, currency, symbol = ticker, broker = BROKER_NAME, country = "US"))
                         if (wht > 0.0) {
-                            taxes.add(TaxRecord(date, -wht, currency))
+                            taxes.add(TaxRecord(date, -wht, currency, symbol = ticker, broker = BROKER_NAME))
                         }
                     }
                     STOCKS_TYPE_DIVIDEND_TAX_CORRECTION -> {

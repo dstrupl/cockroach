@@ -101,7 +101,7 @@ object EtoroXlsxParser {
             }
             dividends.add(DividendRecord(date, gross, Currency.USD, symbol = instrument, broker = BROKER_NAME, country = "US"))
             if (wht > 0.0) {
-                taxes.add(TaxRecord(date, -wht, Currency.USD))
+                taxes.add(TaxRecord(date, -wht, Currency.USD, symbol = instrument, broker = BROKER_NAME))
             }
         }
         LOGGER.info("eToro: parsed ${dividends.size} dividend(s) and ${taxes.size} withholding tax record(s) from $fileName")

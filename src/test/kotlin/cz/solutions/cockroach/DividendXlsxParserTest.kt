@@ -23,7 +23,7 @@ class DividendXlsxParserTest {
             DividendRecord(LocalDate(2025, 10, 22), 58.22, Currency.USD, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2025, 10, 22), -8.73, Currency.USD)
+            TaxRecord(LocalDate(2025, 10, 22), -8.73, Currency.USD, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.")
         )
     }
 
@@ -53,7 +53,7 @@ class DividendXlsxParserTest {
             DividendRecord(LocalDate(2025, 10, 22), 58.22, Currency.USD, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2025, 10, 22), -8.73, Currency.USD)
+            TaxRecord(LocalDate(2025, 10, 22), -8.73, Currency.USD, symbol = "CISCO SYS INC", broker = "Morgan Stanley & Co.")
         )
     }
 

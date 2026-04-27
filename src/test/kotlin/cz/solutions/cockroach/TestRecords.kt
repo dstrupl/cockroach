@@ -46,13 +46,29 @@ fun taxRecord(
     date: LocalDate,
     amount: Double,
     currency: Currency = Currency.USD,
-): TaxRecord = TaxRecord(date = date, amount = amount, currency = currency)
+    symbol: String = "TEST",
+    broker: String = "TestBroker",
+): TaxRecord = TaxRecord(
+    date = date,
+    amount = amount,
+    currency = currency,
+    symbol = symbol,
+    broker = broker,
+)
 
 fun taxReversalRecord(
     date: LocalDate,
     amount: Double,
     currency: Currency = Currency.USD,
-): TaxReversalRecord = TaxReversalRecord(date = date, amount = amount, currency = currency)
+    symbol: String = "TEST",
+    broker: String = "TestBroker",
+): TaxReversalRecord = TaxReversalRecord(
+    date = date,
+    amount = amount,
+    currency = currency,
+    symbol = symbol,
+    broker = broker,
+)
 
 fun saleRecord(
     date: LocalDate,

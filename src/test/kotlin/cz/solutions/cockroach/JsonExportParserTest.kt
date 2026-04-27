@@ -54,14 +54,18 @@ class JsonExportParserTest {
                     TaxRecord(
                         LocalDate(2023,10,25),
                         -12.66,
-                        Currency.USD
+                        Currency.USD,
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                 )
                 ),
                 listOf(
                     TaxReversalRecord(
                         LocalDate(2023,2,7),
                         1.88,
-                        Currency.USD
+                        Currency.USD,
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                 )
                 ),
                 listOf(

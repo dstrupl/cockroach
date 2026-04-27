@@ -43,7 +43,7 @@ class DegiroAccountStatementParserTest {
             DividendRecord(LocalDate(2024, 3, 15), 12.34, Currency.USD, symbol = "APPLE INC", broker = "Degiro", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2024, 3, 15), -1.85, Currency.USD)
+            TaxRecord(LocalDate(2024, 3, 15), -1.85, Currency.USD, symbol = "APPLE INC", broker = "Degiro")
         )
     }
 

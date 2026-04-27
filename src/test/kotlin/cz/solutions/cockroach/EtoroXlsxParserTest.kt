@@ -35,8 +35,8 @@ class EtoroXlsxParserTest {
             DividendRecord(LocalDate(2025, 6, 15), 5.00, Currency.USD, symbol = "VOD.L", broker = "eToro", country = "US"),
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2025, 2, 1), -0.15, Currency.USD),
-            TaxRecord(LocalDate(2025, 6, 15), -0.50, Currency.USD),
+            TaxRecord(LocalDate(2025, 2, 1), -0.15, Currency.USD, symbol = "AAPL", broker = "eToro"),
+            TaxRecord(LocalDate(2025, 6, 15), -0.50, Currency.USD, symbol = "VOD.L", broker = "eToro"),
         )
     }
 
@@ -78,7 +78,7 @@ class EtoroXlsxParserTest {
             DividendRecord(LocalDate(2025, 1, 2), 1.00, Currency.USD, symbol = "AAPL", broker = "eToro", country = "US")
         )
         assertThat(result.taxRecords).containsExactly(
-            TaxRecord(LocalDate(2025, 1, 2), -0.15, Currency.USD)
+            TaxRecord(LocalDate(2025, 1, 2), -0.15, Currency.USD, symbol = "AAPL", broker = "eToro")
         )
     }
 

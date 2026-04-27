@@ -75,14 +75,18 @@ class JsonExportParser {
                 TaxRecord(
                     it.date,
                     it.amount,
-                    Currency.USD
+                    Currency.USD,
+                    symbol = it.symbol,
+                    broker = BROKER,
                 )
             },
             export.transactions.filterIsInstance<Transaction.TaxReversalTransaction>().map {
                 TaxReversalRecord(
                     it.date,
                     it.amount,
-                    Currency.USD
+                    Currency.USD,
+                    symbol = it.symbol,
+                    broker = BROKER,
                 )
             },
 
@@ -208,6 +212,8 @@ sealed class Transaction {
 
         @Contextual
         val amount: Double,
+
+        val symbol: String,
     ) : Transaction()
 
     @Serializable
@@ -217,6 +223,8 @@ sealed class Transaction {
 
         @Contextual
         val amount: Double,
+
+        val symbol: String,
     ) : Transaction()
 
     @Serializable

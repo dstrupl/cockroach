@@ -12,17 +12,17 @@ class DividentReportPreparationTest {
     private val year2025 = DateInterval.year(2025)
 
     @Test
-    fun taxRecordIsNotReusedWhenMultipleDividendsOnSameDate() {
-        // Schwab: large dividend with 30% withholding
-        // E-Trade: small dividend with 15% withholding
-        // Both on the same date - simulates the real bug
+    fun taxesFromDifferentBrokersOnSameDateAreMatchedSeparately() {
+        // Schwab CSCO and E-Trade CSCO can pay on the same date with different withholding rates.
+        // Each (broker, symbol, date) bucket must be paired independently — the old 15% heuristic
+        // used to attach the wrong tax row to the wrong dividend in this scenario.
         val dividends = listOf(
-            dividendRecord(LocalDate(2025, 10, 22), 1426.80),  // Schwab
-            dividendRecord(LocalDate(2025, 10, 22), 59.04)     // E-Trade
+            dividendRecord(LocalDate(2025, 10, 22), 1426.80, symbol = "CSCO", broker = "Schwab"),
+            dividendRecord(LocalDate(2025, 10, 22), 59.04, symbol = "CSCO", broker = "Morgan Stanley & Co.")
         )
         val taxes = listOf(
-            taxRecord(LocalDate(2025, 10, 22), -428.04),  // Schwab (30% of 1426.80)
-            taxRecord(LocalDate(2025, 10, 22), -8.86)     // E-Trade (15% of 59.04)
+            taxRecord(LocalDate(2025, 10, 22), -428.04, symbol = "CSCO", broker = "Schwab"),
+            taxRecord(LocalDate(2025, 10, 22), -8.86, symbol = "CSCO", broker = "Morgan Stanley & Co.")
         )
 
         val report = DividentReportPreparation.generateDividendReport(
@@ -31,14 +31,55 @@ class DividentReportPreparationTest {
 
         val usd = report.sections.single { it.currency == Currency.USD }
 
-        // Both dividends should be matched
+        // One row per (broker, symbol, date) bucket.
         assertThat(usd.printableDividendList).hasSize(2)
 
-        // The total tax should include BOTH tax records, not -8.86 twice
+        // The total tax should include BOTH tax records, not -8.86 twice (the old heuristic bug).
         assertThat(usd.totalTax).isCloseTo(-436.90, Offset.offset(0.01))
-
-        // Each tax should be used exactly once
         assertThat(usd.totalTaxCrown).isCloseTo(-436.90 * 25.0, Offset.offset(0.1))
+    }
+
+    @Test
+    fun multipleTaxRowsForSameDividendAreSummed() {
+        // Schwab sometimes emits the gross withholding plus a same-day correction. Both rows share
+        // (broker, symbol, date) and must be summed into a single net tax against the dividend.
+        val dividends = listOf(
+            dividendRecord(LocalDate(2025, 6, 27), 100.0, symbol = "JNJ", broker = "Schwab")
+        )
+        val taxes = listOf(
+            taxRecord(LocalDate(2025, 6, 27), -30.0, symbol = "JNJ", broker = "Schwab"),
+            taxRecord(LocalDate(2025, 6, 27), 15.0, symbol = "JNJ", broker = "Schwab"), // partial reversal on same day
+        )
+
+        val report = DividentReportPreparation.generateDividendReport(
+            dividends, taxes, emptyList(), year2025, fixedRate
+        )
+
+        val usd = report.sections.single { it.currency == Currency.USD }
+        assertThat(usd.printableDividendList).hasSize(1)
+        assertThat(usd.totalTax).isCloseTo(-15.0, Offset.offset(0.01))
+    }
+
+    @Test
+    fun orphanedTaxWithoutMatchingDividendFailsLoudly() {
+        val dividends = listOf(
+            dividendRecord(LocalDate(2025, 3, 10), 100.0, symbol = "AAPL", broker = "Schwab")
+        )
+        val taxes = listOf(
+            taxRecord(LocalDate(2025, 3, 10), -15.0, symbol = "AAPL", broker = "Schwab"),
+            // Orphan: no matching dividend with this symbol.
+            taxRecord(LocalDate(2025, 3, 10), -5.0, symbol = "MSFT", broker = "Schwab"),
+        )
+
+        assertThatThrownBy {
+            DividentReportPreparation.generateDividendReport(
+                dividends, taxes, emptyList(), year2025, fixedRate
+            )
+        }
+            .isInstanceOf(IllegalStateException::class.java)
+            .hasMessageContaining("Tax record without matching dividend")
+            .hasMessageContaining("symbol=MSFT")
+            .hasMessageContaining("broker=Schwab")
     }
 
     @Test
