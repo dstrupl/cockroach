@@ -89,7 +89,7 @@ object CockroachMain {
             .map { it.parse() }
             .fold(ParsedExport.empty()) { acc, e -> acc + e }
         val dailyRateProvider = TabularExchangeRateProvider.fromSource(
-            HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir()),
+            ClasspathOrHttpCnbYearRatesSource(HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir())),
             (year - 1)..year
         )
         val fixedRateReport = ReportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded())

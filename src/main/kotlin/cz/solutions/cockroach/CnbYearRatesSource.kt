@@ -21,21 +21,53 @@ interface CnbYearRatesSource {
 /**
  * Reads CNB year.txt content from bundled classpath resources.
  *
- * Used by tests and by [TabularExchangeRateProvider.hardcoded] so that no
- * network is touched during unit tests.
+ * Bundled snapshots are authoritative for completed years (CNB never amends
+ * past fixings) and let the tool run offline / reproducibly for those years.
+ * Used by tests, by [TabularExchangeRateProvider.hardcoded] and as the
+ * preferred branch of [ClasspathOrHttpCnbYearRatesSource].
  */
 class ClasspathCnbYearRatesSource : CnbYearRatesSource {
-    override fun loadYear(year: Int): List<String> {
-        return when (year) {
-            2022 -> listOf(loadResource("rates_2022_a.txt"), loadResource("rates_2022_b.txt"))
-            else -> listOf(loadResource("rates_$year.txt"))
-        }
+    override fun loadYear(year: Int): List<String> = resourceNames(year).map { loadResource(it) }
+
+    /** True iff every resource needed for [year] is present on the classpath. */
+    fun hasYear(year: Int): Boolean = resourceNames(year).all {
+        ClasspathCnbYearRatesSource::class.java.getResource(it) != null
+    }
+
+    private fun resourceNames(year: Int): List<String> = when (year) {
+        2022 -> listOf("rates_2022_a.txt", "rates_2022_b.txt")
+        else -> listOf("rates_$year.txt")
     }
 
     private fun loadResource(name: String): String {
         return ClasspathCnbYearRatesSource::class.java.getResourceAsStream(name)?.use {
             it.reader(StandardCharsets.UTF_8).readText()
         } ?: throw IllegalStateException("classpath resource not found: $name")
+    }
+}
+
+/**
+ * Prefers a classpath-bundled snapshot for years that ship with the
+ * release (offline, reproducible) and only consults [http] for years not
+ * bundled — typically the current/future year, or anything past the most
+ * recent release. This means a report for a completed past year does not
+ * require network access and survives CNB website outages.
+ */
+class ClasspathOrHttpCnbYearRatesSource(
+    private val http: CnbYearRatesSource,
+    private val classpath: ClasspathCnbYearRatesSource = ClasspathCnbYearRatesSource(),
+) : CnbYearRatesSource {
+
+    override fun loadYear(year: Int): List<String> {
+        if (classpath.hasYear(year)) {
+            LOGGER.fine("using bundled CNB rates for $year")
+            return classpath.loadYear(year)
+        }
+        return http.loadYear(year)
+    }
+
+    companion object {
+        private val LOGGER = Logger.getLogger(ClasspathOrHttpCnbYearRatesSource::class.java.name)
     }
 }
 

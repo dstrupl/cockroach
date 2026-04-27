@@ -280,6 +280,26 @@ At least one of `schwab`, `etrade`, `degiro`, `revolut.stocks`, `revolut.savings
     export options under Tools \> Markdown Converter menu.\
     ![](media/image2.png)
 
+# CNB exchange rates
+
+For each requested year the dynamic-rate variant resolves the daily CNB
+fixing for every transaction date. Sources are tried in this order:
+
+1. **Bundled snapshot** — for years shipped with the release a copy of the
+   year's `year.txt` is included on the classpath
+   (`src/main/resources/cz/solutions/cockroach/rates_<year>.txt`). Past
+   years are reproducible offline and survive CNB website outages.
+
+2. **HTTP download** — for any year not bundled (typically the current or
+   future year) `https://www.cnb.cz/.../year.txt` is fetched and cached
+   under `~/.cache/cockroach/rates/`. Caching is permanent only once the
+   year is at least 30 days complete; the still-running current year is
+   re-fetched on every run.
+
+To pin a new completed year for offline use, drop the downloaded
+`year.txt` into `src/main/resources/cz/solutions/cockroach/rates_<year>.txt`
+and rebuild.
+
 # Compiling and Running
 
 mvn clean install -am
