@@ -1,6 +1,5 @@
 package cz.solutions.cockroach
 
-import org.apache.poi.openxml4j.opc.internal.FileHelper
 import java.io.File
 
 /**

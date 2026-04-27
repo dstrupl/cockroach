@@ -2,7 +2,6 @@ package cz.solutions.cockroach
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.util.logging.Logger
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {

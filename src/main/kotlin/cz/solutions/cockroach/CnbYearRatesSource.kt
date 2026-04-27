@@ -86,25 +86,34 @@ class HttpCnbYearRatesSource(
         return !today().isBefore(safeAfter)
     }
 
-    private fun downloadFresh(year: Int): String {
-        val url = URI("$baseUrl?year=$year").toURL()
-        LOGGER.info("downloading CNB rates for $year from $url (incomplete year, not cached)")
-        return url.openStream().use { it.reader(StandardCharsets.UTF_8).readText() }
-    }
+    private fun downloadFresh(year: Int): String = download(year, cached = false)
 
     private fun downloadToFile(year: Int, target: File) {
-        val url = URI("$baseUrl?year=$year").toURL()
-        LOGGER.info("downloading CNB rates for $year from $url")
+        val content = download(year, cached = true)
         val tmp = File(target.parentFile, "${target.name}.tmp")
-        url.openStream().use { ins ->
-            tmp.outputStream().use { out -> ins.copyTo(out) }
-        }
+        tmp.writeText(content, StandardCharsets.UTF_8)
         if (target.exists() && !target.delete()) {
             throw IllegalStateException("could not replace cached file ${target.absolutePath}")
         }
         if (!tmp.renameTo(target)) {
             throw IllegalStateException("could not move ${tmp.absolutePath} to ${target.absolutePath}")
         }
+    }
+
+    private fun download(year: Int, cached: Boolean): String {
+        val url = URI("$baseUrl?year=$year").toURL()
+        val suffix = if (cached) "" else " (incomplete year, not cached)"
+        LOGGER.info("downloading CNB rates for $year from $url$suffix")
+        val connection = url.openConnection().apply {
+            connectTimeout = CONNECT_TIMEOUT_MS
+            readTimeout = READ_TIMEOUT_MS
+        }
+        val content = connection.getInputStream().use { it.reader(StandardCharsets.UTF_8).readText() }
+        require(content.lines().any { isHeaderLine(it) }) {
+            "CNB response for $year does not contain a 'Date|' / 'Datum|' header line; refusing to use it. " +
+                    "First 200 chars: '${content.take(200).replace("\n", "\\n")}'"
+        }
+        return content
     }
 
     private fun splitByHeader(content: String): List<String> {
@@ -127,6 +136,9 @@ class HttpCnbYearRatesSource(
 
     companion object {
         private val LOGGER = Logger.getLogger(HttpCnbYearRatesSource::class.java.name)
+
+        private const val CONNECT_TIMEOUT_MS = 10_000
+        private const val READ_TIMEOUT_MS = 60_000
 
         const val DEFAULT_BASE_URL =
             "https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing/year.txt"

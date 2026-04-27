@@ -43,6 +43,10 @@ object EtoroXlsxParser {
     private val ATTR_R_PATTERN = Regex("""\br="([A-Z]+)\d+"""")
     private val ATTR_T_PATTERN = Regex("""\bt="([a-z]+)"""")
 
+    // Tickers carrying a non-US exchange suffix such as ".L" (LSE), ".DE" (Xetra),
+    // ".PA" (Paris) — used only for a per-row warning since we hard-code country = "US".
+    private val NON_US_TICKER_SUFFIX = Regex("""\.([A-Z]{1,3})\b""")
+
     fun parse(file: File): EtoroParseResult {
         ZipFile(file).use { zip ->
             val strings = readSharedStrings(zip)
@@ -87,7 +91,14 @@ object EtoroXlsxParser {
             }
             // The eToro dividends sheet does not expose ISIN; default to "US" since virtually all
             // eToro dividend payers are NYSE/Nasdaq listings. Non-US tickers (e.g. VOD.L) would be
-            // misclassified as US-source — track separately if this becomes material.
+            // misclassified as US-source — warn so the user can correct the report manually.
+            val suffix = NON_US_TICKER_SUFFIX.find(instrument)?.groupValues?.get(1)
+            if (suffix != null) {
+                LOGGER.warning(
+                    "eToro: instrument '$instrument' on row $rowNum looks non-US (suffix .$suffix); " +
+                            "treating as country=US — verify Příloha č. 3 vs § 16a routing manually"
+                )
+            }
             dividends.add(DividendRecord(date, gross, Currency.USD, symbol = instrument, broker = BROKER_NAME, country = "US"))
             if (wht > 0.0) {
                 taxes.add(TaxRecord(date, -wht, Currency.USD))
