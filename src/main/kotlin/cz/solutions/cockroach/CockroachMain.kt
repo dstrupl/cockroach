@@ -13,40 +13,53 @@ fun main(args: Array<String>) {
     }
 }
 
+private data class Invocation(val year: Int, val outputDir: File, val sources: List<BrokerSource>)
+
 private fun runCockroach(args: Array<String>) {
-    if (args.size == 1 && (args[0].endsWith(".yaml") || args[0].endsWith(".yml"))) {
-        val config = CockroachConfig.load(File(args[0]))
-        val sources = buildList {
-            config.schwab?.let { add(SchwabBrokerSource(File(it))) }
-            if (config.etrade != null || config.etradeBenefitHistory != null) {
-                add(ETradeBrokerSource(
-                    directory = config.etrade?.let { File(it) },
-                    benefitHistoryFile = config.etradeBenefitHistory?.let { File(it) },
-                ))
-            }
-            if (config.degiro.isNotEmpty()) add(DegiroBrokerSource(config.degiro.map { File(it) }))
-            if (config.revolut.stocks.isNotEmpty() || config.revolut.savings.isNotEmpty()) {
-                add(RevolutBrokerSource(
-                    stocksFiles = config.revolut.stocks.map { File(it) },
-                    savingsFiles = config.revolut.savings.map { File(it) },
-                    whtRate = config.revolut.whtRate,
-                ))
-            }
-            if (config.etoro.isNotEmpty()) add(EtoroBrokerSource(config.etoro.map { File(it) }))
-            if (config.vub.isNotEmpty()) add(VubBrokerSource(config.vub.map { File(it) }, year = config.year))
-        }
-        CockroachMain.report(config.year, File(config.outputDir), sources)
-        return
-    }
-    if (args.size < 3) {
+    val invocation = parseInvocation(args) ?: run {
         printUsage()
         exitProcess(1)
     }
+    CockroachMain.report(invocation.year, invocation.outputDir, invocation.sources)
+}
+
+private fun parseInvocation(args: Array<String>): Invocation? = when {
+    args.size == 1 && (args[0].endsWith(".yaml") || args[0].endsWith(".yml")) ->
+        invocationFromYaml(File(args[0]))
+    args.size >= 3 -> invocationFromPositionalArgs(args)
+    else -> null
+}
+
+private fun invocationFromYaml(yamlFile: File): Invocation {
+    val config = CockroachConfig.load(yamlFile)
+    val sources = buildList {
+        config.schwab?.let { add(SchwabBrokerSource(File(it))) }
+        if (config.etrade != null || config.etradeBenefitHistory != null) {
+            add(ETradeBrokerSource(
+                directory = config.etrade?.let { File(it) },
+                benefitHistoryFile = config.etradeBenefitHistory?.let { File(it) },
+            ))
+        }
+        if (config.degiro.isNotEmpty()) add(DegiroBrokerSource(config.degiro.map { File(it) }))
+        if (config.revolut.stocks.isNotEmpty() || config.revolut.savings.isNotEmpty()) {
+            add(RevolutBrokerSource(
+                stocksFiles = config.revolut.stocks.map { File(it) },
+                savingsFiles = config.revolut.savings.map { File(it) },
+                whtRate = config.revolut.whtRate,
+            ))
+        }
+        if (config.etoro.isNotEmpty()) add(EtoroBrokerSource(config.etoro.map { File(it) }))
+        if (config.vub.isNotEmpty()) add(VubBrokerSource(config.vub.map { File(it) }, year = config.year))
+    }
+    return Invocation(config.year, File(config.outputDir), sources)
+}
+
+private fun invocationFromPositionalArgs(args: Array<String>): Invocation {
     val sources = buildList {
         add(SchwabBrokerSource(File(args[0])))
         if (args.size > 3) add(ETradeBrokerSource(directory = File(args[3])))
     }
-    CockroachMain.report(args[1].toInt(), File(args[2]), sources)
+    return Invocation(args[1].toInt(), File(args[2]), sources)
 }
 
 private fun printUsage() {
