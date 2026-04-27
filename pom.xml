@@ -13,16 +13,10 @@
         <java.short.version>17</java.short.version>
         <kotlin-serialization.version>1.7.1</kotlin-serialization.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>2.0.0</kotlin.version>
-        <kotlin.stdlib.version>1.8.22</kotlin.stdlib.version>
+        <kotlin.version>2.3.20</kotlin.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.stdlib.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-csv</artifactId>
@@ -82,7 +76,25 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.9.3</version>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.10.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -104,6 +116,11 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.charleskorn.kaml</groupId>
+            <artifactId>kaml-jvm</artifactId>
+            <version>0.61.0</version>
         </dependency>
     </dependencies>
 
@@ -162,6 +179,11 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -2,35 +2,111 @@ package cz.solutions.cockroach
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.util.logging.Logger
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    if (args.size < 3) {
-        System.err.println("Usage: cockroach <schwab-json-export> <year> <output-dir> [etrade-dir]")
-        System.err.println()
-        System.err.println("  schwab-json-export  Path to the Schwab JSON export file")
-        System.err.println("  year                Tax year (e.g. 2025)")
-        System.err.println("  output-dir          Directory for generated reports")
-        System.err.println("  etrade-dir          Optional E-Trade data directory with subdirs:")
-        System.err.println("                        rsu/        - RSU release confirmation PDFs")
-        System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
-        System.err.println("                        dividends/  - single dividends XLSX file")
-        System.err.println("                        sales/      - single Gain & Loss CSV file")
-        System.exit(1)
+    try {
+        runCockroach(args)
+    } catch (e: IllegalArgumentException) {
+        System.err.println("Error: ${e.message}")
+        exitProcess(1)
     }
-    val eTradeDir = if (args.size > 3) File(args[3]) else null
-    CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]), eTradeDir)
+}
+
+private data class Invocation(val year: Int, val outputDir: File, val sources: List<BrokerSource>)
+
+private fun runCockroach(args: Array<String>) {
+    val invocation = parseInvocation(args) ?: run {
+        printUsage()
+        exitProcess(1)
+    }
+    CockroachMain.report(invocation.year, invocation.outputDir, invocation.sources)
+}
+
+private fun parseInvocation(args: Array<String>): Invocation? = when {
+    args.size == 1 && (args[0].endsWith(".yaml") || args[0].endsWith(".yml")) ->
+        invocationFromYaml(File(args[0]))
+    args.size >= 3 -> invocationFromPositionalArgs(args)
+    else -> null
+}
+
+private fun invocationFromYaml(yamlFile: File): Invocation {
+    val config = CockroachConfig.load(yamlFile)
+    val sources = buildList {
+        config.schwab?.let { add(SchwabBrokerSource(File(it))) }
+        if (config.etrade != null || config.etradeBenefitHistory != null) {
+            add(ETradeBrokerSource(
+                directory = config.etrade?.let { File(it) },
+                benefitHistoryFile = config.etradeBenefitHistory?.let { File(it) },
+            ))
+        }
+        if (config.degiro.isNotEmpty()) add(DegiroBrokerSource(config.degiro.map { File(it) }))
+        if (config.revolut.stocks.isNotEmpty() || config.revolut.savings.isNotEmpty()) {
+            add(RevolutBrokerSource(
+                stocksFiles = config.revolut.stocks.map { File(it) },
+                savingsFiles = config.revolut.savings.map { File(it) },
+                whtRate = config.revolut.whtRate,
+            ))
+        }
+        if (config.etoro.isNotEmpty()) add(EtoroBrokerSource(config.etoro.map { File(it) }))
+        if (config.vub.isNotEmpty()) add(VubBrokerSource(config.vub.map { File(it) }, year = config.year))
+    }
+    return Invocation(config.year, File(config.outputDir), sources)
+}
+
+private fun invocationFromPositionalArgs(args: Array<String>): Invocation {
+    val sources = buildList {
+        add(SchwabBrokerSource(File(args[0])))
+        if (args.size > 3) add(ETradeBrokerSource(directory = File(args[3])))
+    }
+    return Invocation(args[1].toInt(), File(args[2]), sources)
+}
+
+private fun printUsage() {
+    System.err.println("Usage: cockroach <config.yaml>                                              (recommended)")
+    System.err.println("       cockroach <schwab-json-export> <year> <output-dir> [etrade-dir]     (Schwab/E-Trade only)")
+    System.err.println()
+    System.err.println("Positional CLI form (limited to E-Trade and Schwab):")
+    System.err.println("  schwab-json-export  Path to the Schwab JSON export file")
+    System.err.println("  year                Tax year (e.g. 2025)")
+    System.err.println("  output-dir          Directory for generated reports")
+    System.err.println("  etrade-dir          Optional E-Trade data directory with subdirs:")
+    System.err.println("                        rsu/        - RSU release confirmation PDFs")
+    System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
+    System.err.println("                        dividends/  - single dividends XLSX file")
+    System.err.println("                        sales/      - single Gain & Loss CSV/XLSX file")
+    System.err.println()
+    System.err.println("YAML config form (supports every broker):")
+    System.err.println("  year:                  Tax year, e.g. 2025")
+    System.err.println("  outputDir:             Directory for generated reports")
+    System.err.println("  schwab:                Path to a Schwab JSON export (optional)")
+    System.err.println("  etrade:                Path to an E-Trade data directory (optional)")
+    System.err.println("  etradeBenefitHistory:  Path to an E-Trade benefit-history XLSX (optional)")
+    System.err.println("  degiro:                List of Degiro account-statement CSV paths (optional)")
+    System.err.println("  revolut.stocks:        List of Revolut stock statement paths (optional)")
+    System.err.println("  revolut.savings:       List of Revolut savings statement paths (optional)")
+    System.err.println("  revolut.whtRate:       Withholding-tax rate applied to Revolut dividends (optional)")
+    System.err.println("  etoro:                 List of eToro XLSX export paths (optional)")
+    System.err.println("  vub:                   List of VÚB interest-confirmation PDF paths (optional)")
+    System.err.println()
+    System.err.println("At least one broker source must be configured.")
 }
 
 object CockroachMain {
-    private val LOGGER = Logger.getLogger(CockroachMain::class.java.name)
 
-    fun report(schwabExportFile: File, year: Int, outputDir: File, eTradeDir: File? = null) {
-        val schwabExport = parseExportFile(schwabExportFile)
-        val eTradeExport = eTradeDir?.let { parseETradeDir(it) } ?: ParsedExport.empty()
-        val parsedExport = schwabExport + eTradeExport
+    fun report(year: Int, outputDir: File, sources: List<BrokerSource>) {
+        require(sources.isNotEmpty()) {
+            "No input sources provided. Specify at least one of: schwab, etrade, degiro, revolut, etoro, vub."
+        }
+        val parsedExport = sources
+            .map { it.parse() }
+            .fold(ParsedExport.empty()) { acc, e -> acc + e }
+        val dailyRateProvider = TabularExchangeRateProvider.fromSource(
+            ClasspathOrHttpCnbYearRatesSource(HttpCnbYearRatesSource(HttpCnbYearRatesSource.defaultCacheDir())),
+            (year - 1)..year
+        )
         val fixedRateReport = ReportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded())
-        val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, TabularExchangeRateProvider.hardcoded())
+        val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, dailyRateProvider)
 
         reportOneVariant(year, outputDir, fixedRateReport, "fixed")
         reportOneVariant(year, outputDir, dynamicRateReport, "dynamic")
@@ -45,59 +121,18 @@ object CockroachMain {
 
     private fun reportOneVariant(year: Int, outputDir: File, data: Report, dollarConversionSchema: String) {
         File(outputDir, "${dollarConversionSchema}_dividend_$year.pdf").writeBytes(data.getDividendPdf())
+        File(outputDir, "${dollarConversionSchema}_interest_$year.pdf").writeBytes(data.getInterestPdf())
         File(outputDir, "${dollarConversionSchema}_rsu_$year.pdf").writeBytes(data.getRsuPdf())
         File(outputDir, "${dollarConversionSchema}_espp_$year.pdf").writeBytes(data.getEsppPdf())
         File(outputDir, "${dollarConversionSchema}_sales_$year.pdf").writeBytes(data.getSalesPdf())
         File(outputDir, "${dollarConversionSchema}_guide_$year.html").writeText(data.getGuide(), StandardCharsets.UTF_8)
 
-        File(outputDir, "${dollarConversionSchema}_rsu_2024.pdf").writeBytes(data.getRsu2024Pdf())
-        File(outputDir, "${dollarConversionSchema}_espp_2024.pdf").writeBytes(data.getEspp2024Pdf())
+        val transitionYear = ReportGenerator.LEGISLATIVE_TRANSITION_YEAR
+        File(outputDir, "${dollarConversionSchema}_rsu_$transitionYear.pdf").writeBytes(data.getRsu2024Pdf())
+        File(outputDir, "${dollarConversionSchema}_espp_$transitionYear.pdf").writeBytes(data.getEspp2024Pdf())
     }
 
 
-
-    private fun parseExportFile(schwabExportFile: File): ParsedExport {
-        return if (schwabExportFile.extension == "json") {
-            JsonExportParser().parse(load(schwabExportFile))
-        } else {
-            throw IllegalArgumentException("only .json files are supported")
-        }
-    }
-
-    private fun parseETradeDir(eTradeDir: File): ParsedExport {
-        val rsuRecords = RsuPdfParser.parseDirectory(File(eTradeDir, "rsu"))
-        val esppRecords = EsppPdfParser.parseDirectory(File(eTradeDir, "espp"))
-        val dividentXlsFile = locateSingleFile(File(eTradeDir, "dividends"), "xlsx")
-        val dividendXlsxResult = dividentXlsFile?.let {  DividendXlsxParser.parse(it)}
-        val eTradeXlsFile = locateSingleFile(File(eTradeDir, "sales"), "xlsx")
-        val eTradeCsvFile = locateSingleFile(File(eTradeDir, "sales"), "csv")
-
-        return ParsedExport(
-            rsuRecords = rsuRecords,
-            esppRecords = esppRecords,
-            saleRecords = eTradeXlsFile?.let { ETradeGainLossXlsParser.parse(it)}
-                ?:eTradeCsvFile?.let { ETradeGainLossParser.parse(load(it))}
-                ?: emptyList(),
-            dividendRecords = dividendXlsxResult?.dividendRecords?: emptyList(),
-            taxRecords = dividendXlsxResult?.taxRecords?:emptyList(),
-            taxReversalRecords = emptyList(),
-            journalRecords = emptyList()
-        )
-    }
-
-    private fun locateSingleFile(directory: File, extension: String): File? {
-        if (!directory.exists()){
-            return null
-        }
-        require(directory.isDirectory) { "${directory.absolutePath} is not a directory" }
-        val files = directory.listFiles { file -> !file.isHidden  && !file.name.startsWith("~")  && !file.name.startsWith(".") && file.extension.equals(extension, ignoreCase = true) }
-            ?.toList() ?: emptyList()
-        require(files.size <= 1) {
-            if (files.isEmpty()) "No .$extension file found in ${directory.absolutePath}"
-            else "Expected max one .$extension file in ${directory.absolutePath}, but found ${files.size}: ${files.map { it.name }}"
-        }
-        return files.firstOrNull()
-    }
 
     private fun recommendBetterAlternative(fixedRateReport: Report, dynamicRateReport: Report) {
         val profitWhenUsedFixedRate = fixedRateReport.rsuAndEsppAndSalesProfitCroneValue()
@@ -112,8 +147,9 @@ object CockroachMain {
             "Use dynamic Dollar conversion rate, because ${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)}<${FormatingHelper.formatDouble(profitWhenUsedFixedRate)} (diff=${FormatingHelper.formatDouble(profitWhenUsedFixedRate - profitWhenUsedDynamicRate)})"
         }
 
+        val transitionYear = ReportGenerator.LEGISLATIVE_TRANSITION_YEAR
         println("######################################################")
-        println("# Recommendation (If old legislative was used for 2024): ")
+        println("# Recommendation (If old legislative was used for $transitionYear): ")
         println("# $recommendationOldLegislativeUsedIn2024")
         println("######################################################")
         println()
@@ -124,7 +160,7 @@ object CockroachMain {
             "Use fixed Dollar conversion rate  because " +
                     "${FormatingHelper.formatDouble(profit2024WhenUsedFixedRate)}+${FormatingHelper.formatDouble(profitWhenUsedFixedRate)}<=" +
                     "${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}+${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)} " +
-                    "(diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate+profitWhenUsedDynamicRate - profit2024WhenUsedFixedRate-profit2024WhenUsedDynamicRate)})"
+                    "(diff=${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate+profitWhenUsedDynamicRate - profit2024WhenUsedFixedRate-profitWhenUsedFixedRate)})"
         } else {
             "Use dynamic Dollar conversion rate, because " +
                     "${FormatingHelper.formatDouble(profit2024WhenUsedDynamicRate)}+${FormatingHelper.formatDouble(profitWhenUsedDynamicRate)}" +
@@ -133,17 +169,9 @@ object CockroachMain {
         }
 
         println("######################################################")
-        println("# Recommendation (If new legislative was used in 2024) ")
+        println("# Recommendation (If new legislative was used in $transitionYear) ")
         println("# $recomendationNewLegislativeUsed2024")
         println("######################################################")
 
-    }
-
-    fun load(file: File): String {
-        return try {
-            file.readText(StandardCharsets.UTF_8)
-        } catch (e: Exception) {
-            throw RuntimeException("Could not load file ${file.absolutePath}", e)
-        }
     }
 }

@@ -7,7 +7,8 @@ data class ParsedExport(
     val taxRecords: List<TaxRecord>,
     val taxReversalRecords: List<TaxReversalRecord>,
     val saleRecords: List<SaleRecord>,
-    val journalRecords: List<JournalRecord>
+    val journalRecords: List<JournalRecord>,
+    val interestRecords: List<InterestRecord> = emptyList()
 ) {
     operator fun plus(other: ParsedExport): ParsedExport {
         return ParsedExport(
@@ -17,14 +18,16 @@ data class ParsedExport(
             taxRecords = taxRecords + other.taxRecords,
             taxReversalRecords = taxReversalRecords + other.taxReversalRecords,
             saleRecords = saleRecords + other.saleRecords,
-            journalRecords = journalRecords + other.journalRecords
+            journalRecords = journalRecords + other.journalRecords,
+            interestRecords = interestRecords + other.interestRecords
         )
     }
 
     companion object {
         fun empty(): ParsedExport = ParsedExport(
             emptyList(), emptyList(), emptyList(),
-            emptyList(), emptyList(), emptyList(), emptyList()
+            emptyList(), emptyList(), emptyList(), emptyList(),
+            emptyList()
         )
     }
 }

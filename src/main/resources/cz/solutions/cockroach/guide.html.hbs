@@ -243,7 +243,31 @@
     <tr><td>414 Daň ze samotného základu daně podle § 16a zákona...</td><td class="light-green">0</td></tr>
 </table>
 
+<br><br>
 
+<h1>Interest</h1>
+<p>Úrokové příjmy ze zahraničí (např. Revolut Flexible Cash Funds, VÚB SK). Pro účely zápočtu zahraniční daně se příjmy a sražená daň člení dle státu zdroje na <strong>Příloze č. 3</strong>.</p>
+
+<p> Úhrn úrokových příjmů {{interestForeignCroneValue}} CZK, daň zaplacená v zahraničí {{interestForeignTaxCroneValue}} CZK.</p>
+
+<h2 class="highlighted">PŘÍLOHA 3 – Výpočet daně z příjmů ze zahraničí</h2>
+<p>Pro každý stát zdroje vyplňte samostatný oddíl Přílohy č. 3. Hodnoty níže jsou již přepočtené na Kč jednotnými kurzy ČNB.</p>
+
+{{#each interestCountryTotals}}
+<h3>Stát zdroje: {{country}}</h3>
+<table>
+    <tr>
+        <th>Řádek</th>
+        <th>Popis</th>
+        <th>Vyplní v celých Kč</th>
+    </tr>
+    <tr><td>321</td><td>Příjmy ze zdrojů v zahraničí (§ 8 – úroky)</td><td class="light-green">{{totalBruttoCrownFormatted}}</td></tr>
+    <tr><td>322</td><td>Výdaje k příjmům ze zdrojů v zahraničí</td><td>0</td></tr>
+    <tr><td>323</td><td>Daň zaplacená v zahraničí podle § 38f odst. 1 zákona</td><td class="light-green">{{totalTaxCrownFormatted}}</td></tr>
+</table>
+{{else}}
+<p><em>Žádné zahraniční úrokové příjmy v daném období.</em></p>
+{{/each}}
 
 </body>
 </html>

@@ -1,33 +1,29 @@
 package cz.solutions.cockroach
 
 import org.joda.time.LocalDate
-import java.nio.charset.StandardCharsets
 import java.util.*
 
-class TabularExchangeRateProvider(knownRates: Map<LocalDate, Double>) : ExchangeRateProvider {
-    private val knownRates: NavigableMap<LocalDate, Double> = TreeMap(knownRates)
+class TabularExchangeRateProvider(
+    knownRates: Map<LocalDate, Map<Currency, Double>>
+) : ExchangeRateProvider {
+    private val knownRates: NavigableMap<LocalDate, Map<Currency, Double>> = TreeMap(knownRates)
 
     companion object {
         fun hardcoded(): TabularExchangeRateProvider {
-            return ExchangeRatesReader.parse(
-                load("rates_2021.txt"),
-                load("rates_2022_a.txt"),
-                load("rates_2022_b.txt"),
-                load("rates_2023.txt"),
-                load("rates_2024.txt"),
-                load("rates_2025.txt")
-            )
+            return fromSource(ClasspathCnbYearRatesSource(), 2021..2025)
         }
 
-        private fun load(fileName: String): String {
-            return TabularExchangeRateProvider::class.java.getResourceAsStream(fileName)?.use {
-                it.reader(StandardCharsets.UTF_8).readText()
-            } ?: throw RuntimeException("Could not load template $fileName")
+        fun fromSource(source: CnbYearRatesSource, years: IntRange): TabularExchangeRateProvider {
+            val chunks = years.flatMap { source.loadYear(it) }
+            return ExchangeRatesReader.parse(*chunks.toTypedArray())
         }
     }
 
-    override fun rateAt(day: LocalDate): Double {
-        return knownRates.floorEntry(day)?.value
+    override fun rateAt(day: LocalDate, currency: Currency): Double {
+        if (currency == Currency.CZK) return 1.0
+        val perCurrency = knownRates.floorEntry(day)?.value
             ?: throw IllegalArgumentException("can not find rate for $day")
+        return perCurrency[currency]
+            ?: throw IllegalArgumentException("can not find rate for $day in $currency")
     }
 }

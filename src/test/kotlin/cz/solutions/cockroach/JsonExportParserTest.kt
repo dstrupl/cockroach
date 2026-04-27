@@ -23,7 +23,9 @@ class JsonExportParserTest {
                         2,
                         48.38,
                         LocalDate(2023,12,10),
-                        "1461994"
+                        "1461994",
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                     )
                 ),
                 listOf(
@@ -34,24 +36,36 @@ class JsonExportParserTest {
                         42.60,
                         50.52,
                         LocalDate(2023,12,20),
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                     )
                 ),
                 listOf(
                     DividendRecord(
-                    LocalDate(2023,10,25),
-                    84.38
-                )
+                        LocalDate(2023,10,25),
+                        84.38,
+                        Currency.USD,
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co.",
+                        country = "US"
+                    )
                 ),
                 listOf(
                     TaxRecord(
                         LocalDate(2023,10,25),
-                        -12.66
+                        -12.66,
+                        Currency.USD,
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                 )
                 ),
                 listOf(
                     TaxReversalRecord(
                         LocalDate(2023,2,7),
-                        1.88
+                        1.88,
+                        Currency.USD,
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                 )
                 ),
                 listOf(
@@ -63,7 +77,9 @@ class JsonExportParserTest {
                         43.91,
                         43.91,
                         LocalDate(2022,11,10),
-                        "1538646"
+                        "1538646",
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                     ),
                     SaleRecord(
                         LocalDate(2023,1,23),
@@ -73,7 +89,9 @@ class JsonExportParserTest {
                         37.366,
                         53.00,
                         LocalDate(2023,1,10),
-                        null
+                        null,
+                        symbol = "CSCO",
+                        broker = "Charles Schwab & Co."
                     )
                 ),
                 listOf(

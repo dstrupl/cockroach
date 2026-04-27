@@ -2,10 +2,11 @@ package cz.solutions.cockroach
 
 object EsppReportPdfGenerator {
 
-    fun generate(report: EsppReport, taxableMode: Boolean = false, broker: String = "Charles Schwab & Co., Morgan Stanley & Co."): ByteArray {
+    fun generate(report: EsppReport, taxableMode: Boolean = false): ByteArray {
         val fmt = FormatingHelper::formatDouble
 
         val baseColumns = listOf(
+            PdfColumn("Cenný papír", 1f), PdfColumn("Obchodník", 1.3f),
             PdfColumn("Datum nákupu", 1f), PdfColumn("Počet akcií", 1f), PdfColumn("Zvýh. nákup. cena (USD)", 1.3f),
             PdfColumn("Tržní cena (USD)", 1f), PdfColumn("Zisk (USD)", 1f), PdfColumn("Kurz D54 (Kč/USD)", 1f), PdfColumn("Zisk (Kč)", 1f)
         )
@@ -15,11 +16,13 @@ object EsppReportPdfGenerator {
         val columns = baseColumns + extraColumns
 
         val rows = report.printableEsppList.map { e ->
-            val base = listOf(e.date, fmt(e.amount), e.onePricePurchaseDolarValue, e.onePriceDolarValue, e.buyProfitValue, e.exchange, e.buyCroneProfitValue)
+            val base = listOf(e.symbol, e.broker, e.date, fmt(e.amount), e.onePricePurchaseDolarValue, e.onePriceDolarValue, e.buyProfitValue, e.exchange, e.buyCroneProfitValue)
             if (taxableMode) base + listOf(fmt(e.soldAmount), e.taxableBuyCroneProfitValue) else base
         }
 
         val baseSummary = listOf(
+            SummaryCell.empty(),                                // Cenný papír
+            SummaryCell.empty(),                                // Obchodník
             SummaryCell.empty(),                                // Datum nákupu
             SummaryCell.bold(fmt(report.totalEsppAmount)),      // Počet akcií
             SummaryCell.empty(),                                // Zvýh. nákup. cena (USD)
@@ -36,7 +39,7 @@ object EsppReportPdfGenerator {
 
         return PdfReportGenerator.generate(PdfReportDefinition(
             title = "Nepeněžní příjmy dle §6 ze zahraničí – akciový program pro zaměstnance (§6, odst. 3)",
-            subtitles = listOf("Program ESPP – nákup akcií za zvýhodněnou cenu", "Cenný papír: Cisco Systems", "Obchodník: $broker"),
+            subtitles = listOf("Program ESPP – nákup akcií za zvýhodněnou cenu"),
             columns = columns, rows = rows, summaryRow = summaryRow,
             landscape = true
         ))

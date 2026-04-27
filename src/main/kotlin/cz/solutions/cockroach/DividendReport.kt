@@ -1,23 +1,27 @@
 package cz.solutions.cockroach
 
-data class DividendReport(
+data class CurrencyDividendSection(
+    val currency: Currency,
     val printableDividendList: List<PrintableDividend>,
-    val totalBruttoDollar: Double,
-    val totalTaxDollar: Double,
+    val totalBrutto: Double,
+    val totalTax: Double,
     val totalBruttoCrown: Double,
     val totalTaxCrown: Double,
-    val totalTaxReversalDollar: Double,
+    val totalTaxReversal: Double,
     val totalTaxReversalCrown: Double
+)
+
+data class CzkDividendSection(
+    val printableDividendList: List<PrintableCzkDividend>,
+    val totalBruttoCrown: Double,
+    val totalTaxCrown: Double,
+    val totalTaxReversalCrown: Double
+)
+
+data class DividendReport(
+    val sections: List<CurrencyDividendSection>,
+    val czkSection: CzkDividendSection?
 ) {
-    fun asMap(): Map<String, Any> {
-        return mapOf(
-            "dividendList" to printableDividendList,
-            "totalBruttoDollar" to FormatingHelper.formatDouble(totalBruttoDollar),
-            "totalTaxDollar" to FormatingHelper.formatDouble(totalTaxDollar),
-            "totalBruttoCrown" to FormatingHelper.formatDouble(totalBruttoCrown),
-            "totalTaxCrown" to FormatingHelper.formatDouble(totalTaxCrown),
-            "totalTaxReversal" to if (totalTaxReversalDollar > 0) FormatingHelper.formatDouble(totalTaxReversalDollar) else "",
-            "totalTaxReversalCrown" to if (totalTaxReversalCrown > 0) FormatingHelper.formatDouble(totalTaxReversalCrown) else ""
-        )
-    }
+    val totalNonCzkBruttoCrown: Double get() = sections.sumOf { it.totalBruttoCrown }
+    val totalNonCzkTaxCrown: Double get() = sections.sumOf { it.totalTaxCrown }
 }

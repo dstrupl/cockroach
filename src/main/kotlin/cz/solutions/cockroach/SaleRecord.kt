@@ -10,7 +10,9 @@ data class SaleRecord(
     val purchasePrice: Double,
     val purchaseFmv: Double,
     val purchaseDate: LocalDate,
-    val grantId: String?
+    val grantId: String?,
+    val symbol: String,
+    val broker: String,
 ) {
     fun isTaxable(): Boolean {
         return date.isBefore(purchaseDate.plusYears(3))

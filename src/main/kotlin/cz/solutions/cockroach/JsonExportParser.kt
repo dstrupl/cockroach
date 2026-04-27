@@ -3,6 +3,7 @@
 package cz.solutions.cockroach
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -14,6 +15,8 @@ import kotlinx.serialization.modules.contextual
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import java.util.*
+
+private const val BROKER = "Charles Schwab & Co."
 
 class JsonExportParser {
 
@@ -33,17 +36,19 @@ class JsonExportParser {
 
 
         return ParsedExport(
-            export.transactions.filterIsInstance(Transaction.RsuDepositTransaction::class.java).map {
+            export.transactions.filterIsInstance<Transaction.RsuDepositTransaction>().map {
                 check(it.transactionDetails.size==1)
                 RsuRecord(
                     it.date,
                     it.quantity,
                     it.transactionDetails[0].details.vestFairMarketValue,
                     it.transactionDetails[0].details.vestDate,
-                    it.transactionDetails[0].details.awardId
+                    it.transactionDetails[0].details.awardId,
+                    symbol = it.symbol,
+                    broker = BROKER
                 )
             },
-            export.transactions.filterIsInstance(Transaction.EsppDepositTransaction::class.java).map {
+            export.transactions.filterIsInstance<Transaction.EsppDepositTransaction>().map {
                 check(it.transactionDetails.size==1)
                 EsppRecord(
                     it.date,
@@ -51,29 +56,41 @@ class JsonExportParser {
                     it.transactionDetails[0].details.purchasePrice,
                     it.transactionDetails[0].details.subscriptionFairMarketValue,
                     it.transactionDetails[0].details.purchaseFairMarketValue,
-                    it.transactionDetails[0].details.purchaseDate
+                    it.transactionDetails[0].details.purchaseDate,
+                    symbol = it.symbol,
+                    broker = BROKER
                 )
             },
-            export.transactions.filterIsInstance(Transaction.DividendTransaction::class.java).map {
+            export.transactions.filterIsInstance<Transaction.DividendTransaction>().map {
                 DividendRecord(
                     it.date,
-                    it.amount
+                    it.amount,
+                    Currency.USD,
+                    symbol = it.symbol,
+                    broker = BROKER,
+                    country = "US"
                 )
             },
-            export.transactions.filterIsInstance(Transaction.TaxWithholdingTransaction::class.java).map {
+            export.transactions.filterIsInstance<Transaction.TaxWithholdingTransaction>().map {
                 TaxRecord(
                     it.date,
-                    it.amount
+                    it.amount,
+                    Currency.USD,
+                    symbol = it.symbol,
+                    broker = BROKER,
                 )
             },
-            export.transactions.filterIsInstance(Transaction.TaxReversalTransaction::class.java).map {
+            export.transactions.filterIsInstance<Transaction.TaxReversalTransaction>().map {
                 TaxReversalRecord(
                     it.date,
-                    it.amount
+                    it.amount,
+                    Currency.USD,
+                    symbol = it.symbol,
+                    broker = BROKER,
                 )
             },
 
-            export.transactions.filterIsInstance(Transaction.SaleTransaction::class.java).flatMap {
+            export.transactions.filterIsInstance<Transaction.SaleTransaction>().flatMap {
                it.transactionDetails.map {transactionDetail->
                    SaleRecord(
                        it.date,
@@ -83,12 +100,14 @@ class JsonExportParser {
                        transactionDetail.details.purchasePrice(),
                        transactionDetail.details.purchaseFmv(),
                        transactionDetail.details.purchaseDate(),
-                       transactionDetail.details.grantId()
+                       transactionDetail.details.grantId(),
+                       symbol = it.symbol,
+                       broker = BROKER
                    )
                }
 
             },
-            export.transactions.filterIsInstance(Transaction.JournalTransaction::class.java).map {
+            export.transactions.filterIsInstance<Transaction.JournalTransaction>().map {
                 JournalRecord(
                     it.date,
                     it.amount?:0.0,
@@ -142,7 +161,8 @@ sealed class Transaction {
         @Contextual
         override val date: LocalDate,
         @Contextual
-        val amount: Double
+        val amount: Double,
+        val symbol: String,
     ) : Transaction()
 
     @Serializable
@@ -151,6 +171,7 @@ sealed class Transaction {
         override val date: LocalDate,
         @Contextual
         val amount: Double,
+        val symbol: String,
         val transactionDetails: List<SalesTransactionDetails>
     ) : Transaction()
 
@@ -161,6 +182,7 @@ sealed class Transaction {
         override val date: LocalDate,
 
         val quantity: Int,
+        val symbol: String,
         val transactionDetails: List<EsppTransactionDetails>
 
     ) : Transaction()
@@ -171,6 +193,7 @@ sealed class Transaction {
         override val date: LocalDate,
 
         val quantity: Int,
+        val symbol: String,
         val transactionDetails: List<RsuTransactionDetails>
     ) : Transaction()
 
@@ -189,6 +212,8 @@ sealed class Transaction {
 
         @Contextual
         val amount: Double,
+
+        val symbol: String,
     ) : Transaction()
 
     @Serializable
@@ -198,6 +223,8 @@ sealed class Transaction {
 
         @Contextual
         val amount: Double,
+
+        val symbol: String,
     ) : Transaction()
 
     @Serializable

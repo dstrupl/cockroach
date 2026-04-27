@@ -22,13 +22,16 @@ class ETradeGainLossXlsParserTest {
         assertThat(result[0]).isEqualTo(
             SaleRecord(
                 LocalDate(2026, 2, 9), "RS", 25.0, 86.7548, 71.79, 71.79,
-                LocalDate(2025, 8, 10), "1538646"
+                LocalDate(2025, 8, 10), "1538646",
+                symbol = "CSCO",
+                broker = "Morgan Stanley & Co.",
             )
         )
         assertThat(result[1]).isEqualTo(
             SaleRecord(
                 LocalDate(2026, 2, 9), "RS", 47.0, 86.754894, 71.79, 71.79,
-                LocalDate(2025, 8, 10), "1642365"
+                LocalDate(2025, 8, 10), "1642365",
+                symbol = "CSCO", broker = "Morgan Stanley & Co."
             )
         )
     }
