@@ -48,6 +48,11 @@ object RevolutParser {
     // or regulatory shift). Fail loudly so we never silently under-report §8 income.
     private val SAVINGS_TAX_PATTERN = Regex("(?i)\\b(WHT|withholding|tax\\s+(?:withheld|deducted|paid|charged))\\b")
 
+    // Any row whose description starts with "Interest " (case-insensitive) but is not one of our
+    // known prefixes ("Interest PAID", "Interest Reinvested") signals either a localised statement
+    // or a new Revolut row type. Fail loudly rather than silently dropping cash interest.
+    private val SAVINGS_INTEREST_PATTERN = Regex("(?i)^Interest\\b")
+
     fun parseStocks(file: File, whtRate: Double = DEFAULT_WHT_RATE): RevolutStocksParseResult {
         return file.reader(StandardCharsets.UTF_8).use { parseStocks(it, whtRate) }
     }
@@ -144,6 +149,12 @@ object RevolutParser {
                                 "Revolut Savings: encountered tax-related row '$description' at $date. " +
                                         "Parser assumes Flexible Account interest is gross (Irish UCITS, no WHT). " +
                                         "Investigate the statement manually before re-running."
+                            }
+                            check(!SAVINGS_INTEREST_PATTERN.containsMatchIn(description)) {
+                                "Revolut Savings: encountered unrecognised Interest row '$description' at $date. " +
+                                        "Parser only handles English 'Interest PAID' / 'Interest Reinvested'. " +
+                                        "If your statement is localised (e.g. CZ/SK), re-export it in English; " +
+                                        "otherwise investigate manually before re-running."
                             }
                             LOGGER.warning("Revolut Savings: unrecognised row '$description' at $date; ignored.")
                         }

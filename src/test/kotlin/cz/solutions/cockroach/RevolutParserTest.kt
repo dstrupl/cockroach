@@ -1,6 +1,7 @@
 package cz.solutions.cockroach
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.assertj.core.data.Offset.offset
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.Test
@@ -92,6 +93,20 @@ class RevolutParserTest {
         assertThat(result.interestRecords).hasSize(1)
         assertThat(result.interestRecords[0].currency).isEqualTo(Currency.EUR)
         assertThat(result.interestRecords[0].amount).isCloseTo(1.2345, offset(0.0001))
+    }
+
+    @Test
+    fun parseSavingsFailsLoudlyOnUnrecognisedInterestRow() {
+        // Localised statement (e.g. CZ): row begins with "Interest" but is not "PAID" / "Reinvested".
+        val csv = """
+            Date,Description,"Value, USD","Value, CZK",FX Rate,Price per share,Quantity of shares
+            "Dec 31, 2025, 1:51:12 AM",Interest Accrued USD Class R IE000H9J0QX4,1.0000,21.0000,21.0000,,
+        """.trimIndent()
+
+        assertThatIllegalStateException()
+            .isThrownBy { RevolutParser.parseSavings(StringReader(csv)) }
+            .withMessageContaining("unrecognised Interest row")
+            .withMessageContaining("Interest Accrued")
     }
 
     @Test

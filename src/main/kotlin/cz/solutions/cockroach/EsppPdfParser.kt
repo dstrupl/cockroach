@@ -4,27 +4,28 @@ import java.io.File
 
 object EsppPdfParser {
 
-    private const val BROKER_NAME = "Charles Schwab & Co."
-
     // After "Company Name (Symbol)" the symbol appears in parentheses, possibly on the next line.
     private val SYMBOL_PATTERN = Regex("""Company Name \(Symbol\)[\s\S]*?\(([A-Z][A-Z0-9.]*)\)""")
 
     /**
-     * Parses a single ESPP Purchase Confirmation PDF and returns an EsppRecord.
+     * Parses a single ESPP Purchase Confirmation PDF and returns an EsppRecord stamped with [brokerName].
+     * The PDF format itself does not identify the issuing broker (Schwab and E-Trade/Morgan Stanley both
+     * deliver Schwab-style Purchase Confirmations), so the caller must supply the broker name.
      */
-    fun parse(pdfFile: File): EsppRecord {
+    fun parse(pdfFile: File, brokerName: String): EsppRecord {
         val text = PdfParserUtils.extractText(pdfFile)
-        return parseFromText(text)
+        return parseFromText(text, brokerName)
     }
 
     /**
-     * Parses all ESPP Purchase Confirmation PDFs in the given directory and returns a list of EsppRecords.
+     * Parses all ESPP Purchase Confirmation PDFs in the given directory and returns a list of EsppRecords
+     * stamped with [brokerName].
      */
-    fun parseDirectory(directory: File): List<EsppRecord> {
-        return PdfParserUtils.parseDirectory(directory, ::parse)
+    fun parseDirectory(directory: File, brokerName: String): List<EsppRecord> {
+        return PdfParserUtils.parseDirectory(directory) { parse(it, brokerName) }
     }
 
-    fun parseFromText(text: String): EsppRecord {
+    fun parseFromText(text: String, brokerName: String): EsppRecord {
         // "Purchase Date 12-31-2025Shares Purchased..." due to column merge
         val purchaseDate = PdfParserUtils.extractDate(text, "Purchase Date")
         val sharesPurchased = PdfParserUtils.extractDouble(text, "Shares Purchased")
@@ -41,7 +42,7 @@ object EsppPdfParser {
             purchaseFmv = purchaseValuePerShare,
             purchaseDate = purchaseDate,
             symbol = symbol,
-            broker = BROKER_NAME
+            broker = brokerName
         )
     }
 

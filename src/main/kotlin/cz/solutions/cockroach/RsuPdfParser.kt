@@ -4,27 +4,28 @@ import java.io.File
 
 object RsuPdfParser {
 
-    private const val BROKER_NAME = "Charles Schwab & Co."
-
     // After "Company Name (Symbol)" the symbol appears in parentheses, possibly on the next line.
     private val SYMBOL_PATTERN = Regex("""Company Name \(Symbol\)[\s\S]*?\(([A-Z][A-Z0-9.]*)\)""")
 
     /**
-     * Parses a single RSU Release Confirmation PDF and returns an RsuRecord.
+     * Parses a single RSU Release Confirmation PDF and returns an RsuRecord stamped with [brokerName].
+     * The PDF format itself does not identify the issuing broker (Schwab and E-Trade/Morgan Stanley both
+     * deliver Schwab-style Release Confirmations), so the caller must supply the broker name.
      */
-    fun parse(pdfFile: File): RsuRecord {
+    fun parse(pdfFile: File, brokerName: String): RsuRecord {
         val text = PdfParserUtils.extractText(pdfFile)
-        return parseFromText(text)
+        return parseFromText(text, brokerName)
     }
 
     /**
-     * Parses all RSU Release Confirmation PDFs in the given directory and returns a list of RsuRecords.
+     * Parses all RSU Release Confirmation PDFs in the given directory and returns a list of RsuRecords
+     * stamped with [brokerName].
      */
-    fun parseDirectory(directory: File): List<RsuRecord> {
-        return PdfParserUtils.parseDirectory(directory, ::parse)
+    fun parseDirectory(directory: File, brokerName: String): List<RsuRecord> {
+        return PdfParserUtils.parseDirectory(directory) { parse(it, brokerName) }
     }
 
-    fun parseFromText(text: String): RsuRecord {
+    fun parseFromText(text: String, brokerName: String): RsuRecord {
         // The PDF text has "Plan 05Release Date MM-dd-yyyy" due to column merge
         val releaseDate = PdfParserUtils.extractDate(text, "Release Date")
         val sharesReleased = PdfParserUtils.extractInt(text, "Shares Released")
@@ -39,7 +40,7 @@ object RsuPdfParser {
             vestDate = releaseDate,
             grantId = awardNumber,
             symbol = symbol,
-            broker = BROKER_NAME
+            broker = brokerName
         )
     }
 }

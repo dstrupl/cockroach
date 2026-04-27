@@ -13,6 +13,12 @@ class ETradeBrokerSource(
 ) : BrokerSource {
     override val name: String = "E-Trade"
 
+    // E-Trade was acquired by Morgan Stanley; the legal counterparty on Příloha č. 3 / § 6 reports
+    // is Morgan Stanley, matching what ETradeBenefitHistoryParser/ETradeGainLossParser emit. The
+    // RSU/ESPP PDFs themselves are still in the legacy Schwab template and carry no broker name,
+    // so we stamp them here.
+    private val brokerName: String = "Morgan Stanley & Co."
+
     init {
         require(directory != null || benefitHistoryFile != null) {
             "E-Trade source needs either a directory or a benefit-history file"
@@ -22,10 +28,10 @@ class ETradeBrokerSource(
     override fun parse(): ParsedExport {
         val benefitHistory = benefitHistoryFile?.let { ETradeBenefitHistoryParser.parse(it) }
         val rsuRecords = benefitHistory?.rsuRecords
-            ?: directory?.let { RsuPdfParser.parseDirectory(File(it, "rsu")) }
+            ?: directory?.let { RsuPdfParser.parseDirectory(File(it, "rsu"), brokerName) }
             ?: emptyList()
         val esppRecords = benefitHistory?.esppRecords
-            ?: directory?.let { EsppPdfParser.parseDirectory(File(it, "espp")) }
+            ?: directory?.let { EsppPdfParser.parseDirectory(File(it, "espp"), brokerName) }
             ?: emptyList()
         val dividendXlsxFile = directory?.let { locateSingleFile(File(it, "dividends"), "xlsx") }
         val dividendXlsxResult = dividendXlsxFile?.let { DividendXlsxParser.parse(it) }

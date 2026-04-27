@@ -8,6 +8,8 @@ import java.io.File
 
 class RsuPdfParserTest {
 
+    private val brokerName = "Morgan Stanley & Co."
+
     private fun loadResourceAsFile(name: String): File {
         return File({}::class.java.getResource(name)!!.toURI())
     }
@@ -28,7 +30,7 @@ class RsuPdfParserTest {
             Award Price Per Share $0.000000
         """.trimIndent()
 
-        val record = RsuPdfParser.parseFromText(text)
+        val record = RsuPdfParser.parseFromText(text, brokerName)
 
         assertThat(record).isEqualTo(
             RsuRecord(
@@ -38,7 +40,7 @@ class RsuPdfParserTest {
                 vestDate = LocalDate(2025, 12, 10),
                 grantId = "1623675",
                 symbol = "CSCO",
-                broker = "Charles Schwab & Co."
+                broker = brokerName
             )
         )
     }
@@ -60,7 +62,7 @@ class RsuPdfParserTest {
             Award Price Per Share $0.000000
         """.trimIndent()
 
-        val record = RsuPdfParser.parseFromText(text)
+        val record = RsuPdfParser.parseFromText(text, brokerName)
 
         assertThat(record).isEqualTo(
             RsuRecord(
@@ -70,7 +72,7 @@ class RsuPdfParserTest {
                 vestDate = LocalDate(2025, 9, 10),
                 grantId = "1679633",
                 symbol = "CSCO",
-                broker = "Charles Schwab & Co."
+                broker = brokerName
             )
         )
     }
@@ -79,7 +81,7 @@ class RsuPdfParserTest {
     fun parsesSinglePdf() {
         val pdfFile = loadResourceAsFile("getReleaseConfirmation.pdf")
 
-        val record = RsuPdfParser.parse(pdfFile)
+        val record = RsuPdfParser.parse(pdfFile, brokerName)
 
         assertThat(record).isEqualTo(
             RsuRecord(
@@ -89,7 +91,7 @@ class RsuPdfParserTest {
                 vestDate = LocalDate(2025, 12, 10),
                 grantId = "1623675",
                 symbol = "CSCO",
-                broker = "Charles Schwab & Co."
+                broker = brokerName
             )
         )
     }
@@ -103,7 +105,7 @@ class RsuPdfParserTest {
         pdfFile.copyTo(File(tempDir, "release2.pdf"))
         pdfFile.copyTo(File(tempDir, "release3.pdf"))
 
-        val records = RsuPdfParser.parseDirectory(tempDir)
+        val records = RsuPdfParser.parseDirectory(tempDir, brokerName)
 
         assertThat(records).hasSize(3)
         assertThat(records).allSatisfy { record ->
@@ -115,7 +117,7 @@ class RsuPdfParserTest {
                     vestDate = LocalDate(2025, 12, 10),
                     grantId = "1623675",
                     symbol = "CSCO",
-                    broker = "Charles Schwab & Co."
+                    broker = brokerName
                 )
             )
         }
@@ -128,7 +130,7 @@ class RsuPdfParserTest {
         pdfFile.copyTo(File(tempDir, "release1.pdf"))
         File(tempDir, "notes.txt").writeText("not a pdf")
 
-        val records = RsuPdfParser.parseDirectory(tempDir)
+        val records = RsuPdfParser.parseDirectory(tempDir, brokerName)
 
         assertThat(records).hasSize(1)
     }

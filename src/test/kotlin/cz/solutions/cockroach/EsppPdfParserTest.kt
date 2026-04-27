@@ -12,6 +12,8 @@ class EsppPdfParserTest {
         private val EXTERNAL_PDF = File("/Users/jandryse/Documents/dane/2026/input/e-trade/espp/getEsppConfirmation.pdf")
     }
 
+    private val brokerName = "Morgan Stanley & Co."
+
     @Test
     fun parsesPurchaseConfirmationPdfText() {
         val text = """
@@ -33,7 +35,7 @@ class EsppPdfParserTest {
                     (85.000% of $47.520000) $40.392000
         """.trimIndent()
 
-        val record = EsppPdfParser.parseFromText(text)
+        val record = EsppPdfParser.parseFromText(text, brokerName)
 
         assertThat(record).isEqualTo(
             EsppRecord(
@@ -44,7 +46,7 @@ class EsppPdfParserTest {
                 purchaseFmv = 77.03,
                 purchaseDate = LocalDate(2025, 12, 31),
                 symbol = "CSCO",
-                broker = "Charles Schwab & Co."
+                broker = brokerName
             )
         )
     }
@@ -70,7 +72,7 @@ class EsppPdfParserTest {
                     (85.000% of $55.000000) $46.750000
         """.trimIndent()
 
-        val record = EsppPdfParser.parseFromText(text)
+        val record = EsppPdfParser.parseFromText(text, brokerName)
 
         assertThat(record).isEqualTo(
             EsppRecord(
@@ -81,7 +83,7 @@ class EsppPdfParserTest {
                 purchaseFmv = 65.5,
                 purchaseDate = LocalDate(2025, 6, 30),
                 symbol = "ACME",
-                broker = "Charles Schwab & Co."
+                broker = brokerName
             )
         )
     }
@@ -90,7 +92,7 @@ class EsppPdfParserTest {
     fun parsesActualPdf() {
         assumeTrue(EXTERNAL_PDF.exists(), "External PDF not available, skipping")
 
-        val record = EsppPdfParser.parse(EXTERNAL_PDF)
+        val record = EsppPdfParser.parse(EXTERNAL_PDF, brokerName)
 
         assertThat(record).isEqualTo(
             EsppRecord(
@@ -101,7 +103,7 @@ class EsppPdfParserTest {
                 purchaseFmv = 77.03,
                 purchaseDate = LocalDate(2025, 12, 31),
                 symbol = "CSCO",
-                broker = "Charles Schwab & Co."
+                broker = brokerName
             )
         )
     }
