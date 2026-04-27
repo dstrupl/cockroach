@@ -32,6 +32,11 @@ object VubInterestPdfParser {
     private val DATE_TOKEN = Regex("""\b(\d{2})/(\d{2})\b""")
     private val IG_REFERENCE = Regex("""^\d{4}IG\d+$""")
     private val IBAN_IN_FILENAME = Regex("""(SK\d{22})""")
+    // VÚB header always prints opening + closing balance lines like
+    //   "Account balance as at 31/12/2024"   (opening, prior year-end)
+    //   "Account balance as at 31/12/2025"   (closing, statement year-end)
+    // The maximum year across all matches is the statement year.
+    private val BALANCE_DATE = Regex("""Account balance as at \d{2}/\d{2}/(\d{4})""")
 
     fun parse(file: File, year: Int): List<InterestRecord> {
         Loader.loadPDF(file).use { doc ->
@@ -42,9 +47,23 @@ object VubInterestPdfParser {
             require(text.contains("Currency: CZK", ignoreCase = true)) {
                 "VÚB statement ${file.name} does not declare 'Currency: CZK' – non-CZK accounts are not supported."
             }
+            val statementYear = extractStatementYear(text, file.name)
+            check(statementYear == year) {
+                "VÚB statement ${file.name} covers year $statementYear but the configured tax year is $year. " +
+                        "Postings in the PDF carry only DD/MM, so applying the wrong year would silently mis-stamp every record. " +
+                        "Re-run with year=$statementYear or point the configuration at the matching statement."
+            }
             val product = extractProduct(file, text)
-            return parseText(text, year, product, file.name)
+            return parseText(text, statementYear, product, file.name)
         }
+    }
+
+    internal fun extractStatementYear(text: String, fileName: String): Int {
+        val years = BALANCE_DATE.findAll(text).map { it.groupValues[1].toInt() }.toList()
+        check(years.isNotEmpty()) {
+            "VÚB statement $fileName: cannot determine statement year – no 'Account balance as at DD/MM/YYYY' line found."
+        }
+        return years.max()
     }
 
     private fun parseText(text: String, year: Int, product: String, fileName: String): List<InterestRecord> {
