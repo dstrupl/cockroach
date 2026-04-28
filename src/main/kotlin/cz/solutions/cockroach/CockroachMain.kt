@@ -16,19 +16,24 @@ fun main(args: Array<String>) {
         System.err.println("                        espp/       - ESPP purchase confirmation PDFs")
         System.err.println("                        dividends/  - single dividends XLSX file")
         System.err.println("                        sales/      - single Gain & Loss CSV file")
+        System.err.println("  ib-dir              Optional Interactive Brokers data directory with subdirs:")
+        System.err.println("                        dividends/  - single dividends CSV file")
+
         System.exit(1)
     }
     val eTradeDir = if (args.size > 3) File(args[3]) else null
-    CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]), eTradeDir)
+    val ibDir = if (args.size > 4) File(args[4]) else null
+    CockroachMain.report(File(args[0]), args[1].toInt(), File(args[2]), eTradeDir, ibDir)
 }
 
 object CockroachMain {
     private val LOGGER = Logger.getLogger(CockroachMain::class.java.name)
 
-    fun report(schwabExportFile: File, year: Int, outputDir: File, eTradeDir: File? = null) {
+    fun report(schwabExportFile: File, year: Int, outputDir: File, eTradeDir: File? = null, ibDir: File? = null) {
         val schwabExport = parseExportFile(schwabExportFile)
         val eTradeExport = eTradeDir?.let { parseETradeDir(it) } ?: ParsedExport.empty()
-        val parsedExport = schwabExport + eTradeExport
+        val ibExport = ibDir?.let { parseIBDir(it) } ?: ParsedExport.empty()
+        val parsedExport = schwabExport + eTradeExport + ibExport
         val fixedRateReport = ReportGenerator.generateForYear(parsedExport, year, YearConstantExchangeRateProvider.hardcoded())
         val dynamicRateReport = ReportGenerator.generateForYear(parsedExport, year, TabularExchangeRateProvider.hardcoded())
 
@@ -67,8 +72,8 @@ object CockroachMain {
     private fun parseETradeDir(eTradeDir: File): ParsedExport {
         val rsuRecords = RsuPdfParser.parseDirectory(File(eTradeDir, "rsu"))
         val esppRecords = EsppPdfParser.parseDirectory(File(eTradeDir, "espp"))
-        val dividentXlsFile = locateSingleFile(File(eTradeDir, "dividends"), "xlsx")
-        val dividendXlsxResult = dividentXlsFile?.let {  DividendXlsxParser.parse(it)}
+        val dividendXlsFile = locateSingleFile(File(eTradeDir, "dividends"), "xlsx")
+        val dividendXlsxResult = dividendXlsFile?.let {  DividendXlsxParser.parse(it)}
         val eTradeXlsFile = locateSingleFile(File(eTradeDir, "sales"), "xlsx")
         val eTradeCsvFile = locateSingleFile(File(eTradeDir, "sales"), "csv")
 
@@ -80,6 +85,21 @@ object CockroachMain {
                 ?: emptyList(),
             dividendRecords = dividendXlsxResult?.dividendRecords?: emptyList(),
             taxRecords = dividendXlsxResult?.taxRecords?:emptyList(),
+            taxReversalRecords = emptyList(),
+            journalRecords = emptyList()
+        )
+    }
+
+    private fun parseIBDir(ibDir: File): ParsedExport {
+        val dividendCsvFile = locateSingleFile(File(ibDir, "dividends"), "csv")
+        val dividendCsvResult = dividendCsvFile?.let {  DividendIBParser.parse(it)}
+
+        return ParsedExport(
+            rsuRecords = emptyList(),
+            esppRecords = emptyList(),
+            saleRecords = emptyList(),
+            dividendRecords = dividendCsvResult?.dividendRecords?: emptyList(),
+            taxRecords = dividendCsvResult?.taxRecords?:emptyList(),
             taxReversalRecords = emptyList(),
             journalRecords = emptyList()
         )
