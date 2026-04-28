@@ -71,8 +71,14 @@ export, then creates a summary of your sales and purchases for the tax year.
 
 4.  Save the XLSX file into directory called 'dividends'
 
-    
+# Obtaining Interactive Brokers Dividend CSV export
 
+1. Go to Transaction & History -> Transaction History
+2. Select "Custom" and From Date and To Date
+3. Click on "CSV" icon and download the file
+4. Save the CSV file into directory called 'ib/dividends'
+
+![](media/ib_transactions.png)
 
 
 # Running the application

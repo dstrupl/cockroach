@@ -1,0 +1,14 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,Title,Transaction History
+Statement,Data,Period,January 1, 2025 - December 31, 2025
+Statement,Data,WhenGenerated,2026-04-28, 16:03:12 EDT
+Summary,Header,Field Name,Field Value
+Summary,Data,Base Currency,USD
+Summary,Data,Starting Cash,0.0
+Summary,Data,Change,25.5
+Summary,Data,Ending Cash,25.5
+Transaction History,Header,Date,Account,Description,Transaction Type,Symbol,Quantity,Price,Price Currency,Gross Amount ,Commission,Net Amount
+Transaction History,Data,2025-12-01,U***61329,DIV1,Dividend,DIV1,-,-,-,10.0,-,10.0
+Transaction History,Data,2025-12-01,U***61329,DIV1,Foreign Tax Withholding,DIV1,-,-,-,-1.5,-,-1.5
+Transaction History,Data,2025-11-13,U***61329,DIV2,Dividend,DIV2,-,-,-,20.0,-,20.0
+Transaction History,Data,2025-11-13,U***61329,DIV2,Foreign Tax Withholding,DIV2,-,-,-,-3.0,-,-3.0
