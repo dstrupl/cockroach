@@ -44,11 +44,23 @@ class ETradeBenefitHistoryParserTest {
         // Future grants (G-1003 with no vested shares) must be excluded.
         assertThat(result.rsuRecords.map { it.grantId }).containsOnly("G-1001", "G-1002")
 
+        // G-1001 and G-1002 each contain four vested tranches plus future Vest Schedule rows
+        // with Vested Qty. = 0 (periods 5 and 6 in the fixture). Only the four vested tranches
+        // must be reported; the unvested ones must be skipped without consuming the next row.
+        val expectedVestDates = listOf(
+            LocalDate(2025, 6, 20),
+            LocalDate(2025, 9, 20),
+            LocalDate(2025, 12, 20),
+            LocalDate(2026, 3, 20),
+        )
+
         val grant1001 = result.rsuRecords.filter { it.grantId == "G-1001" }
         assertThat(grant1001).hasSize(4)
+        assertThat(grant1001.map { it.vestDate }).containsExactlyInAnyOrderElementsOf(expectedVestDates)
         assertThat(grant1001).allSatisfy { record ->
             assertThat(record.symbol).isEqualTo("ACME")
             assertThat(record.broker).isEqualTo("Morgan Stanley & Co.")
+            assertThat(record.date).isEqualTo(record.vestDate)
         }
         assertThat(grant1001.first { it.vestDate == LocalDate(2025, 6, 20) })
             .satisfies({ assertThat(it.quantity).isEqualTo(50) },
@@ -58,6 +70,7 @@ class ETradeBenefitHistoryParserTest {
 
         val grant1002 = result.rsuRecords.filter { it.grantId == "G-1002" }
         assertThat(grant1002).hasSize(4)
+        assertThat(grant1002.map { it.vestDate }).containsExactlyInAnyOrderElementsOf(expectedVestDates)
         assertThat(grant1002.first { it.vestDate == LocalDate(2025, 6, 20) })
             .satisfies({ assertThat(it.quantity).isEqualTo(200) },
                        { assertThat(it.vestFmv).isEqualTo(15.00, within(EPS)) })
