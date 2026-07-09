@@ -15,6 +15,11 @@ object DividendXlsxParser {
 
     private val DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/yyyy")
 
+    private const val BROKER_NAME = "Morgan Stanley & Co."
+
+    // Description format: "CISCO SYS INC REC 10/22/25 PAY 10/22/25" — the company name precedes " REC ".
+    private val DESCRIPTION_TAIL = Regex("""\s+(REC|PAY|NON|DIV)\b.*$""")
+
     fun parse(file: File): DividendXlsxResult {
         return file.inputStream().use { parse(it) }
     }
@@ -38,11 +43,12 @@ object DividendXlsxParser {
                 if (IGNORED_DESCRIPTIONS.any { description.contains(it, ignoreCase = true) }) continue
 
                 val date = LocalDate.parse(dateStr, DATE_FORMATTER)
+                val symbol = description.replace(DESCRIPTION_TAIL, "").trim()
 
                 if (description.contains("WITHHOLDING", ignoreCase = true)) {
-                    taxes.add(TaxRecord(date, value))
+                    taxes.add(TaxRecord(date, value, Currency.USD, symbol = symbol, broker = BROKER_NAME))
                 } else {
-                    dividends.add(DividendRecord(date, value))
+                    dividends.add(DividendRecord(date, value, Currency.USD, symbol = symbol, broker = BROKER_NAME, country = "US"))
                 }
             }
         }

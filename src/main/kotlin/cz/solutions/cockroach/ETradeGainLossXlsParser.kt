@@ -13,6 +13,7 @@ object ETradeGainLossXlsParser {
     private val DATE_FORMATTER = DateTimeFormat.forPattern("MM/dd/yyyy")
 
     private const val COL_RECORD_TYPE = "Record Type"
+    private const val COL_SYMBOL = "Symbol"
     private const val COL_PLAN_TYPE = "Plan Type"
     private const val COL_QUANTITY = "Quantity"
     private const val COL_ADJUSTED_COST_BASIS_PER_SHARE = "Adjusted Cost Basis Per Share"
@@ -63,6 +64,7 @@ object ETradeGainLossXlsParser {
     }
 
     private fun parseSaleRecord(row: Row, columnIndex: Map<String, Int>): SaleRecord {
+        val symbol = getStringValue(row, columnIndex, COL_SYMBOL).orEmpty()
         val dateSold = parseDate(requireString(row, columnIndex, COL_DATE_SOLD))
         val quantity = getNumericValue(row, columnIndex, COL_QUANTITY)
         val vestDate = parseDate(requireString(row, columnIndex, COL_VEST_DATE))
@@ -79,7 +81,9 @@ object ETradeGainLossXlsParser {
             purchasePrice = adjustedCostBasisPerShare,
             purchaseFmv = adjustedCostBasisPerShare,
             purchaseDate = vestDate,
-            grantId = grantNumber
+            grantId = grantNumber,
+            symbol = symbol,
+            broker = "Morgan Stanley & Co."
         )
     }
 

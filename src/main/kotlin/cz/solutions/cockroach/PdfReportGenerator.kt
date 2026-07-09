@@ -137,8 +137,27 @@ object PdfReportGenerator {
         return PDType0Font.load(doc, stream)
     }
 
+    private const val CELL_PADDING = 2f
+    private const val ELLIPSIS = "…"
+
     private fun drawText(cs: PDPageContentStream, font: PDFont, size: Float, x: Float, y: Float, text: String) {
         cs.beginText(); cs.setFont(font, size); cs.newLineAtOffset(x, y); cs.showText(text); cs.endText()
+    }
+
+    /** Returns [text] shortened with an ellipsis so it fits within [maxWidth] when rendered with [font]/[size]. */
+    private fun fitText(text: String, font: PDFont, size: Float, maxWidth: Float): String {
+        if (text.isEmpty() || maxWidth <= 0f) return ""
+        val fullWidth = font.getStringWidth(text) / 1000f * size
+        if (fullWidth <= maxWidth) return text
+        val ellipsisWidth = font.getStringWidth(ELLIPSIS) / 1000f * size
+        if (ellipsisWidth > maxWidth) return ""
+        var lo = 0; var hi = text.length
+        while (lo < hi) {
+            val mid = (lo + hi + 1) / 2
+            val w = font.getStringWidth(text.substring(0, mid)) / 1000f * size + ellipsisWidth
+            if (w <= maxWidth) lo = mid else hi = mid - 1
+        }
+        return text.substring(0, lo) + ELLIPSIS
     }
 
     private fun drawGroupHeaderRow(cs: PDPageContentStream, font: PDFont, groups: List<ColumnGroupHeader>, columnWidths: List<Float>, yPos: Float) {
@@ -152,8 +171,9 @@ object PdfReportGenerator {
                 cs.addRect(xPos, yPos - 3f, spanWidth, ROW_HEIGHT)
                 cs.fill()
                 cs.setNonStrokingColor(0f, 0f, 0f)
-                val textWidth = font.getStringWidth(group.label) / 1000f * TABLE_FONT_SIZE
-                drawText(cs, font, TABLE_FONT_SIZE, xPos + (spanWidth - textWidth) / 2f, yPos, group.label)
+                val label = fitText(group.label, font, TABLE_FONT_SIZE, spanWidth - CELL_PADDING * 2f)
+                val textWidth = font.getStringWidth(label) / 1000f * TABLE_FONT_SIZE
+                drawText(cs, font, TABLE_FONT_SIZE, xPos + (spanWidth - textWidth) / 2f, yPos, label)
             }
             xPos += spanWidth
             colIndex += group.colspan
@@ -165,13 +185,22 @@ object PdfReportGenerator {
         val totalWidth = columnWidths.sum()
         cs.setNonStrokingColor(0.85f, 0.85f, 0.85f); cs.addRect(MARGIN, yPos - 3f, totalWidth, ROW_HEIGHT); cs.fill(); cs.setNonStrokingColor(0f, 0f, 0f)
         var xPos = MARGIN
-        for ((i, col) in columns.withIndex()) { drawText(cs, font, TABLE_FONT_SIZE, xPos + 2f, yPos, col.name); xPos += columnWidths[i] }
+        for ((i, col) in columns.withIndex()) {
+            val maxW = columnWidths[i] - CELL_PADDING * 2f
+            drawText(cs, font, TABLE_FONT_SIZE, xPos + CELL_PADDING, yPos, fitText(col.name, font, TABLE_FONT_SIZE, maxW))
+            xPos += columnWidths[i]
+        }
         cs.moveTo(MARGIN, yPos - 3f); cs.lineTo(MARGIN + totalWidth, yPos - 3f); cs.stroke()
     }
 
     private fun drawTableRow(cs: PDPageContentStream, font: PDFont, columnWidths: List<Float>, data: List<String>, yPos: Float) {
         var xPos = MARGIN
-        for ((i, width) in columnWidths.withIndex()) { drawText(cs, font, TABLE_FONT_SIZE, xPos + 2f, yPos, if (i < data.size) data[i] else ""); xPos += width }
+        for ((i, width) in columnWidths.withIndex()) {
+            val text = if (i < data.size) data[i] else ""
+            val maxW = width - CELL_PADDING * 2f
+            drawText(cs, font, TABLE_FONT_SIZE, xPos + CELL_PADDING, yPos, fitText(text, font, TABLE_FONT_SIZE, maxW))
+            xPos += width
+        }
     }
 
     private fun drawSummaryRow(cs: PDPageContentStream, regularFont: PDFont, boldFont: PDFont, columnWidths: List<Float>, data: List<SummaryCell>, yPos: Float) {
@@ -179,7 +208,8 @@ object PdfReportGenerator {
         for ((i, width) in columnWidths.withIndex()) {
             val cell = if (i < data.size) data[i] else SummaryCell.empty()
             val font = if (cell.bold) boldFont else regularFont
-            drawText(cs, font, TABLE_FONT_SIZE, xPos + 2f, yPos, cell.text)
+            val maxW = width - CELL_PADDING * 2f
+            drawText(cs, font, TABLE_FONT_SIZE, xPos + CELL_PADDING, yPos, fitText(cell.text, font, TABLE_FONT_SIZE, maxW))
             xPos += width
         }
     }

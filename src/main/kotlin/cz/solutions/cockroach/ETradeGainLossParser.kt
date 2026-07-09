@@ -24,6 +24,7 @@ object ETradeGainLossParser {
     }
 
     private fun parseSaleRecord(row: CSVRecord): SaleRecord {
+        val symbol = row.get(1)
         val dateSold = parseDate(row.get(12))
         val quantity = row.get(3).toDouble()
         val vestDate = parseDate(row.get(41))
@@ -39,7 +40,9 @@ object ETradeGainLossParser {
             purchasePrice = adjustedCostBasisPerShare,
             purchaseFmv = adjustedCostBasisPerShare,
             purchaseDate = vestDate,
-            grantId = grantNumber
+            grantId = grantNumber,
+            symbol = symbol,
+            broker = "Morgan Stanley & Co."
         )
     }
 
