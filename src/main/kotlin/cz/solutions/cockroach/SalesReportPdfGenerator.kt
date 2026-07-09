@@ -5,12 +5,16 @@ object SalesReportPdfGenerator {
     fun generate(salesReport: SalesReport): ByteArray {
 
         val groupHeaders = listOf(
+            ColumnGroupHeader("Položka", 2),
             ColumnGroupHeader("Počet", 1),
             ColumnGroupHeader("Nákup", 6),
             ColumnGroupHeader("Prodej", 6),
             ColumnGroupHeader("Zisk", 2)
         )
         val columns = listOf(
+            PdfColumn("Cenný papír", 70f),
+            PdfColumn("Obchodník", 110f),
+
             PdfColumn("# akcií", 50f),
 
             PdfColumn("Datum", 68f),
@@ -33,6 +37,9 @@ object SalesReportPdfGenerator {
 
         val rows = salesReport.printableSalesList.map { sale ->
             listOf(
+                sale.symbol,
+                sale.broker,
+
                 sale.amount,
 
                 sale.purchaseDate,
@@ -56,6 +63,8 @@ object SalesReportPdfGenerator {
 
         val fmt = FormatingHelper::formatDouble
         val summaryRow = listOf(
+            SummaryCell.empty(),                                        // Cenný papír
+            SummaryCell.empty(),                                        // Obchodník
             SummaryCell.regular(fmt(salesReport.totalAmount)),          // # akcií
             SummaryCell.empty(),                                        // Nákup: Datum
             SummaryCell.empty(),                                        // Nákup: Cena ($)
@@ -84,9 +93,6 @@ object SalesReportPdfGenerator {
 
         val definition = PdfReportDefinition(
             title = "Ostatní příjmy dle §10 ze zahraničí – zisk z prodeje akcií",
-            subtitles = listOf(
-                "Cenný papír: Cisco Systems   |   Obchodník: Charles Schwab & Co., Morgan Stanley & Co."
-            ),
             columnGroupHeaders = groupHeaders,
             columns = columns,
             rows = rows,

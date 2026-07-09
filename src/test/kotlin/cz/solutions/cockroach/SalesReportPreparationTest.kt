@@ -11,7 +11,7 @@ class SalesReportPreparationTest {
     fun `old purchases still taken account for 100K limit`() {
         val salesReport = SalesReportPreparation.generateSalesReport(
             listOf(
-                SaleRecord(
+                saleRecord(
                     LocalDate.parse("2021-06-30"),
                     "ESPP",
                     20.0,
@@ -21,7 +21,7 @@ class SalesReportPreparationTest {
                     LocalDate.parse("2020-06-30"),
                     null
                 ),
-                SaleRecord(
+                saleRecord(
                     LocalDate.parse("2021-06-30"),
                     "ESPP",
                     400.0,
@@ -33,7 +33,7 @@ class SalesReportPreparationTest {
                 )
             ),
             DateInterval.year(2021),
-            YearConstantExchangeRateProvider(mapOf(
+            YearConstantExchangeRateProvider.usdOnly(mapOf(
                 2017 to 10.0,
                 2018 to 10.0,
                 2019 to 10.0,
@@ -49,7 +49,7 @@ class SalesReportPreparationTest {
     fun `loss in last 3 years is distracted from profit`() {
         val salesReport = SalesReportPreparation.generateSalesReport(
             listOf(
-                SaleRecord(
+                saleRecord(
                     LocalDate.parse("2021-06-30"),
                     "ESPP",
                     20.0,
@@ -59,7 +59,7 @@ class SalesReportPreparationTest {
                     LocalDate.parse("2020-06-30"),
                     null
                 ),
-                SaleRecord(
+                saleRecord(
                     LocalDate.parse("2021-06-15"),
                     "ESPP",
                     40.0,
@@ -71,7 +71,7 @@ class SalesReportPreparationTest {
                 )
             ),
             DateInterval.year(2021),
-            YearConstantExchangeRateProvider(mapOf(
+            YearConstantExchangeRateProvider.usdOnly(mapOf(
                 2021 to 10.0,
                 2020 to 10.0
             ))

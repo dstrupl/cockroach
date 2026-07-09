@@ -1,6 +1,9 @@
 package cz.solutions.cockroach
 
 data class PrintableSale(
+    val symbol: String,
+    val broker: String,
+
     val amount: String,
 
 
